@@ -1,0 +1,11 @@
+# Only what the image build needs
+*
+!package.json
+!package-lock.json
+!.npmrc
+!vite.config.ts
+!tsconfig.json
+!src
+!static
+!drizzle
+!server.js
