@@ -1,0 +1,10 @@
+import type { Theme } from './preferences.js';
+
+/** Apply a theme to the page immediately, without a reload. */
+export function applyTheme(theme: Theme) {
+	const root = document.documentElement;
+	root.dataset.theme = theme;
+	const dark =
+		theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+	root.classList.toggle('dark', dark);
+}

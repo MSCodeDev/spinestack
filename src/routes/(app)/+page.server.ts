@@ -18,13 +18,19 @@ import {
 } from '#lib/server/library/books.js';
 import { parseBookForm } from '#lib/server/library/book-form.js';
 import { queryBooks } from '#lib/server/library/list.js';
-import { PAGE_SIZE, parseQuery } from '#lib/library/query.js';
+import { parseQuery } from '#lib/library/query.js';
+import { getPreferences } from '#lib/server/preferences.js';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = ({ locals, url }) => {
-	const { libraryId } = requireLibrary(locals);
-	const query = parseQuery(url.searchParams);
-	return { query, page: queryBooks(db, libraryId, query, { offset: 0, limit: PAGE_SIZE }) };
+	const { libraryId, userId } = requireLibrary(locals);
+	const prefs = getPreferences(db, userId);
+	const query = parseQuery(url.searchParams, { view: prefs.defaultView });
+	return {
+		query,
+		pageSize: prefs.pageSize,
+		page: queryBooks(db, libraryId, query, { offset: 0, limit: prefs.pageSize })
+	};
 };
 
 /**

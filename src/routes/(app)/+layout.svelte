@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { modalHref } from '#lib/modal-url.js';
-	import { LogOut, Plus } from '@lucide/svelte';
+	import { Plus, Settings } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
 
 	let { data, children } = $props();
@@ -14,15 +14,14 @@
 			<a href={resolve('/(app)')} class="text-lg font-semibold">SpineStack</a>
 			<div class="flex items-center gap-4">
 				<a href={modalHref({ add: '' })} class="btn btn-primary"><Plus size={16} /> Add book</a>
-				<form method="post" action="/logout" class="flex items-center gap-3 text-sm">
-					<span class="text-stone-500">{data.user.name}</span>
-					<button
-						aria-label="Sign out"
-						class="rounded p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800"
-					>
-						<LogOut size={18} />
-					</button>
-				</form>
+				<a
+					href={modalHref({ settings: 'preferences' })}
+					class="flex items-center gap-2 rounded p-1.5 text-sm text-stone-600 hover:bg-stone-100 dark:text-stone-300 dark:hover:bg-stone-800"
+					aria-label="Settings"
+				>
+					{data.user.name}
+					<Settings size={18} />
+				</a>
 			</div>
 		</div>
 	</header>

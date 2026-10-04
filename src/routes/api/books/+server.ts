@@ -2,13 +2,14 @@ import { json } from '@sveltejs/kit';
 import { db } from '#lib/server/db/index.js';
 import { requireLibrary } from '#lib/server/guard.js';
 import { queryBooks } from '#lib/server/library/list.js';
-import { PAGE_SIZE, parseQuery } from '#lib/library/query.js';
+import { parseQuery } from '#lib/library/query.js';
+import { getPreferences } from '#lib/server/preferences.js';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = ({ locals, url }) => {
-	const { libraryId } = requireLibrary(locals);
+	const { libraryId, userId } = requireLibrary(locals);
+	const prefs = getPreferences(db, userId);
 	const offset = Math.max(0, Number(url.searchParams.get('offset')) || 0);
-	return json(
-		queryBooks(db, libraryId, parseQuery(url.searchParams), { offset, limit: PAGE_SIZE })
-	);
+	const query = parseQuery(url.searchParams, { view: prefs.defaultView });
+	return json(queryBooks(db, libraryId, query, { offset, limit: prefs.pageSize }));
 };

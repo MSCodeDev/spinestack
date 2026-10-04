@@ -7,6 +7,7 @@
 	import ActiveFilters from '#lib/components/ActiveFilters.svelte';
 	import CoversView from '#lib/components/CoversView.svelte';
 	import FiltersPanel from '#lib/components/FiltersPanel.svelte';
+	import SettingsModal from '#lib/components/SettingsModal.svelte';
 	import LibraryToolbar from '#lib/components/LibraryToolbar.svelte';
 	import StackedView from '#lib/components/StackedView.svelte';
 	import StatsStrip from '#lib/components/StatsStrip.svelte';
@@ -14,7 +15,6 @@
 	import { toSegments } from '#lib/library/groups.js';
 	import {
 		DEFAULT_QUERY,
-		PAGE_SIZE,
 		activeFilterCount,
 		defaultDir,
 		serializeQuery,
@@ -30,6 +30,7 @@
 	const bookId = $derived(page.url.searchParams.get('book'));
 	const editing = $derived(page.url.searchParams.has('edit'));
 	const adding = $derived(page.url.searchParams.has('add'));
+	const settingsTab = $derived(page.url.searchParams.get('settings'));
 
 	let options = $state<Options>({
 		authors: [],
@@ -52,10 +53,12 @@
 	const go = (changes: Record<string, string | null>) =>
 		goto(resolve('/(app)') + withParams(page.url, changes), { replace: true, reset: false });
 
-	const closeAll = () => go({ book: null, edit: null, add: null });
+	const closeAll = () => go({ book: null, edit: null, add: null, settings: null });
+
+	const defaults = $derived({ view: data.prefs.defaultView });
 
 	const update = (patch: Partial<LibraryQuery>) =>
-		goto(resolve('/(app)') + withQuery(page.url, { ...data.query, ...patch }), {
+		goto(resolve('/(app)') + withQuery(page.url, { ...data.query, ...patch }, defaults), {
 			replace: true,
 			reset: false
 		});
@@ -100,7 +103,7 @@
 	async function loadMore() {
 		loadingMore = true;
 		try {
-			const params = serializeQuery(data.query);
+			const params = serializeQuery(data.query, defaults);
 			params.set('offset', String(items.length));
 			const next: BookPage = await (await fetch(`/api/books?${params}`)).json();
 			more = [...more, ...next.items];
@@ -141,7 +144,7 @@
 				<button class="btn" onclick={loadMore} disabled={loadingMore}>
 					{loadingMore
 						? 'Loading…'
-						: `Load more (${Math.min(remaining, PAGE_SIZE)} of ${remaining})`}
+						: `Load more (${Math.min(remaining, data.pageSize)} of ${remaining})`}
 				</button>
 			</div>
 		{/if}
@@ -164,6 +167,7 @@
 <AddBookModal
 	open={adding}
 	{options}
+	defaultCurrency={data.prefs.currency}
 	onclose={closeAll}
 	onsaved={saved}
 	onadded={() => refreshAll()}
@@ -172,7 +176,15 @@
 	{bookId}
 	edit={editing}
 	{options}
+	defaultCurrency={data.prefs.currency}
 	onclose={closeAll}
 	onedit={(edit) => go({ edit: edit ? '' : null })}
 	onsaved={saved}
+/>
+<SettingsModal
+	tab={settingsTab}
+	prefs={data.prefs}
+	user={data.user}
+	ontab={(tab) => go({ settings: tab })}
+	onclose={closeAll}
 />

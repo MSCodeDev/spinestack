@@ -14,12 +14,13 @@
 		bookId: string | null;
 		edit: boolean;
 		options: Options;
+		defaultCurrency: string;
 		onclose: () => void;
 		onedit: (edit: boolean) => void;
 		onsaved: (bookId: string) => void | Promise<void>;
 	};
 
-	let { bookId, edit, options, onclose, onedit, onsaved }: Props = $props();
+	let { bookId, edit, options, defaultCurrency, onclose, onedit, onsaved }: Props = $props();
 
 	let open = $derived(bookId !== null);
 	let book = $state<BookDetail | null>(null);
@@ -94,6 +95,7 @@
 				id="book-form"
 				{book}
 				{options}
+				{defaultCurrency}
 				onsaved={async (id) => {
 					await load(id);
 					await onsaved(id);

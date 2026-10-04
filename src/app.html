@@ -1,9 +1,18 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="%theme%" class="%themeclass%">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<script>
+			// Apply "system" before first paint so there is no flash of the wrong theme.
+			(function () {
+				var t = document.documentElement.dataset.theme;
+				if (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches) {
+					document.documentElement.classList.add('dark');
+				}
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

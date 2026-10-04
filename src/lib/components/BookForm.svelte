@@ -13,11 +13,20 @@
 		/** Prefill for a new book, e.g. from a lookup result. */
 		draft?: Draft | null;
 		options: Options;
+		defaultCurrency?: string;
 		onsaved: (bookId: string) => void | Promise<void>;
 		oncancel: () => void;
 	};
 
-	let { id, book = null, draft = null, options, onsaved, oncancel }: Props = $props();
+	let {
+		id,
+		book = null,
+		draft = null,
+		options,
+		defaultCurrency = 'USD',
+		onsaved,
+		oncancel
+	}: Props = $props();
 
 	// The parent re-keys the form per book, so the initial value is all we need.
 	const initial: Draft | null = untrack(() => book ?? draft);
@@ -27,7 +36,7 @@
 	let duplicateId = $state<string | null>(null);
 	let busy = $state(false);
 
-	const currency = initial?.currency ?? 'USD';
+	const currency = initial?.currency ?? untrack(() => defaultCurrency);
 	const price = (minor: number | null) => (minor === null ? '' : fromMinor(minor, currency));
 	const lists = $props.id();
 </script>

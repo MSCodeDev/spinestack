@@ -65,6 +65,8 @@ export function resetLibrary() {
 		db.exec(`
 			delete from book; delete from book_fts;
 			delete from person; delete from publisher; delete from series; delete from tag; delete from location;
+			delete from user_preference;
+			update user set name = 'Admin';
 		`);
 	} catch {
 		// tables are created on first request; nothing to reset yet

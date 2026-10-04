@@ -9,13 +9,14 @@
 	type Props = {
 		open: boolean;
 		options: Options;
+		defaultCurrency: string;
 		onclose: () => void;
 		onsaved: (bookId: string) => void | Promise<void>;
 		/** A book was added from the ISBN queue, which keeps the modal open. */
 		onadded: () => void | Promise<void>;
 	};
 
-	let { open, options, onclose, onsaved, onadded }: Props = $props();
+	let { open, options, defaultCurrency, onclose, onsaved, onadded }: Props = $props();
 
 	type Tab = 'search' | 'isbn' | 'manual';
 	const tabs: { id: Tab; label: string }[] = [
@@ -76,7 +77,14 @@
 			<ArrowLeft size={16} /> Back to results
 		</button>
 		{#key draft}
-			<BookForm id="add-book-form" {draft} {options} {onsaved} oncancel={onclose} />
+			<BookForm
+				id="add-book-form"
+				{draft}
+				{options}
+				{defaultCurrency}
+				{onsaved}
+				oncancel={onclose}
+			/>
 		{/key}
 	{:else}
 		<div class="mb-4 flex gap-1 border-b border-stone-200 dark:border-stone-800" role="tablist">
@@ -110,7 +118,7 @@
 		{:else if tab === 'isbn'}
 			<IsbnQueue onreview={(d) => (draft = d)} {onadded} {onclose} />
 		{:else}
-			<BookForm id="add-book-form" {options} {onsaved} oncancel={onclose} />
+			<BookForm id="add-book-form" {options} {defaultCurrency} {onsaved} oncancel={onclose} />
 		{/if}
 
 		{#if tab === 'search'}
