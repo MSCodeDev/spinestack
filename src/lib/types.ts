@@ -70,6 +70,10 @@ export type Stats = {
 	readThisYear: number;
 	series: number;
 	authors: number;
+	/** Lowest and highest paid price in major units, rounded outwards; null when no book has a price. */
+	priceRange: { min: number; max: number } | null;
+	/** Earliest and latest bought date (YYYY-MM-DD); null when no book has one. */
+	boughtRange: { min: string; max: string } | null;
 };
 
 export type Options = {

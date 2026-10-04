@@ -1,6 +1,11 @@
 import { sql } from 'drizzle-orm';
 import type { Db } from '../db/factory.js';
 import type { Stats } from '../../types.js';
+import { paidMajor } from './currency.js';
+
+/** The slider needs a range, so a single date is widened by a day. */
+const nextDay = (iso: string) =>
+	new Date(Date.parse(`${iso}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
 
 type Spend = { currency: string; minor: number };
 
@@ -40,8 +45,33 @@ export function getStats(db: Db, libraryId: string, now = new Date()): Stats {
 			(select count(*) from person where library_id = ${libraryId}) as authors
 	`);
 
+	const prices = one<{ lo: number | null; hi: number | null }>(sql`
+		select min(${paidMajor}) as lo, max(${paidMajor}) as hi
+		from book b where b.library_id = ${libraryId} and b.paid_price > 0
+	`);
+	const priceRange =
+		prices.lo === null || prices.hi === null
+			? null
+			: {
+					min: Math.floor(prices.lo),
+					max: Math.max(Math.ceil(prices.hi), Math.floor(prices.lo) + 1)
+				};
+
+	const dates = one<{ lo: string | null; hi: string | null }>(sql`
+		select min(substr(bought_at, 1, 10)) as lo, max(substr(bought_at, 1, 10)) as hi
+		from book
+		where library_id = ${libraryId}
+			and bought_at glob '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*'
+	`);
+	const boughtRange =
+		dates.lo === null || dates.hi === null
+			? null
+			: { min: dates.lo, max: dates.hi === dates.lo ? nextDay(dates.hi) : dates.hi };
+
 	return {
 		...counts,
+		priceRange,
+		boughtRange,
 		spentThisMonth: spend(sql`and substr(bought_at, 1, 7) = ${month}`),
 		spentTotal: spend(sql``),
 		...readings,
