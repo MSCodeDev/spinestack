@@ -76,3 +76,21 @@ export type Options = {
 	locations: string[];
 	tags: string[];
 };
+
+/** A book found by an external provider, before it is added to the library. */
+export type MetadataResult = {
+	source: 'openlibrary' | 'googlebooks';
+	title: string;
+	subtitle: string | null;
+	authors: string[];
+	publisher: string | null;
+	isbn: string | null;
+	pageCount: number | null;
+	synopsis: string | null;
+	language: string | null;
+	coverUrl: string | null;
+	year: number | null;
+};
+
+/** A lookup result plus the id of the library book with the same ISBN, if any. */
+export type LookupResult = MetadataResult & { existingId: string | null };
