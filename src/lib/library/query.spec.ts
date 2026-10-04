@@ -53,6 +53,16 @@ describe('library query', () => {
 		);
 	});
 
+	it('uses the preferred default view and only serialises a different one', () => {
+		const defaults = { view: 'table' } as const;
+		expect(parseQuery(new URLSearchParams(''), defaults).view).toBe('table');
+		expect(parseQuery(new URLSearchParams('view=covers'), defaults).view).toBe('covers');
+		expect(serializeQuery({ ...DEFAULT_QUERY, view: 'table' }, defaults).toString()).toBe('');
+		expect(serializeQuery({ ...DEFAULT_QUERY, view: 'covers' }, defaults).toString()).toBe(
+			'view=covers'
+		);
+	});
+
 	it('dedupes and trims list filters', () => {
 		expect(parse('tag=a&tag=%20a%20&tag=&tag=b').tag).toEqual(['a', 'b']);
 	});

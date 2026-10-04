@@ -62,6 +62,9 @@ export type LibraryQuery = {
 
 export const PAGE_SIZE = 60;
 
+/** Defaults that come from the user's preferences rather than being fixed. */
+export type QueryDefaults = { view: View };
+
 export const DEFAULT_QUERY: LibraryQuery = {
 	q: '',
 	fields: { qt: '', qa: '', qp: '', qi: '' },
@@ -103,7 +106,10 @@ const names = (values: string[]) => [...new Set(values.map((v) => v.trim()).filt
 export const defaultDir = (field: SortField): SortDir =>
 	field === 'title' || field === 'author' || field === 'series' ? 'asc' : 'desc';
 
-export function parseQuery(params: ParamsReader): LibraryQuery {
+export function parseQuery(
+	params: ParamsReader,
+	defaults: QueryDefaults = { view: DEFAULT_QUERY.view }
+): LibraryQuery {
 	const [sortField, sortDir] = params.get('sort')?.split(':') ?? [];
 	const sort = oneOf(SORTS, sortField ?? null) ?? DEFAULT_QUERY.sort;
 	const cover = params.get('cover');
@@ -119,7 +125,7 @@ export function parseQuery(params: ParamsReader): LibraryQuery {
 		sort,
 		dir: sortDir === 'asc' || sortDir === 'desc' ? sortDir : defaultDir(sort),
 		group: oneOf(GROUPS, params.get('group')) ?? 'none',
-		view: oneOf(VIEWS, params.get('view')) ?? DEFAULT_QUERY.view,
+		view: oneOf(VIEWS, params.get('view')) ?? defaults.view,
 		status: oneOf(STATUSES, params.get('status')),
 		reading: oneOf(READING_STATES, params.get('reading')),
 		cover: cover === 'yes' ? true : cover === 'no' ? false : null,
@@ -136,7 +142,10 @@ export function parseQuery(params: ParamsReader): LibraryQuery {
 }
 
 /** Serialise only values that differ from the defaults, to keep URLs short. */
-export function serializeQuery(query: LibraryQuery): URLSearchParams {
+export function serializeQuery(
+	query: LibraryQuery,
+	defaults: QueryDefaults = { view: DEFAULT_QUERY.view }
+): URLSearchParams {
 	const params = new URLSearchParams();
 	const set = (key: string, value: string | number | null) => {
 		if (value !== null && value !== '') params.set(key, String(value));
@@ -148,7 +157,7 @@ export function serializeQuery(query: LibraryQuery): URLSearchParams {
 		set('sort', `${query.sort}:${query.dir}`);
 	}
 	if (query.group !== 'none') set('group', query.group);
-	if (query.view !== DEFAULT_QUERY.view) set('view', query.view);
+	if (query.view !== defaults.view) set('view', query.view);
 	set('status', query.status);
 	set('reading', query.reading);
 	if (query.cover !== null) set('cover', query.cover ? 'yes' : 'no');
