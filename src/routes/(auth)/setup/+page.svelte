@@ -39,7 +39,7 @@
 				class="mt-1 w-full rounded-md"
 			/>
 		</label>
-		{#if form?.error}<p class="text-sm text-red-600" role="alert">{form.error}</p>{/if}
+		{#if form?.error}<p class="text-sm text-destructive" role="alert">{form.error}</p>{/if}
 		<button class="btn btn-primary w-full justify-center"> Create account </button>
 	</form>
 </AuthCard>

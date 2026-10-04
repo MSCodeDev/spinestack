@@ -5,10 +5,10 @@
 		$props();
 </script>
 
-<main class="flex min-h-screen items-center justify-center bg-stone-100 p-4 dark:bg-stone-950">
-	<div class="w-full max-w-sm rounded-xl bg-white p-6 shadow dark:bg-stone-900">
+<main class="flex min-h-screen items-center justify-center bg-muted p-4">
+	<div class="w-full max-w-sm rounded-xl bg-card p-6 shadow-sm">
 		<h1 class="text-xl font-semibold">{title}</h1>
-		{#if subtitle}<p class="mt-1 mb-4 text-sm text-stone-500">{subtitle}</p>{:else}<div
+		{#if subtitle}<p class="mt-1 mb-4 text-sm text-muted-foreground">{subtitle}</p>{:else}<div
 				class="mb-4"
 			></div>{/if}
 		{@render children()}

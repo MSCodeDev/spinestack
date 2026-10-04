@@ -23,12 +23,10 @@
 
 <dl class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
 	{#each tiles as tile (tile.label)}
-		<div
-			class="rounded-lg border border-stone-200 bg-white p-3 dark:border-stone-800 dark:bg-stone-900"
-		>
-			<dt class="text-xs tracking-wide text-stone-500 uppercase">{tile.label}</dt>
+		<div class="rounded-lg border border-border bg-card p-3">
+			<dt class="text-xs tracking-wide text-muted-foreground uppercase">{tile.label}</dt>
 			<dd class="mt-1 text-xl font-semibold">{tile.value}</dd>
-			{#if tile.hint}<p class="text-xs text-stone-500">{tile.hint}</p>{/if}
+			{#if tile.hint}<p class="text-xs text-muted-foreground">{tile.hint}</p>{/if}
 		</div>
 	{/each}
 </dl>

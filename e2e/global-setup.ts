@@ -1,4 +1,6 @@
 import fs from 'node:fs';
+import Database from 'better-sqlite3';
+import { chromium } from '@playwright/test';
 import bwipjs from 'bwip-js';
 import sharp from 'sharp';
 
@@ -7,6 +9,8 @@ export const BARCODE_VIDEO = 'e2e/.tmp/barcode.y4m';
 
 /** A short Y4M clip of one ISBN barcode, used as the fake camera feed. */
 export default async function globalSetup() {
+	await warmUp();
+
 	const [width, height] = [640, 480];
 	const barcode = await bwipjs.toBuffer({
 		bcid: 'ean13',
@@ -51,4 +55,33 @@ export default async function globalSetup() {
 	const header = Buffer.from(`YUV4MPEG2 W${width} H${height} F30:1 Ip A1:1 C420jpeg\n`);
 	fs.mkdirSync('e2e/.tmp', { recursive: true });
 	fs.writeFileSync(BARCODE_VIDEO, Buffer.concat([header, ...Array(10).fill(frame)]));
+}
+
+/**
+ * The dev server compiles routes and optimises dependencies on first use, which can outlast a
+ * test's timeout. Visit the heavy pages once in a throwaway session, then wipe the users again so
+ * the first test still sees a fresh install.
+ */
+async function warmUp() {
+	const base = 'http://localhost:5174';
+	const browser = await chromium.launch();
+	try {
+		const page = await browser.newPage();
+		await page.goto(`${base}/setup`);
+		await page.getByLabel('Name').fill('Warmup');
+		await page.getByLabel('Email').fill('warmup@example.com');
+		await page.getByLabel('Password').fill('warmup-secret-1');
+		await page.getByRole('button', { name: 'Create account' }).click();
+		await page.waitForURL(`${base}/`, { timeout: 120_000 });
+		for (const path of ['/', '/?view=table', '/?view=stacked', '/?add', '/?settings=library']) {
+			await page.goto(`${base}${path}`);
+			await page.waitForLoadState('networkidle', { timeout: 120_000 });
+		}
+	} finally {
+		await browser.close();
+	}
+
+	const db = new Database('.e2e-data/spinestack.db');
+	db.exec('delete from user');
+	db.close();
 }

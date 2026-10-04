@@ -187,7 +187,7 @@
 	</label>
 
 	{#if error}
-		<p class="text-sm text-red-600" role="alert">
+		<p class="text-sm text-destructive" role="alert">
 			{error}
 			{#if duplicateId}
 				<a href={modalHref({ add: null, book: duplicateId })} class="underline">Open it</a>

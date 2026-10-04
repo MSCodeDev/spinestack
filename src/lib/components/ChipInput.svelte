@@ -43,18 +43,16 @@
 </script>
 
 <div
-	class="mt-1 flex flex-wrap items-center gap-1.5 rounded-md border border-stone-300 bg-white p-1.5 focus-within:ring-2 focus-within:ring-indigo-500 dark:border-stone-700 dark:bg-stone-800"
+	class="mt-1 flex flex-wrap items-center gap-1.5 rounded-md border border-border bg-card p-1.5 focus-within:ring-2 focus-within:ring-ring/50"
 >
 	{#each values as value, i (value)}
-		<span
-			class="flex items-center gap-1 rounded bg-stone-100 px-2 py-0.5 text-sm dark:bg-stone-700"
-		>
+		<span class="flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-sm">
 			{value}
 			<button
 				type="button"
 				onclick={() => set(values.filter((_, j) => j !== i))}
 				aria-label="Remove {value}"
-				class="text-stone-500 hover:text-stone-900 dark:hover:text-white">×</button
+				class="text-muted-foreground hover:text-foreground dark:hover:text-white">×</button
 			>
 			{#if name}<input type="hidden" {name} {value} />{/if}
 		</span>

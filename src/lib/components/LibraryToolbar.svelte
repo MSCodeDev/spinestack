@@ -32,7 +32,7 @@
 <div class="flex items-center gap-2">
 	<label class="relative flex-1">
 		<span class="sr-only">Search books</span>
-		<Search size={16} class="absolute top-1/2 left-3 -translate-y-1/2 text-stone-400" />
+		<Search size={16} class="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground" />
 		<input
 			type="search"
 			bind:value
@@ -42,22 +42,16 @@
 		/>
 	</label>
 
-	<button
-		type="button"
-		class="btn border border-stone-300 dark:border-stone-700"
-		onclick={onfilters}
-	>
+	<button type="button" class="btn border border-border" onclick={onfilters}>
 		<SlidersHorizontal size={16} /> Filters
 		{#if filterCount}
-			<span class="rounded-full bg-indigo-600 px-1.5 text-xs text-white">{filterCount}</span>
+			<span class="rounded-full bg-primary px-1.5 text-xs text-primary-foreground"
+				>{filterCount}</span
+			>
 		{/if}
 	</button>
 
-	<div
-		class="flex rounded-md border border-stone-300 p-0.5 dark:border-stone-700"
-		role="group"
-		aria-label="View"
-	>
+	<div class="flex rounded-md border border-border p-0.5" role="group" aria-label="View">
 		{#each views as v (v.id)}
 			<button
 				type="button"
@@ -65,8 +59,8 @@
 				aria-pressed={view === v.id}
 				title={v.label}
 				class="rounded p-1.5 {view === v.id
-					? 'bg-indigo-600 text-white'
-					: 'hover:bg-stone-100 dark:hover:bg-stone-800'}"
+					? 'bg-primary text-primary-foreground'
+					: 'hover:bg-muted '}"
 				onclick={() => onview(v.id)}
 			>
 				<v.icon size={16} />

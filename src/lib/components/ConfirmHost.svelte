@@ -1,8 +1,6 @@
 <script lang="ts">
-	import Modal from './Modal.svelte';
+	import * as AlertDialog from '#lib/components/ui/alert-dialog/index.js';
 	import { confirmState } from '#lib/stores/confirm.svelte.js';
-
-	let open = $derived(confirmState.current !== null);
 
 	function answer(ok: boolean) {
 		confirmState.current?.resolve(ok);
@@ -10,25 +8,22 @@
 	}
 </script>
 
-<Modal
-	bind:open
-	title="Are you sure?"
-	size="sm"
-	onclose={() => confirmState.current && answer(false)}
+<AlertDialog.Root
+	open={confirmState.current !== null}
+	onOpenChange={(open) => !open && confirmState.current && answer(false)}
 >
-	<p>{confirmState.current?.message}</p>
-	{#snippet footer()}
-		<button
-			type="button"
-			onclick={() => answer(false)}
-			class="rounded-md px-3 py-1.5 hover:bg-stone-100 dark:hover:bg-stone-800">Cancel</button
-		>
-		<button
-			type="button"
-			onclick={() => answer(true)}
-			class="rounded-md bg-red-600 px-3 py-1.5 text-white hover:bg-red-500"
-		>
-			{confirmState.current?.confirmLabel}
-		</button>
-	{/snippet}
-</Modal>
+	<AlertDialog.Content>
+		<AlertDialog.Header>
+			<AlertDialog.Title class="font-display text-3xl leading-none font-bold"
+				>Are you sure?</AlertDialog.Title
+			>
+			<AlertDialog.Description>{confirmState.current?.message}</AlertDialog.Description>
+		</AlertDialog.Header>
+		<AlertDialog.Footer>
+			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
+			<AlertDialog.Action variant="destructive" onclick={() => answer(true)}>
+				{confirmState.current?.confirmLabel}
+			</AlertDialog.Action>
+		</AlertDialog.Footer>
+	</AlertDialog.Content>
+</AlertDialog.Root>

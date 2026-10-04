@@ -105,7 +105,7 @@
 				</label>
 				<button
 					type="button"
-					class="btn border border-stone-300 dark:border-stone-700"
+					class="btn border border-border"
 					aria-label={query.dir === 'asc' ? 'Ascending' : 'Descending'}
 					onclick={() => onchange({ dir: query.dir === 'asc' ? 'desc' : 'asc' })}
 				>

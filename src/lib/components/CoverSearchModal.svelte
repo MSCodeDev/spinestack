@@ -96,18 +96,18 @@
 	>
 		<label class="relative flex-1">
 			<span class="sr-only">Search for a cover</span>
-			<Search size={16} class="absolute top-1/2 left-3 -translate-y-1/2 text-stone-400" />
+			<Search size={16} class="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground" />
 			<input class="input mt-0 pl-9" bind:value={term} placeholder="Title and author" />
 		</label>
 		<button class="btn btn-primary" disabled={loading}>Search</button>
 	</form>
 
 	{#if loading}
-		<p class="text-sm text-stone-500">Searching…</p>
+		<p class="text-sm text-muted-foreground">Searching…</p>
 	{:else if error}
-		<p class="text-sm text-red-600" role="alert">{error}</p>
+		<p class="text-sm text-destructive" role="alert">{error}</p>
 	{:else if candidates && !visible.length}
-		<p class="text-sm text-stone-500">
+		<p class="text-sm text-muted-foreground">
 			No covers found. Try a different search, or upload your own.
 		</p>
 	{:else}
@@ -116,7 +116,7 @@
 				<li>
 					<button
 						type="button"
-						class="group relative block aspect-[2/3] w-full overflow-hidden rounded-md bg-stone-200 ring-1 ring-black/10 hover:ring-2 hover:ring-indigo-500 dark:bg-stone-800"
+						class="group relative block aspect-[2/3] w-full overflow-hidden rounded-md bg-muted ring-1 ring-black/10 hover:ring-2 hover:ring-primary"
 						disabled={picking !== null}
 						aria-label="Use cover: {c.label}"
 						onclick={() => pick(c)}
@@ -130,7 +130,7 @@
 							onerror={() => (broken = [...broken, c.url])}
 						/>
 						<span
-							class="absolute inset-x-0 bottom-0 line-clamp-2 bg-black/70 p-1.5 text-left text-xs text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100"
+							class="absolute inset-x-0 bottom-0 line-clamp-2 bg-foreground/80 p-1.5 text-left text-xs text-white opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100"
 						>
 							{c.label}
 						</span>

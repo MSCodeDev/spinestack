@@ -117,8 +117,8 @@
 				type="button"
 				aria-pressed={kind === k.id}
 				class="rounded-full px-3 py-1 {kind === k.id
-					? 'bg-indigo-600 text-white'
-					: 'bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700'}"
+					? 'bg-primary text-primary-foreground'
+					: 'bg-muted hover:bg-muted  '}"
 				onclick={() => (kind = k.id)}
 			>
 				{k.plural}
@@ -127,17 +127,15 @@
 	</div>
 
 	{#if error}
-		<p class="text-red-600" role="alert">{error}</p>
+		<p class="text-destructive" role="alert">{error}</p>
 	{:else if !rows}
-		<p class="text-stone-500">Loading…</p>
+		<p class="text-muted-foreground">Loading…</p>
 	{:else if !rows.length}
-		<p class="text-stone-500">
+		<p class="text-muted-foreground">
 			No {current.plural.toLowerCase()} yet. They are created as you add books.
 		</p>
 	{:else}
-		<ul
-			class="divide-y divide-stone-200 rounded-md border border-stone-200 dark:divide-stone-800 dark:border-stone-800"
-		>
+		<ul class="divide-y divide-border rounded-md border border-border">
 			{#each rows as row (row.id)}
 				<li class="flex items-center gap-2 px-3 py-2">
 					{#if editing === row.id}
@@ -149,31 +147,30 @@
 							}}
 						>
 							<input class="input mt-0 flex-1" bind:value={draft} aria-label="New name" />
-							<button
-								class="rounded p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800"
-								aria-label="Save"><Check size={16} /></button
+							<button class="rounded p-1.5 hover:bg-muted" aria-label="Save"
+								><Check size={16} /></button
 							>
 							<button
 								type="button"
-								class="rounded p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800"
+								class="rounded p-1.5 hover:bg-muted"
 								aria-label="Cancel"
 								onclick={() => (editing = null)}><X size={16} /></button
 							>
 						</form>
 					{:else}
 						<span class="flex-1 truncate">{row.name}</span>
-						<span class="text-xs text-stone-500"
+						<span class="text-xs text-muted-foreground"
 							>{row.count} {row.count === 1 ? 'book' : 'books'}</span
 						>
 						<button
 							type="button"
-							class="rounded p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800"
+							class="rounded p-1.5 hover:bg-muted"
 							aria-label="Rename {row.name}"
 							onclick={() => startEdit(row)}><Pencil size={16} /></button
 						>
 						<button
 							type="button"
-							class="rounded p-1.5 text-red-600 hover:bg-stone-100 dark:hover:bg-stone-800"
+							class="rounded p-1.5 text-destructive hover:bg-muted"
 							aria-label="Delete {row.name}"
 							onclick={() => remove(row)}><Trash2 size={16} /></button
 						>
@@ -184,6 +181,6 @@
 		{#if unused}
 			<button type="button" class="btn" onclick={removeUnused}>Delete {unused} unused</button>
 		{/if}
-		<p class="text-xs text-stone-500">Renaming to an existing name merges the two.</p>
+		<p class="text-xs text-muted-foreground">Renaming to an existing name merges the two.</p>
 	{/if}
 </div>

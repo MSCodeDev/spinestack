@@ -128,7 +128,7 @@
 	<button class="btn btn-primary">Find</button>
 	<button
 		type="button"
-		class="btn border border-stone-300 dark:border-stone-700"
+		class="btn border border-border"
 		aria-pressed={scanning}
 		onclick={() => (scanning = !scanning)}
 	>
@@ -136,12 +136,12 @@
 		{scanning ? 'Stop' : 'Scan'}
 	</button>
 </form>
-{#if inputError}<p class="mt-1 text-sm text-red-600" role="alert">{inputError}</p>{/if}
+{#if inputError}<p class="mt-1 text-sm text-destructive" role="alert">{inputError}</p>{/if}
 
 {#if scanning}
 	<div class="mt-3 space-y-1">
 		<BarcodeScanner onscan={submit} />
-		<p class="text-xs text-stone-500">
+		<p class="text-xs text-muted-foreground">
 			Point the camera at a book's barcode. Scanned books are listed below.
 		</p>
 	</div>
@@ -150,17 +150,15 @@
 {#if others.length}
 	<ul class="mt-4 space-y-1 text-sm">
 		{#each others as item (item.isbn)}
-			<li
-				class="flex items-center justify-between gap-2 rounded bg-stone-50 px-3 py-2 dark:bg-stone-800/60"
-			>
+			<li class="flex items-center justify-between gap-2 rounded bg-muted px-3 py-2">
 				<span>
 					<span class="font-mono">{item.isbn}</span>
 					{#if item.status === 'looking'}
-						<span class="text-stone-500"> · looking up…</span>
+						<span class="text-muted-foreground"> · looking up…</span>
 					{:else if item.status === 'missing'}
-						<span class="text-stone-500"> · no match found</span>
+						<span class="text-muted-foreground"> · no match found</span>
 					{:else}
-						<span class="text-red-600"> · {errors[item.isbn]}</span>
+						<span class="text-destructive"> · {errors[item.isbn]}</span>
 					{/if}
 				</span>
 				<span class="flex items-center gap-1">
@@ -174,7 +172,7 @@
 					{/if}
 					<button
 						type="button"
-						class="rounded p-1 hover:bg-stone-200 dark:hover:bg-stone-700"
+						class="rounded p-1 hover:bg-muted"
 						aria-label="Remove {item.isbn}"
 						onclick={() => remove(item.isbn)}
 					>

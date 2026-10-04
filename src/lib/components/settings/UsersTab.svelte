@@ -91,29 +91,27 @@
 
 <div class="space-y-6 text-sm">
 	{#if error}
-		<p class="text-red-600" role="alert">{error}</p>
+		<p class="text-destructive" role="alert">{error}</p>
 	{:else if !users}
-		<p class="text-stone-500">Loading…</p>
+		<p class="text-muted-foreground">Loading…</p>
 	{:else}
-		<ul
-			class="divide-y divide-stone-200 rounded-md border border-stone-200 dark:divide-stone-800 dark:border-stone-800"
-		>
+		<ul class="divide-y divide-border rounded-md border border-border">
 			{#each users as u (u.id)}
 				<li class="space-y-2 px-3 py-2">
 					<div class="flex flex-wrap items-center gap-2">
 						<div class="min-w-0 flex-1">
 							<p class="truncate font-medium">
 								{u.name}
-								{#if u.email === currentUserEmail}<span class="text-xs font-normal text-stone-500"
-										>(you)</span
+								{#if u.email === currentUserEmail}<span
+										class="text-xs font-normal text-muted-foreground">(you)</span
 									>{/if}
 							</p>
-							<p class="truncate text-xs text-stone-500">{u.email}</p>
+							<p class="truncate text-xs text-muted-foreground">{u.email}</p>
 						</div>
 						<span
 							class="rounded-full px-2 py-0.5 text-xs {u.role === 'admin'
-								? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-200'
-								: 'bg-stone-100 dark:bg-stone-800'}">{u.role}</span
+								? 'bg-secondary text-secondary-foreground  '
+								: 'bg-muted '}">{u.role}</span
 						>
 						{#if u.email !== currentUserEmail}
 							<button type="button" class="btn text-xs" onclick={() => setRole(u)}>
@@ -127,7 +125,7 @@
 							>
 							<button
 								type="button"
-								class="btn text-xs text-red-600"
+								class="btn text-xs text-destructive"
 								aria-label="Delete {u.name}"
 								onclick={() => remove(u)}>Delete</button
 							>
@@ -191,9 +189,9 @@
 					</select>
 				</label>
 			</div>
-			{#if formError}<p class="text-red-600" role="alert">{formError}</p>{/if}
+			{#if formError}<p class="text-destructive" role="alert">{formError}</p>{/if}
 			<button class="btn btn-primary">Create user</button>
-			<p class="text-xs text-stone-500">Each user gets their own separate library.</p>
+			<p class="text-xs text-muted-foreground">Each user gets their own separate library.</p>
 		</form>
 	{/if}
 </div>

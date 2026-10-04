@@ -90,7 +90,7 @@
 	<details class="relative flex justify-end">
 		<summary class="btn cursor-pointer list-none"><Columns3 size={16} /> Columns</summary>
 		<div
-			class="absolute top-full right-0 z-10 mt-1 w-44 space-y-1 rounded-md border border-stone-200 bg-white p-2 shadow-lg dark:border-stone-700 dark:bg-stone-900"
+			class="absolute top-full right-0 z-10 mt-1 w-44 space-y-1 rounded-md border border-border bg-card p-2 shadow-lg"
 		>
 			{#each columns as c (c.id)}
 				<label class="flex items-center gap-2 text-sm">
@@ -101,13 +101,9 @@
 		</div>
 	</details>
 
-	<div
-		class="overflow-x-auto rounded-lg border border-stone-200 bg-white dark:border-stone-800 dark:bg-stone-900"
-	>
+	<div class="overflow-x-auto rounded-lg border border-border bg-card">
 		<table class="w-full text-left text-sm">
-			<thead
-				class="border-b border-stone-200 text-xs tracking-wide text-stone-500 uppercase dark:border-stone-800"
-			>
+			<thead class="border-b border-border text-xs tracking-wide text-muted-foreground uppercase">
 				<tr>
 					{@render head('Title', 'title')}
 					{#each shown as c (c.id)}{@render head(c.label, c.sort, c.align)}{/each}
@@ -116,16 +112,14 @@
 			<tbody>
 				{#each segments as segment (segment.label ?? '\u0000none')}
 					{#if group !== 'none'}
-						<tr class="bg-stone-50 dark:bg-stone-950">
+						<tr class="bg-muted">
 							<td colspan={shown.length + 1} class="px-3 py-2"
 								><GroupHeading field={group} label={segment.label} count={segment.count} /></td
 							>
 						</tr>
 					{/if}
 					{#each segment.items as book (book.id)}
-						<tr
-							class="border-b border-stone-100 last:border-0 hover:bg-stone-50 dark:border-stone-800 dark:hover:bg-stone-800/50"
-						>
+						<tr class="border-b border-border last:border-0 hover:bg-muted">
 							<td class="px-3 py-2 font-medium">
 								<a href={modalHref({ book: book.id })} class="hover:underline">{book.title}</a>
 							</td>
@@ -152,7 +146,7 @@
 		{#if field}
 			<button
 				type="button"
-				class="inline-flex items-center gap-1 uppercase hover:text-stone-900 dark:hover:text-white"
+				class="inline-flex items-center gap-1 uppercase hover:text-foreground dark:hover:text-white"
 				onclick={() => onsort(field)}
 			>
 				{label}

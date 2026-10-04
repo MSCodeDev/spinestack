@@ -149,9 +149,9 @@
 			</div>
 		{/if}
 	{:else if activeFilterCount(data.query) || data.query.q}
-		<p class="py-12 text-center text-stone-500">No books match your search or filters.</p>
+		<p class="py-12 text-center text-muted-foreground">No books match your search or filters.</p>
 	{:else}
-		<p class="py-12 text-center text-stone-500">
+		<p class="py-12 text-center text-muted-foreground">
 			No books yet. <a href={modalHref({ add: '' })} class="underline">Add your first book</a>.
 		</p>
 	{/if}

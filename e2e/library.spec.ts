@@ -60,7 +60,7 @@ test('setup, add, edit and delete a book', async ({ page }) => {
 	// delete
 	await page.getByRole('button', { name: 'Delete' }).click();
 	await page
-		.getByRole('dialog', { name: 'Are you sure?' })
+		.getByRole('alertdialog', { name: 'Are you sure?' })
 		.getByRole('button', { name: 'Delete' })
 		.click();
 	await expect(page.getByRole('link', { name: 'Dune Messiah' })).toHaveCount(0);

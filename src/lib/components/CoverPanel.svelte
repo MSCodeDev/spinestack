@@ -26,7 +26,7 @@
 </script>
 
 <div class="w-36 shrink-0 space-y-2">
-	<div class="aspect-[2/3] overflow-hidden rounded-md shadow ring-1 ring-black/10">
+	<div class="aspect-[2/3] overflow-hidden rounded-md shadow-sm ring-1 ring-black/10">
 		{#if coverVersion > 0}
 			<img
 				src="/covers/{bookId}/512?v={coverVersion}"
@@ -45,7 +45,7 @@
 
 	<button
 		type="button"
-		class="btn w-full justify-center border border-stone-300 dark:border-stone-700"
+		class="btn w-full justify-center border border-border"
 		onclick={() => (searching = true)}
 	>
 		<Search size={16} /> Find cover
@@ -83,7 +83,7 @@
 		/>
 		<button
 			type="button"
-			class="btn w-full justify-center border border-stone-300 dark:border-stone-700"
+			class="btn w-full justify-center border border-border"
 			disabled={busy}
 			onclick={() => input?.click()}
 		>
@@ -103,7 +103,8 @@
 				}}
 		>
 			<input type="hidden" name="id" value={bookId} />
-			<button class="btn w-full justify-center text-red-600"><Trash2 size={16} /> Remove</button>
+			<button class="btn w-full justify-center text-destructive"><Trash2 size={16} /> Remove</button
+			>
 		</form>
 	{/if}
 </div>

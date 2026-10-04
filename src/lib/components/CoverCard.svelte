@@ -28,13 +28,13 @@
 		{/if}
 		{#if book.status === 'wishlist'}
 			<span
-				class="absolute top-1.5 left-1.5 rounded bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white uppercase"
+				class="absolute top-1.5 left-1.5 rounded bg-accent-foreground px-1.5 py-0.5 text-[10px] font-semibold text-white uppercase"
 				>Wishlist</span
 			>
 		{/if}
 	</div>
 	<p class="mt-1.5 line-clamp-2 text-sm leading-tight font-medium">{book.title}</p>
 	{#if book.authors.length}
-		<p class="line-clamp-1 text-xs text-stone-500">{book.authors.join(', ')}</p>
+		<p class="line-clamp-1 text-xs text-muted-foreground">{book.authors.join(', ')}</p>
 	{/if}
 </a>

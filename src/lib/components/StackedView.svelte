@@ -37,9 +37,7 @@
 				/>{/if}
 			<div class="flex flex-wrap items-end gap-x-12 gap-y-8">
 				{#each piles(segment.items) as pile, i (i)}
-					<ul
-						class="flex w-[340px] flex-col gap-0.5 border-b-4 border-stone-400 pb-0 dark:border-stone-600"
-					>
+					<ul class="flex w-[340px] flex-col gap-0.5 border-b-4 border-border pb-0">
 						{#each pile as book (book.id)}
 							<li>
 								<a

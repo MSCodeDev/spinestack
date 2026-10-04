@@ -41,13 +41,13 @@
 	}
 </script>
 
-{#if error}<p class="mb-2 text-sm text-red-600" role="alert">{error}</p>{/if}
+{#if error}<p class="mb-2 text-sm text-destructive" role="alert">{error}</p>{/if}
 
-<ul class="divide-y divide-stone-200 dark:divide-stone-800">
+<ul class="divide-y divide-border">
 	{#each results as r, i (keyOf(r, i))}
 		{@const key = keyOf(r, i)}
 		<li class="flex gap-3 py-3">
-			<div class="h-20 w-14 shrink-0 overflow-hidden rounded bg-stone-200 dark:bg-stone-800">
+			<div class="h-20 w-14 shrink-0 overflow-hidden rounded bg-muted">
 				{#if r.coverUrl}
 					<img
 						src={r.coverUrl}
@@ -60,16 +60,17 @@
 			</div>
 			<div class="min-w-0 flex-1">
 				<p class="font-medium">
-					{r.title}{#if r.subtitle}<span class="font-normal text-stone-500">: {r.subtitle}</span
+					{r.title}{#if r.subtitle}<span class="font-normal text-muted-foreground"
+							>: {r.subtitle}</span
 						>{/if}
 				</p>
 				{#if r.authors.length}<p class="text-sm">{r.authors.join(', ')}</p>{/if}
-				<p class="text-xs text-stone-500">{details(r)}</p>
-				{#if r.isbn}<p class="text-xs text-stone-500">ISBN {r.isbn}</p>{/if}
+				<p class="text-xs text-muted-foreground">{details(r)}</p>
+				{#if r.isbn}<p class="text-xs text-muted-foreground">ISBN {r.isbn}</p>{/if}
 			</div>
 			<div class="flex shrink-0 flex-col items-end gap-1.5">
 				{#if r.isbn && added[r.isbn]}
-					<span class="text-sm font-medium text-green-700 dark:text-green-400">Added ✓</span>
+					<span class="text-sm font-medium text-secondary-foreground">Added ✓</span>
 				{:else if r.existingId}
 					<a href={modalHref({ add: null, book: r.existingId })} class="btn text-xs">In library</a>
 				{:else}

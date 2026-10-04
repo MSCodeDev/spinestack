@@ -71,12 +71,12 @@
 	<div class="flex flex-wrap items-center gap-2">
 		{#each chips as chip (chip.id)}
 			<span
-				class="flex items-center gap-1 rounded-full bg-indigo-50 py-0.5 pr-1 pl-3 text-sm text-indigo-900 dark:bg-indigo-950 dark:text-indigo-100"
+				class="flex items-center gap-1 rounded-full bg-secondary py-0.5 pr-1 pl-3 text-sm text-primary"
 			>
 				{chip.label}
 				<button
 					type="button"
-					class="rounded-full p-0.5 hover:bg-indigo-100 dark:hover:bg-indigo-900"
+					class="rounded-full p-0.5 hover:bg-secondary/70"
 					aria-label="Remove filter {chip.label}"
 					onclick={() => onchange(chip.remove)}
 				>
@@ -84,7 +84,7 @@
 				</button>
 			</span>
 		{/each}
-		<button type="button" class="text-sm text-stone-500 underline" onclick={onclear}
+		<button type="button" class="text-sm text-muted-foreground underline" onclick={onclear}
 			>Clear all</button
 		>
 	</div>

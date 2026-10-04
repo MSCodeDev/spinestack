@@ -88,7 +88,7 @@
 	{#if missing}
 		<p>This book no longer exists.</p>
 	{:else if !book}
-		<p class="text-stone-500">Loading…</p>
+		<p class="text-muted-foreground">Loading…</p>
 	{:else if edit}
 		{#key book.id}
 			<BookForm
@@ -117,14 +117,14 @@
 			/>
 			<div class="min-w-0 flex-1 space-y-4">
 				<div>
-					{#if book.subtitle}<p class="text-stone-600 dark:text-stone-400">{book.subtitle}</p>{/if}
+					{#if book.subtitle}<p class="text-muted-foreground">{book.subtitle}</p>{/if}
 					{#if book.authors.length}<p class="font-medium">{book.authors.join(', ')}</p>{/if}
-					<p class="mt-1 text-xs tracking-wide text-stone-500 uppercase">{book.status}</p>
+					<p class="mt-1 text-xs tracking-wide text-muted-foreground uppercase">{book.status}</p>
 				</div>
 
 				<dl class="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm">
 					{#each rows as [label, value] (label)}
-						<dt class="text-stone-500">{label}</dt>
+						<dt class="text-muted-foreground">{label}</dt>
 						<dd>{value}</dd>
 					{/each}
 				</dl>
@@ -132,14 +132,14 @@
 				{#if book.tags.length}
 					<div class="flex flex-wrap gap-1.5">
 						{#each book.tags as t (t)}
-							<span class="rounded bg-stone-100 px-2 py-0.5 text-sm dark:bg-stone-800">{t}</span>
+							<span class="rounded bg-muted px-2 py-0.5 text-sm">{t}</span>
 						{/each}
 					</div>
 				{/if}
 
 				{#if book.synopsis}<p class="text-sm whitespace-pre-line">{book.synopsis}</p>{/if}
 				{#if book.notes}
-					<p class="rounded bg-amber-50 p-3 text-sm whitespace-pre-line dark:bg-amber-950/30">
+					<p class="rounded bg-accent p-3 text-sm whitespace-pre-line">
 						{book.notes}
 					</p>
 				{/if}
@@ -180,12 +180,12 @@
 								{/if}
 							</li>
 						{:else}
-							<li class="text-stone-500">Not read yet.</li>
+							<li class="text-muted-foreground">Not read yet.</li>
 						{/each}
 					</ul>
 				</section>
 
-				<div class="flex justify-between border-t border-stone-200 pt-3 dark:border-stone-700">
+				<div class="flex justify-between border-t border-border pt-3">
 					<form
 						bind:this={deleteForm}
 						method="post"
@@ -200,7 +200,7 @@
 							}}
 					>
 						<input type="hidden" name="id" value={book.id} />
-						<button type="button" class="btn text-red-600" onclick={remove}>
+						<button type="button" class="btn text-destructive" onclick={remove}>
 							<Trash2 size={16} /> Delete
 						</button>
 					</form>

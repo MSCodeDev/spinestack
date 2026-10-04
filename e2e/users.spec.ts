@@ -81,7 +81,7 @@ test('administrators manage users', async ({ page, browser, baseURL }) => {
 	// delete the user
 	await settings.getByRole('button', { name: 'Delete Reader' }).click();
 	await page
-		.getByRole('dialog', { name: 'Are you sure?' })
+		.getByRole('alertdialog', { name: 'Are you sure?' })
 		.getByRole('button', { name: 'Delete' })
 		.click();
 	await expect(settings.getByText('reader@example.com')).toHaveCount(0);

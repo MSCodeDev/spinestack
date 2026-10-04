@@ -44,12 +44,12 @@
 <div class="space-y-8 text-sm">
 	<form class="space-y-3" onsubmit={saveName}>
 		<h3 class="font-semibold">Profile</h3>
-		<p class="text-stone-500">{email}</p>
+		<p class="text-muted-foreground">{email}</p>
 		<label class="block font-medium">
 			Name
 			<input class="input" bind:value={displayName} required />
 		</label>
-		{#if nameError}<p class="text-red-600" role="alert">{nameError}</p>{/if}
+		{#if nameError}<p class="text-destructive" role="alert">{nameError}</p>{/if}
 		<button class="btn btn-primary">Save name</button>
 	</form>
 
@@ -87,11 +87,11 @@
 				autocomplete="new-password"
 			/>
 		</label>
-		{#if passwordError}<p class="text-red-600" role="alert">{passwordError}</p>{/if}
+		{#if passwordError}<p class="text-destructive" role="alert">{passwordError}</p>{/if}
 		<button class="btn btn-primary">Change password</button>
 	</form>
 
 	<form method="post" action="/logout">
-		<button class="btn border border-stone-300 dark:border-stone-700">Sign out</button>
+		<button class="btn border border-border">Sign out</button>
 	</form>
 </div>

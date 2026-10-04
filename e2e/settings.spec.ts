@@ -103,7 +103,7 @@ test('rename, merge and delete library entities', async ({ page }) => {
 	await settings.getByRole('button', { name: 'Rename Hall' }).click();
 	await settings.getByLabel('New name').fill('study');
 	await settings.getByRole('button', { name: 'Save' }).click();
-	const confirmDialog = page.getByRole('dialog', { name: 'Are you sure?' });
+	const confirmDialog = page.getByRole('alertdialog', { name: 'Are you sure?' });
 	await expect(confirmDialog).toContainText('already exists');
 	await confirmDialog.getByRole('button', { name: 'Merge' }).click();
 	await expect(settings.getByText('2 books')).toBeVisible();

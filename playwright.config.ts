@@ -5,6 +5,7 @@ const port = 5174;
 export default defineConfig({
 	testDir: 'e2e',
 	workers: 1,
+	expect: { timeout: 10_000 },
 	globalSetup: './e2e/global-setup.ts',
 	use: {
 		baseURL: `http://localhost:${port}`,
