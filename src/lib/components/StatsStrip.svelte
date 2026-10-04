@@ -1,13 +1,9 @@
 <script lang="ts">
-	import { Heart, Layers, Library, PenLine, BookOpen, Wallet } from '@lucide/svelte';
+	import { Layers, Library, PenLine } from '@lucide/svelte';
 	import BlobShape from './BlobShape.svelte';
-	import { formatMoney } from '#lib/money.js';
 	import type { Stats } from '#lib/types.js';
 
 	let { stats }: { stats: Stats } = $props();
-
-	const money = (items: Stats['spentTotal']) =>
-		items.map((s) => formatMoney(s.minor, s.currency)).join(' · ') || '—';
 
 	// Every tile gets its own shape, and morphs into another on hover.
 	const tiles = $derived([
@@ -17,27 +13,6 @@
 			hint: `+${stats.addedThisMonth} this month`,
 			icon: Library,
 			tint: 'bg-tile-coral soft-a hover:soft-d'
-		},
-		{
-			label: 'Wishlist',
-			value: String(stats.wishlist),
-			hint: 'still to find',
-			icon: Heart,
-			tint: 'bg-tile-lilac soft-b hover:soft-e'
-		},
-		{
-			label: 'Spent',
-			value: money(stats.spentTotal),
-			hint: `${money(stats.spentThisMonth)} this month`,
-			icon: Wallet,
-			tint: 'bg-tile-butter soft-c hover:soft-f'
-		},
-		{
-			label: 'Reading',
-			value: String(stats.reading),
-			hint: `${stats.readThisYear} read this year`,
-			icon: BookOpen,
-			tint: 'bg-tile-teal soft-d hover:soft-a'
 		},
 		{
 			label: 'Series',
@@ -57,7 +32,7 @@
 </script>
 
 <dl
-	class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pt-1 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-6"
+	class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pt-1 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0"
 >
 	{#each tiles as tile, i (tile.label)}
 		<div
