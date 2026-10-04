@@ -73,8 +73,6 @@
 			view: data.query.view
 		});
 
-	const resetAll = () => update({ ...DEFAULT_QUERY, view: data.query.view });
-
 	function sortBy(field: SortField) {
 		const same = data.query.sort === field;
 		update({
@@ -117,20 +115,21 @@
 <div class="space-y-6">
 	<StatsStrip stats={data.stats} />
 	<LibraryToolbar
-		q={data.query.q}
-		view={data.query.view}
+		query={data.query}
 		filterCount={activeFilterCount(data.query)}
-		onsearch={(q) => update({ q })}
-		onview={(view) => update({ view })}
 		{filtersOpen}
+		onsearch={(q) => update({ q })}
+		onchange={update}
 		onfilters={() => (filtersOpen = !filtersOpen)}
 	/>
 	<FiltersPanel
 		open={filtersOpen}
 		query={data.query}
 		{options}
+		priceBounds={data.stats.priceRange}
+		boughtBounds={data.stats.boughtRange}
+		currency={data.prefs.currency}
 		onchange={update}
-		onclear={resetAll}
 	/>
 	<ActiveFilters query={data.query} onchange={update} onclear={clearFilters} />
 

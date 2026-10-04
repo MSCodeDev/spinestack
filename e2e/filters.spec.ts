@@ -31,7 +31,7 @@ test('filters, grouping and view modes', async ({ page }) => {
 
 	// the filters sit inline under the toolbar and the button shows and hides them
 	const toggle = page.getByRole('button', { name: 'Filters' });
-	const panel = page.getByRole('region', { name: 'Filters & sorting' });
+	const panel = page.getByRole('region', { name: 'Filters' });
 	await expect(panel).toHaveCount(0);
 	await toggle.click();
 	await expect(panel).toBeVisible();
@@ -43,36 +43,44 @@ test('filters, grouping and view modes', async ({ page }) => {
 	await expect(panel).toBeVisible();
 
 	// group by publisher
-	await panel.getByLabel('Group by').selectOption('publisher');
+	await page.getByLabel('Group by').selectOption('publisher');
 	await expect(page).toHaveURL(/group=publisher/);
 	await expect(page.getByRole('heading', { name: /^Ace/ })).toBeVisible();
 	await expect(page.getByRole('heading', { name: /^Penguin/ })).toBeVisible();
 
-	// filter by status, then drop it through the chip
-	await panel.getByLabel(/^Status/).selectOption('wishlist');
-	await expect(page).toHaveURL(/status=wishlist/);
+	// filter by publisher, then drop it through the chip
+	await panel.getByPlaceholder('Any publisher').fill('Penguin');
+	await panel.getByPlaceholder('Any publisher').press('Enter');
+	await expect(page).toHaveURL(/publisher=Penguin/);
+	await expect(page.getByRole('link', { name: 'Dune' })).toHaveCount(0);
+	await expect(page.getByRole('link', { name: 'Emma' })).toBeVisible();
+	await page.getByRole('button', { name: 'Remove filter publisher: Penguin' }).click();
+	await expect(page.getByRole('link', { name: 'Dune' })).toBeVisible();
+
+	// price slider: dragging the lower handle up filters out cheaper books
+	const slider = panel.getByRole('slider');
+	await expect(slider).toHaveCount(4); // two handles each for price and bought date
+	await slider.first().focus();
+	await page.keyboard.press('End');
+	await expect(page).toHaveURL(/price=/);
 	await expect(page.getByRole('link', { name: 'Emma' })).toHaveCount(0);
-	await expect(page.getByRole('link', { name: 'Hobbit' })).toBeVisible();
-	await page.getByRole('button', { name: 'Remove filter Status: wishlist' }).click();
+	await page.getByRole('button', { name: 'Clear all' }).click();
 	await expect(page.getByRole('link', { name: 'Emma' })).toBeVisible();
 
-	// field search
-	await panel.getByRole('textbox', { name: 'Author', exact: true }).fill('tolkien');
-	await expect(page).toHaveURL(/qa=tolkien/);
-	await expect(page.getByRole('link', { name: 'Emma' })).toHaveCount(0);
-	await panel.getByRole('textbox', { name: 'Author', exact: true }).fill('');
-	await expect(page).not.toHaveURL(/qa=/);
+	// bought date slider works the same way
+	await slider.nth(2).focus();
+	await page.keyboard.press('End');
+	await expect(page).toHaveURL(/bought=/);
+	await page.getByRole('button', { name: 'Clear all' }).click();
 
-	// entity filter and price range
+	// entity filter
 	await panel.getByPlaceholder('Any location').fill('Study');
 	await panel.getByPlaceholder('Any location').press('Enter');
 	await expect(page).toHaveURL(/location=Study/);
-	await panel.getByLabel('Paid at least').fill('6');
-	await expect(page).toHaveURL(/min=6/);
 	await expect(page.getByRole('link', { name: 'Dune' })).toBeVisible();
-	await expect(page.getByRole('link', { name: 'Hobbit' })).toHaveCount(0);
+	await expect(page.getByRole('link', { name: 'Emma' })).toHaveCount(0);
 	await page.getByRole('button', { name: 'Clear all' }).click();
-	await expect(page.getByRole('link', { name: 'Hobbit' })).toBeVisible();
+	await expect(page.getByRole('link', { name: 'Emma' })).toBeVisible();
 
 	// table view with sortable headers
 	await page.getByRole('button', { name: 'Table' }).click();

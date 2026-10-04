@@ -12,9 +12,7 @@ const parse = (qs: string) => parseQuery(new URLSearchParams(qs));
 describe('library query', () => {
 	it('uses defaults for empty or invalid params', () => {
 		expect(parse('')).toEqual(DEFAULT_QUERY);
-		expect(parse('sort=nope:up&view=grid&group=x&status=lost&min=abc&from=yesterday')).toEqual(
-			DEFAULT_QUERY
-		);
+		expect(parse('sort=nope:up&view=grid&group=x&reading=maybe')).toEqual(DEFAULT_QUERY);
 	});
 
 	it('picks a sensible default direction per field', () => {
@@ -25,23 +23,16 @@ describe('library query', () => {
 	it('round-trips every param through the URL', () => {
 		const query: LibraryQuery = {
 			q: 'dune',
-			fields: { qt: 'a', qa: 'herbert', qp: 'ace', qi: '978' },
 			sort: 'title',
 			dir: 'desc',
 			group: 'author',
 			view: 'table',
-			status: 'wishlist',
 			reading: 'read',
-			cover: false,
-			priceMin: 5,
-			priceMax: 20.5,
-			boughtFrom: '2024-01-01',
-			boughtTo: '2024-12-31',
-			author: ['Frank Herbert', 'Jane Austen'],
-			series: ['Dune'],
+			price: '5-20.5',
+			bought: '2024-01..2024-06',
+			series: ['Dune', 'Foundation'],
 			publisher: ['Ace'],
-			location: ['Study – Shelf 2'],
-			tag: ['scifi', 'classic']
+			location: ['Study – Shelf 2']
 		};
 		expect(parseQuery(serializeQuery(query))).toEqual(query);
 	});
@@ -64,12 +55,15 @@ describe('library query', () => {
 	});
 
 	it('dedupes and trims list filters', () => {
-		expect(parse('tag=a&tag=%20a%20&tag=&tag=b').tag).toEqual(['a', 'b']);
+		expect(parse('series=a&series=%20a%20&series=&series=b').series).toEqual(['a', 'b']);
 	});
 
 	it('counts active filters but not sort, group or view', () => {
 		expect(activeFilterCount(DEFAULT_QUERY)).toBe(0);
 		expect(activeFilterCount(parse('sort=title&group=author&view=table'))).toBe(0);
-		expect(activeFilterCount(parse('status=owned&tag=a&tag=b&qa=x&cover=yes'))).toBe(5);
+		expect(activeFilterCount(parse('reading=read&series=a&series=b&price=5-10&bought=2024'))).toBe(
+			5
+		);
+		expect(activeFilterCount(parse('q=dune'))).toBe(0);
 	});
 });

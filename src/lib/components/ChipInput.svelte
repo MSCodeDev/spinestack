@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { cn } from '#lib/utils.js';
 	import { X } from '@lucide/svelte';
 	import SuggestInput from './SuggestInput.svelte';
 
@@ -8,6 +9,9 @@
 		values?: string[];
 		suggestions?: string[];
 		placeholder?: string;
+		/** Accessible name when there is no visible label. */
+		label?: string;
+		class?: string;
 		onchange?: (values: string[]) => void;
 	};
 
@@ -16,6 +20,8 @@
 		values = $bindable([]),
 		suggestions = [],
 		placeholder = '',
+		label,
+		class: className,
 		onchange
 	}: Props = $props();
 
@@ -45,7 +51,10 @@
 </script>
 
 <div
-	class="mt-1 flex min-h-10 flex-wrap items-center gap-1.5 rounded-3xl border border-input bg-card px-2.5 py-1.5 shadow-xs transition focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/40"
+	class={cn(
+		'mt-1 flex min-h-10 flex-wrap items-center gap-1.5 rounded-3xl border border-input bg-card px-2.5 py-1.5 shadow-xs transition focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/40',
+		className
+	)}
 >
 	{#each values as value, i (value)}
 		<span
@@ -67,6 +76,7 @@
 		bind:value={draft}
 		{suggestions}
 		{placeholder}
+		aria-label={label}
 		{onkeydown}
 		onblur={() => add(draft)}
 		onpick={add}

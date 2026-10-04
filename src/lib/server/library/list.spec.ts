@@ -165,35 +165,32 @@ describe('queryBooks filters and groups', () => {
 
 	it('filters by entity names, any-of within a filter', () => {
 		expect(titles({ publisher: ['ace'] }).sort()).toEqual(['Dune', 'Hobbit']);
-		expect(titles({ author: ['Jane Austen', 'Frank Herbert'] }).sort()).toEqual(['Dune', 'Emma']);
-		expect(titles({ tag: ['classic'], publisher: ['Penguin'] })).toEqual(['Emma']);
-		expect(titles({ tag: ['classic'], publisher: ['Ace'] })).toEqual([]);
+		expect(titles({ publisher: ['Ace', 'Penguin'] }).sort()).toEqual(['Dune', 'Emma', 'Hobbit']);
 		expect(titles({ location: ['Study'] })).toEqual(['Dune']);
+		expect(titles({ location: ['Study'], publisher: ['Penguin'] })).toEqual([]);
 	});
 
-	it('filters by status, reading state and cover', () => {
-		expect(titles({ status: 'wishlist' })).toEqual(['Hobbit']);
+	it('filters by reading state', () => {
 		expect(titles({ reading: 'reading' })).toEqual(['Hobbit']);
 		expect(titles({ reading: 'unread' }).sort()).toEqual(['Dune', 'Emma']);
-		expect(titles({ cover: true })).toEqual([]);
-		expect(titles({ cover: false })).toHaveLength(3);
 	});
 
-	it('filters by price in major units and by bought date', () => {
-		expect(titles({ priceMin: 6 }).sort()).toEqual(['Dune', 'Hobbit']);
-		expect(titles({ priceMin: 6, priceMax: 20 })).toEqual(['Dune']);
-		expect(titles({ boughtFrom: '2023-06-01', boughtTo: '2024-12-31' }).sort()).toEqual([
-			'Dune',
-			'Hobbit'
-		]);
+	it('filters by one price field in major units: exact, range or open-ended', () => {
+		// Dune $10.00, Emma $5.00, Hobbit ¥900 (no minor units)
+		expect(titles({ price: '10' })).toEqual(['Dune']);
+		expect(titles({ price: '10.00' })).toEqual(['Dune']);
+		expect(titles({ price: '6-20' })).toEqual(['Dune']);
+		expect(titles({ price: '6-' }).sort()).toEqual(['Dune', 'Hobbit']);
+		expect(titles({ price: '-9' })).toEqual(['Emma']);
+		expect(titles({ price: '900' })).toEqual(['Hobbit']);
+		expect(titles({ price: 'not a price' })).toHaveLength(3); // unclear text filters nothing
 	});
 
-	it('searches within a field only', () => {
-		const fieldTitles = (fields: Partial<typeof DEFAULT_QUERY.fields>) =>
-			titles({ fields: { ...DEFAULT_QUERY.fields, ...fields } });
-		expect(fieldTitles({ qa: 'austen' })).toEqual(['Emma']);
-		expect(fieldTitles({ qp: 'ace' }).sort()).toEqual(['Dune', 'Hobbit']);
-		expect(fieldTitles({ qt: 'austen' })).toEqual([]);
+	it('filters by one bought field: a year, a month, or a range', () => {
+		expect(titles({ bought: '2023' }).sort()).toEqual(['Emma', 'Hobbit']);
+		expect(titles({ bought: '2024-03' })).toEqual(['Dune']);
+		expect(titles({ bought: '2023-06..2024-12' }).sort()).toEqual(['Dune', 'Hobbit']);
+		expect(titles({ bought: '2024..' })).toEqual(['Dune']);
 	});
 
 	it('groups with labels, ordered groups and counts', () => {
@@ -257,7 +254,10 @@ describe('getStats', () => {
 			reading: 1,
 			readThisYear: 0,
 			series: 1,
-			authors: 1
+			authors: 1,
+			// $5 and $10 paid, plus a wishlist book at $99.99, rounded outwards
+			priceRange: { min: 5, max: 100 },
+			boughtRange: { min: '2026-01-02', max: '2026-10-02' }
 		});
 
 		const readingId = db.all<{ id: string }>(sql`select id from reading`)[0].id;
@@ -265,5 +265,29 @@ describe('getStats', () => {
 		const after = getStats(db, lib, new Date());
 		expect(after.reading).toBe(0);
 		expect(after.readThisYear).toBe(1);
+	});
+});
+
+describe('getStats price range', () => {
+	it('is null when no book has a price', () => {
+		saveBook(db, lib, book({ title: 'Free' }));
+		expect(getStats(db, lib).priceRange).toBeNull();
+	});
+
+	it('never collapses to a single point', () => {
+		saveBook(db, lib, book({ title: 'A', currency: 'USD', paidPrice: 1000 }));
+		expect(getStats(db, lib).priceRange).toEqual({ min: 10, max: 11 });
+	});
+
+	it('reports the span of bought dates, widening a single date', () => {
+		saveBook(db, lib, book({ title: 'A', boughtAt: '2024-05-01' }));
+		expect(getStats(db, lib).boughtRange).toEqual({ min: '2024-05-01', max: '2024-05-02' });
+		saveBook(db, lib, book({ title: 'B', boughtAt: '2023-12-31' }));
+		expect(getStats(db, lib).boughtRange).toEqual({ min: '2023-12-31', max: '2024-05-01' });
+	});
+
+	it('is null without bought dates', () => {
+		saveBook(db, lib, book({ title: 'A' }));
+		expect(getStats(db, lib).boughtRange).toBeNull();
 	});
 });

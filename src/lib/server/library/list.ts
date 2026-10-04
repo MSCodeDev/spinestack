@@ -2,12 +2,11 @@ import { type SQL, sql } from 'drizzle-orm';
 import type { Db } from '../db/factory.js';
 import type { GroupField, LibraryQuery, ListFilter, SortField } from '../../library/query.js';
 import type { BookListItem, BookPage, GroupCount } from '../../types.js';
+import { parseDateRange, parsePriceRange } from '../../library/ranges.js';
+import { paidMajor } from './currency.js';
 import { buildMatch } from './search.js';
 
 type Row = Omit<BookListItem, 'authors'>;
-
-/** Currencies without minor units, for the price filter. */
-const ZERO_DECIMAL = ['JPY', 'KRW', 'VND', 'CLP', 'ISK', 'UGX', 'XAF', 'XOF'];
 
 const list = (values: unknown[]) =>
 	sql.join(
@@ -87,10 +86,6 @@ function orderBy({ sort, dir, group }: Pick<LibraryQuery, 'sort' | 'dir' | 'grou
 
 /** Subquery selecting book ids that have any of the given names in a relation. */
 const relation: Record<ListFilter, (names: SQL) => SQL> = {
-	author: (names) => sql`b.id in (select bp.book_id from book_person bp
-		join person p on p.id = bp.person_id where lower(p.name) in (${names}))`,
-	tag: (names) => sql`b.id in (select bt.book_id from book_tag bt
-		join tag t on t.id = bt.tag_id where lower(t.name) in (${names}))`,
 	series: (names) => sql`b.series_id in (select id from series where lower(name) in (${names}))`,
 	publisher: (names) =>
 		sql`b.publisher_id in (select id from publisher where lower(name) in (${names}))`,
@@ -101,23 +96,25 @@ const relation: Record<ListFilter, (names: SQL) => SQL> = {
 function buildWhere(libraryId: string, q: LibraryQuery): SQL {
 	const c: SQL[] = [sql`b.library_id = ${libraryId}`];
 
-	const match = buildMatch(q.q, q.fields);
+	const match = buildMatch(q.q);
 	if (match) c.push(sql`b.id in (select book_id from book_fts where book_fts match ${match})`);
 
 	for (const key of Object.keys(relation) as ListFilter[]) {
 		if (q[key].length) c.push(relation[key](list(q[key].map((n) => n.toLowerCase()))));
 	}
 
-	if (q.status) c.push(sql`b.status = ${q.status}`);
 	if (q.reading) c.push(sql`${readingState} = ${q.reading}`);
-	if (q.cover !== null) c.push(q.cover ? sql`b.cover_version > 0` : sql`b.cover_version = 0`);
 
-	const major = sql`(b.paid_price / (case when b.currency in (${list(ZERO_DECIMAL)}) then 1.0 else 100.0 end))`;
-	if (q.priceMin !== null) c.push(sql`${major} >= ${q.priceMin}`);
-	if (q.priceMax !== null) c.push(sql`${major} <= ${q.priceMax}`);
+	const price = parsePriceRange(q.price);
+	if (price) {
+		// a hair of tolerance so "12.50" matches 1250 minor units despite float division
+		if (price.min !== null) c.push(sql`${paidMajor} >= ${price.min - 0.005}`);
+		if (price.max !== null) c.push(sql`${paidMajor} <= ${price.max + 0.005}`);
+	}
 
-	if (q.boughtFrom) c.push(sql`b.bought_at >= ${q.boughtFrom}`);
-	if (q.boughtTo) c.push(sql`b.bought_at <= ${q.boughtTo}`);
+	const bought = parseDateRange(q.bought);
+	if (bought?.from) c.push(sql`b.bought_at >= ${bought.from}`);
+	if (bought?.to) c.push(sql`b.bought_at <= ${bought.to}`);
 
 	return sql.join(c, sql` and `);
 }

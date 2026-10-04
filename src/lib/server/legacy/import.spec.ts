@@ -197,12 +197,7 @@ describe('downloadCovers', () => {
 		});
 		expect(result).toEqual({ done: 2, total: 2, ok: 1 });
 		expect(seen.every((u) => u.startsWith('https://covers.openlibrary.org/b/isbn/'))).toBe(true);
-		const withCover = queryBooks(
-			db,
-			lib,
-			{ ...DEFAULT_QUERY, cover: true },
-			{ offset: 0, limit: 10 }
-		);
-		expect(withCover.items.map((i) => i.title)).toEqual(['Dune']);
+		const all = queryBooks(db, lib, DEFAULT_QUERY, { offset: 0, limit: 10 });
+		expect(all.items.filter((i) => i.coverVersion > 0).map((i) => i.title)).toEqual(['Dune']);
 	});
 });

@@ -1,11 +1,6 @@
 <script lang="ts">
 	import { X } from '@lucide/svelte';
-	import {
-		FIELD_SEARCHES,
-		LIST_FILTERS,
-		type FieldSearchParam,
-		type LibraryQuery
-	} from '#lib/library/query.js';
+	import { LIST_FILTERS, type LibraryQuery } from '#lib/library/query.js';
 
 	let {
 		query,
@@ -21,16 +16,6 @@
 
 	const chips = $derived.by(() => {
 		const out: Chip[] = [];
-		for (const key of Object.keys(FIELD_SEARCHES) as FieldSearchParam[]) {
-			const v = query.fields[key];
-			if (v) {
-				out.push({
-					id: key,
-					label: `${FIELD_SEARCHES[key]}: ${v}`,
-					remove: { fields: { ...query.fields, [key]: '' } }
-				});
-			}
-		}
 		for (const key of LIST_FILTERS) {
 			for (const v of query[key]) {
 				out.push({
@@ -40,29 +25,14 @@
 				});
 			}
 		}
-		if (query.status)
-			out.push({ id: 'status', label: `Status: ${query.status}`, remove: { status: null } });
-		if (query.reading)
+		if (query.reading) {
 			out.push({ id: 'reading', label: `Reading: ${query.reading}`, remove: { reading: null } });
-		if (query.cover !== null) {
-			out.push({
-				id: 'cover',
-				label: query.cover ? 'Has cover' : 'No cover',
-				remove: { cover: null }
-			});
 		}
-		if (query.priceMin !== null)
-			out.push({ id: 'min', label: `Paid ≥ ${query.priceMin}`, remove: { priceMin: null } });
-		if (query.priceMax !== null)
-			out.push({ id: 'max', label: `Paid ≤ ${query.priceMax}`, remove: { priceMax: null } });
-		if (query.boughtFrom)
-			out.push({
-				id: 'from',
-				label: `Bought from ${query.boughtFrom}`,
-				remove: { boughtFrom: null }
-			});
-		if (query.boughtTo)
-			out.push({ id: 'to', label: `Bought to ${query.boughtTo}`, remove: { boughtTo: null } });
+		if (query.price)
+			out.push({ id: 'price', label: `Paid: ${query.price}`, remove: { price: '' } });
+		if (query.bought) {
+			out.push({ id: 'bought', label: `Bought: ${query.bought}`, remove: { bought: '' } });
+		}
 		return out;
 	});
 </script>
@@ -71,21 +41,21 @@
 	<div class="flex flex-wrap items-center gap-2">
 		{#each chips as chip (chip.id)}
 			<span
-				class="flex items-center gap-1 rounded-full bg-secondary py-0.5 pr-1 pl-3 text-sm text-primary"
+				class="flex items-center gap-1 rounded-full bg-secondary py-0.5 pr-1 pl-3 text-sm font-semibold text-secondary-foreground"
 			>
 				{chip.label}
 				<button
 					type="button"
-					class="rounded-full p-0.5 hover:bg-secondary/70"
+					class="grid size-5 place-items-center rounded-full hover:bg-foreground/10"
 					aria-label="Remove filter {chip.label}"
 					onclick={() => onchange(chip.remove)}
 				>
-					<X size={14} />
+					<X size={12} />
 				</button>
 			</span>
 		{/each}
-		<button type="button" class="text-sm text-muted-foreground underline" onclick={onclear}
-			>Clear all</button
-		>
+		<button type="button" class="text-sm text-muted-foreground underline" onclick={onclear}>
+			Clear all
+		</button>
 	</div>
 {/if}
