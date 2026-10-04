@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { admin, login, openManualAdd, resetLibrary } from './helpers';
+import { addBook, admin, login, openManualAdd, resetLibrary } from './helpers';
 
 test.beforeEach(resetLibrary);
 
@@ -86,4 +86,46 @@ test('change name and password', async ({ page }) => {
 	// sign out
 	await settings.getByRole('button', { name: 'Sign out' }).click();
 	await expect(page).toHaveURL(/\/login$/);
+});
+
+test('rename, merge and delete library entities', async ({ page }) => {
+	await login(page);
+	await addBook(page, { title: 'Dune', author: 'Frank Herbert', location: 'Study' });
+	await addBook(page, { title: 'Emma', author: 'Jane Austen', location: 'Hall' });
+
+	await page.getByRole('link', { name: 'Settings' }).click();
+	const settings = page.getByRole('dialog', { name: 'Settings' });
+	await settings.getByRole('tab', { name: 'Library' }).click();
+	await expect(settings.getByText('Study')).toBeVisible();
+	await expect(settings.getByText('Hall')).toBeVisible();
+
+	// renaming to an existing name offers a merge
+	await settings.getByRole('button', { name: 'Rename Hall' }).click();
+	await settings.getByLabel('New name').fill('study');
+	await settings.getByRole('button', { name: 'Save' }).click();
+	const confirmDialog = page.getByRole('dialog', { name: 'Are you sure?' });
+	await expect(confirmDialog).toContainText('already exists');
+	await confirmDialog.getByRole('button', { name: 'Merge' }).click();
+	await expect(settings.getByText('2 books')).toBeVisible();
+	await expect(settings.getByText('Hall')).toHaveCount(0);
+
+	// plain rename
+	await settings.getByRole('button', { name: 'Rename Study' }).click();
+	await settings.getByLabel('New name').fill('Office');
+	await settings.getByRole('button', { name: 'Save' }).click();
+	await expect(settings.getByText('Office')).toBeVisible();
+
+	// deleting an author warns about the books that lose it
+	await settings.getByRole('button', { name: 'Authors' }).click();
+	await settings.getByRole('button', { name: 'Delete Jane Austen' }).click();
+	await expect(confirmDialog).toContainText('used by 1 book');
+	await confirmDialog.getByRole('button', { name: 'Delete' }).click();
+	await expect(settings.getByText('Jane Austen')).toHaveCount(0);
+
+	// the library reflects it
+	await settings.getByRole('button', { name: 'Close' }).click();
+	await page.getByPlaceholder('Search title').fill('austen');
+	await expect(page.getByText('No books match')).toBeVisible();
+	await page.getByPlaceholder('Search title').fill('office');
+	await expect(page.getByRole('link', { name: 'Dune' })).toBeVisible();
 });

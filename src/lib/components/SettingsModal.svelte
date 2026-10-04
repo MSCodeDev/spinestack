@@ -1,10 +1,11 @@
 <script lang="ts">
 	import Modal from './Modal.svelte';
 	import AccountTab from './settings/AccountTab.svelte';
+	import LibraryTab from './settings/LibraryTab.svelte';
 	import PreferencesTab from './settings/PreferencesTab.svelte';
 	import type { Preferences } from '#lib/preferences.js';
 
-	export type SettingsTab = 'preferences' | 'account';
+	export type SettingsTab = 'preferences' | 'library' | 'account';
 
 	type Props = {
 		/** Active tab, or null when closed. */
@@ -19,10 +20,13 @@
 
 	const tabs: { id: SettingsTab; label: string }[] = [
 		{ id: 'preferences', label: 'Preferences' },
+		{ id: 'library', label: 'Library' },
 		{ id: 'account', label: 'Account' }
 	];
 
-	const active = $derived<SettingsTab>(tab === 'account' ? 'account' : 'preferences');
+	const active = $derived<SettingsTab>(
+		tab === 'account' || tab === 'library' ? tab : 'preferences'
+	);
 </script>
 
 <Modal open={tab !== null} title="Settings" {onclose}>
@@ -44,6 +48,8 @@
 
 	{#if active === 'preferences'}
 		<PreferencesTab {prefs} />
+	{:else if active === 'library'}
+		<LibraryTab />
 	{:else}
 		<AccountTab name={user.name} email={user.email} />
 	{/if}
