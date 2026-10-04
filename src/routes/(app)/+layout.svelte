@@ -11,7 +11,7 @@
 </script>
 
 <div class="min-h-dvh">
-	<header class="sticky top-0 z-20 bg-background/80 backdrop-blur-md">
+	<header class="relative z-20">
 		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
 			<a href={resolve('/(app)')} aria-label="SpineStack home"><Wordmark /></a>
 			<div class="flex items-center gap-2 sm:gap-3">
@@ -33,7 +33,6 @@
 				</a>
 			</div>
 		</div>
-		<div class="wave-edge pointer-events-none absolute inset-x-0 top-full"></div>
 	</header>
 	<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">{@render children()}</main>
 </div>

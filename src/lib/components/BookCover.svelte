@@ -26,10 +26,10 @@
 
 	// No two corners match, and each book leans its own way, so a shelf never looks stamped out.
 	const shapes = [
-		'rounded-[0.5rem_1.5rem_1.2rem_0.7rem/0.8rem_1.2rem_1.7rem_0.5rem]',
-		'rounded-[0.7rem_1.2rem_1.6rem_0.5rem/0.5rem_1.7rem_1.1rem_0.9rem]',
-		'rounded-[0.4rem_1.7rem_1rem_0.8rem/0.9rem_1rem_1.5rem_0.4rem]',
-		'rounded-[0.8rem_1.1rem_1.7rem_0.4rem/0.4rem_1.5rem_1.2rem_0.8rem]'
+		'rounded-[0.5rem_0.8rem_0.6rem_0.7rem/0.8rem_0.7rem_0.9rem_0.5rem]',
+		'rounded-[0.7rem_0.7rem_0.9rem_0.5rem/0.5rem_0.9rem_0.6rem_0.9rem]',
+		'rounded-[0.4rem_0.9rem_0.6rem_0.8rem/0.9rem_0.6rem_0.8rem_0.4rem]',
+		'rounded-[0.8rem_0.6rem_0.8rem_0.4rem/0.4rem_0.8rem_0.7rem_0.8rem]'
 	];
 
 	const seed = $derived(hashString(bookId || title));

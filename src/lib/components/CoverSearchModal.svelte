@@ -116,7 +116,7 @@
 				<li>
 					<button
 						type="button"
-						class="group relative block aspect-[2/3] w-full overflow-hidden rounded-l-md rounded-r-2xl bg-muted ring-1 ring-black/10 hover:ring-2 hover:ring-primary"
+						class="group relative block aspect-[2/3] w-full overflow-hidden rounded-l-md rounded-r-lg bg-muted ring-1 ring-black/10 hover:ring-2 hover:ring-primary"
 						disabled={picking !== null}
 						aria-label="Use cover: {c.label}"
 						onclick={() => pick(c)}
