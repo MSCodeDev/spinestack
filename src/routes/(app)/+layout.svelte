@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { modalHref } from '#lib/modal-url.js';
 	import { LogOut, Plus } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
 
@@ -12,7 +13,7 @@
 		<div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
 			<a href={resolve('/(app)')} class="text-lg font-semibold">SpineStack</a>
 			<div class="flex items-center gap-4">
-				<a href="{resolve('/(app)')}?add" class="btn btn-primary"><Plus size={16} /> Add book</a>
+				<a href={modalHref({ add: '' })} class="btn btn-primary"><Plus size={16} /> Add book</a>
 				<form method="post" action="/logout" class="flex items-center gap-3 text-sm">
 					<span class="text-stone-500">{data.user.name}</span>
 					<button

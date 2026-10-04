@@ -1,7 +1,17 @@
 <script lang="ts">
-	import { Search } from '@lucide/svelte';
+	import { LayoutGrid, Layers, Search, SlidersHorizontal, Table2 } from '@lucide/svelte';
+	import type { View } from '#lib/library/query.js';
 
-	let { q, onsearch }: { q: string; onsearch: (q: string) => void } = $props();
+	type Props = {
+		q: string;
+		view: View;
+		filterCount: number;
+		onsearch: (q: string) => void;
+		onview: (view: View) => void;
+		onfilters: () => void;
+	};
+
+	let { q, view, filterCount, onsearch, onview, onfilters }: Props = $props();
 
 	// Follows the URL, but can be typed over until the next navigation.
 	let value = $derived(q);
@@ -11,6 +21,12 @@
 		clearTimeout(timer);
 		timer = setTimeout(() => onsearch(value.trim()), 300);
 	}
+
+	const views = [
+		{ id: 'covers', label: 'Covers', icon: LayoutGrid },
+		{ id: 'table', label: 'Table', icon: Table2 },
+		{ id: 'stacked', label: 'Stacked', icon: Layers }
+	] as const;
 </script>
 
 <div class="flex items-center gap-2">
@@ -25,4 +41,36 @@
 			class="input mt-0 pl-9"
 		/>
 	</label>
+
+	<button
+		type="button"
+		class="btn border border-stone-300 dark:border-stone-700"
+		onclick={onfilters}
+	>
+		<SlidersHorizontal size={16} /> Filters
+		{#if filterCount}
+			<span class="rounded-full bg-indigo-600 px-1.5 text-xs text-white">{filterCount}</span>
+		{/if}
+	</button>
+
+	<div
+		class="flex rounded-md border border-stone-300 p-0.5 dark:border-stone-700"
+		role="group"
+		aria-label="View"
+	>
+		{#each views as v (v.id)}
+			<button
+				type="button"
+				aria-label={v.label}
+				aria-pressed={view === v.id}
+				title={v.label}
+				class="rounded p-1.5 {view === v.id
+					? 'bg-indigo-600 text-white'
+					: 'hover:bg-stone-100 dark:hover:bg-stone-800'}"
+				onclick={() => onview(v.id)}
+			>
+				<v.icon size={16} />
+			</button>
+		{/each}
+	</div>
 </div>

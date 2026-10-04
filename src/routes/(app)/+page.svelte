@@ -4,11 +4,24 @@
 	import { resolve } from '$app/paths';
 	import AddBookModal from '#lib/components/AddBookModal.svelte';
 	import BookModal from '#lib/components/BookModal.svelte';
-	import CoverCard from '#lib/components/CoverCard.svelte';
+	import ActiveFilters from '#lib/components/ActiveFilters.svelte';
+	import CoversView from '#lib/components/CoversView.svelte';
+	import FiltersPanel from '#lib/components/FiltersPanel.svelte';
 	import LibraryToolbar from '#lib/components/LibraryToolbar.svelte';
+	import StackedView from '#lib/components/StackedView.svelte';
 	import StatsStrip from '#lib/components/StatsStrip.svelte';
-	import { PAGE_SIZE, serializeQuery } from '#lib/library/query.js';
-	import { withParams } from '#lib/modal-url.js';
+	import TableView from '#lib/components/TableView.svelte';
+	import { toSegments } from '#lib/library/groups.js';
+	import {
+		DEFAULT_QUERY,
+		PAGE_SIZE,
+		activeFilterCount,
+		defaultDir,
+		serializeQuery,
+		type LibraryQuery,
+		type SortField
+	} from '#lib/library/query.js';
+	import { modalHref, withParams, withQuery } from '#lib/modal-url.js';
 	import { toast } from '#lib/stores/toast.svelte.js';
 	import type { BookListItem, BookPage, Options } from '#lib/types.js';
 
@@ -30,14 +43,41 @@
 		options = await (await fetch('/api/options')).json();
 	}
 
+	let filtersOpen = $state(false);
+
 	$effect(() => {
-		if (bookId || adding) loadOptions();
+		if (bookId || adding || filtersOpen) loadOptions();
 	});
 
 	const go = (changes: Record<string, string | null>) =>
 		goto(resolve('/(app)') + withParams(page.url, changes), { replace: true, reset: false });
 
 	const closeAll = () => go({ book: null, edit: null, add: null });
+
+	const update = (patch: Partial<LibraryQuery>) =>
+		goto(resolve('/(app)') + withQuery(page.url, { ...data.query, ...patch }), {
+			replace: true,
+			reset: false
+		});
+
+	const clearFilters = () =>
+		update({
+			...DEFAULT_QUERY,
+			sort: data.query.sort,
+			dir: data.query.dir,
+			group: data.query.group,
+			view: data.query.view
+		});
+
+	const resetAll = () => update({ ...DEFAULT_QUERY, view: data.query.view });
+
+	function sortBy(field: SortField) {
+		const same = data.query.sort === field;
+		update({
+			sort: field,
+			dir: same ? (data.query.dir === 'asc' ? 'desc' : 'asc') : defaultDir(field)
+		});
+	}
 
 	async function saved(id: string) {
 		await refreshAll();
@@ -54,6 +94,7 @@
 	});
 
 	const items = $derived([...data.page.items, ...more]);
+	const segments = $derived(toSegments(items, data.page.groups));
 	const remaining = $derived(data.page.total - items.length);
 
 	async function loadMore() {
@@ -71,16 +112,30 @@
 
 <div class="space-y-5">
 	<StatsStrip stats={data.stats} />
-	<LibraryToolbar q={data.query.q} onsearch={(q) => go({ q: q || null })} />
+	<LibraryToolbar
+		q={data.query.q}
+		view={data.query.view}
+		filterCount={activeFilterCount(data.query)}
+		onsearch={(q) => update({ q })}
+		onview={(view) => update({ view })}
+		onfilters={() => (filtersOpen = true)}
+	/>
+	<ActiveFilters query={data.query} onchange={update} onclear={clearFilters} />
 
 	{#if items.length}
-		<ul
-			class="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8"
-		>
-			{#each items as book (book.id)}
-				<li><CoverCard {book} /></li>
-			{/each}
-		</ul>
+		{#if data.query.view === 'table'}
+			<TableView
+				{segments}
+				group={data.query.group}
+				sort={data.query.sort}
+				dir={data.query.dir}
+				onsort={sortBy}
+			/>
+		{:else if data.query.view === 'stacked'}
+			<StackedView {segments} group={data.query.group} />
+		{:else}
+			<CoversView {segments} group={data.query.group} />
+		{/if}
 		{#if remaining > 0}
 			<div class="text-center">
 				<button class="btn" onclick={loadMore} disabled={loadingMore}>
@@ -90,15 +145,22 @@
 				</button>
 			</div>
 		{/if}
-	{:else if data.query.q}
-		<p class="py-12 text-center text-stone-500">No books match “{data.query.q}”.</p>
+	{:else if activeFilterCount(data.query) || data.query.q}
+		<p class="py-12 text-center text-stone-500">No books match your search or filters.</p>
 	{:else}
 		<p class="py-12 text-center text-stone-500">
-			No books yet. <a href="{resolve('/(app)')}?add" class="underline">Add your first book</a>.
+			No books yet. <a href={modalHref({ add: '' })} class="underline">Add your first book</a>.
 		</p>
 	{/if}
 </div>
 
+<FiltersPanel
+	bind:open={filtersOpen}
+	query={data.query}
+	{options}
+	onchange={update}
+	onclear={resetAll}
+/>
 <AddBookModal open={adding} {options} onclose={closeAll} onsaved={saved} />
 <BookModal
 	{bookId}

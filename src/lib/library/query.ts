@@ -160,6 +160,23 @@ export function serializeQuery(query: LibraryQuery): URLSearchParams {
 	return params;
 }
 
+/** Every URL param owned by the list query (the rest belong to modals). */
+export const LIST_PARAM_KEYS = [
+	'q',
+	...Object.keys(FIELD_SEARCHES),
+	'sort',
+	'group',
+	'view',
+	'status',
+	'reading',
+	'cover',
+	'min',
+	'max',
+	'from',
+	'to',
+	...LIST_FILTERS
+];
+
 /** Number of active filters (everything except sort, group and view). */
 export function activeFilterCount(query: LibraryQuery): number {
 	const d = DEFAULT_QUERY;

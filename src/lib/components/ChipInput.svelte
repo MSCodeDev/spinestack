@@ -1,28 +1,43 @@
 <script lang="ts">
 	type Props = {
-		name: string;
+		/** When set, each value is also submitted as a hidden form field. */
+		name?: string;
 		values?: string[];
 		suggestions?: string[];
 		placeholder?: string;
+		onchange?: (values: string[]) => void;
 	};
 
-	let { name, values = $bindable([]), suggestions = [], placeholder = '' }: Props = $props();
+	let {
+		name,
+		values = $bindable([]),
+		suggestions = [],
+		placeholder = '',
+		onchange
+	}: Props = $props();
 
 	const listId = $props.id();
 	let draft = $state('');
 
+	function set(next: string[]) {
+		values = next;
+		onchange?.(next);
+	}
+
 	function commit() {
 		const value = draft.trim().replace(/,+$/, '');
 		draft = '';
-		if (value && !values.some((v) => v.toLowerCase() === value.toLowerCase())) values.push(value);
+		if (value && !values.some((v) => v.toLowerCase() === value.toLowerCase())) {
+			set([...values, value]);
+		}
 	}
 
 	function onkeydown(e: KeyboardEvent) {
 		if (e.key === 'Enter' || e.key === ',') {
 			e.preventDefault();
 			commit();
-		} else if (e.key === 'Backspace' && !draft) {
-			values.pop();
+		} else if (e.key === 'Backspace' && !draft && values.length) {
+			set(values.slice(0, -1));
 		}
 	}
 </script>
@@ -37,11 +52,11 @@
 			{value}
 			<button
 				type="button"
-				onclick={() => values.splice(i, 1)}
+				onclick={() => set(values.filter((_, j) => j !== i))}
 				aria-label="Remove {value}"
 				class="text-stone-500 hover:text-stone-900 dark:hover:text-white">×</button
 			>
-			<input type="hidden" {name} {value} />
+			{#if name}<input type="hidden" {name} {value} />{/if}
 		</span>
 	{/each}
 	<input

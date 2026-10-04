@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { modalHref } from '#lib/modal-url.js';
 	import { untrack } from 'svelte';
 	import { enhance } from '$app/forms';
-	import { resolve } from '$app/paths';
 	import ChipInput from './ChipInput.svelte';
 	import { fromMinor } from '#lib/money.js';
 	import type { BookDetail, Options } from '#lib/types.js';
@@ -170,7 +170,7 @@
 		<p class="text-sm text-red-600" role="alert">
 			{error}
 			{#if duplicateId}
-				<a href="{resolve('/(app)')}?book={duplicateId}" class="underline">Open it</a>
+				<a href={modalHref({ add: null, book: duplicateId })} class="underline">Open it</a>
 			{/if}
 		</p>
 	{/if}

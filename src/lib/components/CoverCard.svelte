@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import { modalHref } from '#lib/modal-url.js';
 	import type { BookListItem } from '#lib/types.js';
 
 	let { book }: { book: BookListItem } = $props();
@@ -7,7 +7,7 @@
 	const hue = $derived([...book.title].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 0));
 </script>
 
-<a href="{resolve('/(app)')}?book={book.id}" class="group block">
+<a href={modalHref({ book: book.id })} class="group block">
 	<div
 		class="relative aspect-[2/3] overflow-hidden rounded-md shadow-sm ring-1 ring-black/10 transition group-hover:shadow-md"
 	>

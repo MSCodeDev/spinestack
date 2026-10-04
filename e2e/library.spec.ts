@@ -1,14 +1,10 @@
 import { expect, test } from '@playwright/test';
+import { login, resetLibrary } from './helpers';
+
+test.beforeEach(resetLibrary);
 
 test('setup, add, edit and delete a book', async ({ page }) => {
-	// first run: setup creates the admin
-	await page.goto('/');
-	await expect(page).toHaveURL(/\/setup$/);
-	await page.getByLabel('Name').fill('Admin');
-	await page.getByLabel('Email').fill('admin@example.com');
-	await page.getByLabel('Password').fill('supersecret1');
-	await page.getByRole('button', { name: 'Create account' }).click();
-	await expect(page.getByRole('link', { name: 'Add book' })).toBeVisible();
+	await login(page);
 
 	// add a book
 	await page.getByRole('link', { name: 'Add book' }).click();
