@@ -5,6 +5,8 @@
 	let { form } = $props();
 </script>
 
+<svelte:head><title>Welcome · SpineStack</title></svelte:head>
+
 <AuthCard title="Welcome!" subtitle="Create the administrator account to get started.">
 	<form method="post" use:enhance class="space-y-4">
 		<label class="block text-sm font-medium">

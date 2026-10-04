@@ -5,6 +5,8 @@
 	let { form } = $props();
 </script>
 
+<svelte:head><title>Sign in · SpineStack</title></svelte:head>
+
 <AuthCard title="Sign in">
 	<form method="post" use:enhance class="space-y-4">
 		<label class="block text-sm font-medium">
