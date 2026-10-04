@@ -32,11 +32,37 @@ export type BookDetail = BookInput & {
 	readings: Reading[];
 };
 
-export type BookSummary = {
+export type BookListItem = {
 	id: string;
 	title: string;
+	subtitle: string | null;
 	authors: string[];
+	series: string | null;
+	seriesNumber: string | null;
+	publisher: string | null;
+	location: string | null;
+	status: BookStatus;
+	pageCount: number | null;
+	currency: string | null;
+	paidPrice: number | null;
+	boughtAt: string | null;
+	createdAt: number;
 	coverVersion: number;
+	coverColor: string | null;
+};
+
+export type BookPage = { items: BookListItem[]; total: number };
+
+export type Stats = {
+	owned: number;
+	wishlist: number;
+	addedThisMonth: number;
+	spentThisMonth: { currency: string; minor: number }[];
+	spentTotal: { currency: string; minor: number }[];
+	reading: number;
+	readThisYear: number;
+	series: number;
+	authors: number;
 };
 
 export type Options = {
