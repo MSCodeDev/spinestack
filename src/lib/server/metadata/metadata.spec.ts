@@ -123,6 +123,18 @@ describe('open library', () => {
 	});
 });
 
+describe('free-text search', () => {
+	it('sends a single q parameter to each provider', async () => {
+		const http = fakeHttp({ 'search.json': searchResponse, googleapis: googleResponse });
+		await createMetadata({ http, googleBooksKey: 'k' }).search({ q: 'dune herbert' });
+		const [ol, gb] = http.urls;
+		expect(ol).toContain('q=dune+herbert');
+		expect(ol).not.toContain('title=');
+		expect(decodeURIComponent(gb.replace(/\+/g, ' '))).toContain('q=dune herbert');
+		expect(gb).not.toContain('intitle');
+	});
+});
+
 describe('google books', () => {
 	it('is skipped without an API key', async () => {
 		const http = fakeHttp({ 'api/books': dataResponse, '/isbn/': edition, '/works/': work });

@@ -8,7 +8,7 @@ import { createCoverStore } from '../covers/store.js';
 import { createDb, type Db } from '../db/factory.js';
 import { library, user } from '../db/schema.js';
 import { saveBook, getBook } from './books.js';
-import { clearBookCover, setBookCover } from './cover.js';
+import { clearBookCover, setBookCover, setBookCoverFromUrl } from './cover.js';
 import type { BookInput } from '../../types.js';
 
 let db: Db;
@@ -54,5 +54,45 @@ describe('book covers', () => {
 		expect(await clearBookCover(db, store, lib, bookId)).toBe(true);
 		expect(getBook(db, lib, bookId)!.coverVersion).toBe(0);
 		expect(await store.read(bookId, 'full')).toBeNull();
+	});
+
+	it('sets a cover from a downloaded URL, and not for other libraries', async () => {
+		const store = createCoverStore(dir);
+		const image = await png();
+		const seen: string[] = [];
+		const download = async (url: string) => (seen.push(url), image);
+
+		expect(
+			await setBookCoverFromUrl(
+				db,
+				store,
+				lib,
+				bookId,
+				'https://covers.openlibrary.org/x.jpg',
+				download
+			)
+		).toBe(true);
+		expect(getBook(db, lib, bookId)!.coverVersion).toBe(1);
+		expect(seen).toEqual(['https://covers.openlibrary.org/x.jpg']);
+
+		expect(
+			await setBookCoverFromUrl(
+				db,
+				store,
+				'other',
+				bookId,
+				'https://covers.openlibrary.org/x.jpg',
+				download
+			)
+		).toBe(false);
+		expect(seen).toHaveLength(1);
+	});
+
+	it('rejects disallowed hosts before any network use', async () => {
+		const store = createCoverStore(dir);
+		await expect(
+			setBookCoverFromUrl(db, store, lib, bookId, 'https://evil.example/x.jpg')
+		).rejects.toThrow(/not allowed/);
+		expect(getBook(db, lib, bookId)!.coverVersion).toBe(0);
 	});
 });

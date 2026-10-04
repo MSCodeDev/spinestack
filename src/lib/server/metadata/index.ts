@@ -5,6 +5,9 @@ import * as openLibrary from './openlibrary.js';
 
 export class ProviderError extends Error {}
 
+/** Either a title (with optional author) or free text. */
+export type SearchQuery = { title?: string; author?: string; q?: string };
+
 type Deps = { http: Http; googleBooksKey?: string };
 
 const norm = (s: string | null | undefined) =>
@@ -87,7 +90,7 @@ export function createMetadata({ http, googleBooksKey }: Deps) {
 			return found.reduce<MetadataResult | null>((acc, r) => (acc ? merge(acc, r) : r), null);
 		},
 
-		async search(query: { title: string; author?: string }): Promise<MetadataResult[]> {
+		async search(query: SearchQuery): Promise<MetadataResult[]> {
 			const tasks = [openLibrary.search(http, query)];
 			if (googleBooksKey) tasks.push(googleBooks.search(http, query, googleBooksKey));
 			return mergeLists(await fanOut(tasks));

@@ -1,5 +1,6 @@
 import type { MetadataResult } from '../../types.js';
 import type { Http } from './http.js';
+import type { SearchQuery } from './index.js';
 import {
 	asArray,
 	asInt,
@@ -70,9 +71,10 @@ export async function lookupIsbn(
 
 export function search(
 	http: Http,
-	{ title, author, limit = 12 }: { title: string; author?: string; limit?: number },
+	{ title, author, q, limit = 12 }: SearchQuery & { limit?: number },
 	key: string
 ) {
-	const q = [`intitle:${title}`, author ? `inauthor:${author}` : ''].filter(Boolean).join(' ');
-	return query(http, q, key, limit);
+	const text =
+		q ?? [`intitle:${title}`, author ? `inauthor:${author}` : ''].filter(Boolean).join(' ');
+	return query(http, text, key, limit);
 }

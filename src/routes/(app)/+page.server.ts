@@ -3,9 +3,10 @@ import {
 	InvalidImageError,
 	MAX_IMAGE_BYTES,
 	coverStore,
+	DownloadError,
 	downloadImage
 } from '#lib/server/covers/index.js';
-import { clearBookCover, setBookCover } from '#lib/server/library/cover.js';
+import { clearBookCover, setBookCover, setBookCoverFromUrl } from '#lib/server/library/cover.js';
 import { db } from '#lib/server/db/index.js';
 import { requireLibrary } from '#lib/server/guard.js';
 import {
@@ -104,6 +105,23 @@ export const actions: Actions = {
 			return ok ? { cover: id } : fail(404, { error: 'Book not found.' });
 		} catch (e) {
 			if (e instanceof InvalidImageError) return fail(400, { error: e.message });
+			throw e;
+		}
+	},
+
+	setCoverFromUrl: async ({ request, locals }) => {
+		const { libraryId } = requireLibrary(locals);
+		const form = await request.formData();
+		const id = String(form.get('id') ?? '');
+		const url = String(form.get('url') ?? '');
+
+		try {
+			const ok = await setBookCoverFromUrl(db, coverStore, libraryId, id, url);
+			return ok ? { cover: id } : fail(404, { error: 'Book not found.' });
+		} catch (e) {
+			if (e instanceof InvalidImageError || e instanceof DownloadError) {
+				return fail(400, { error: e.message });
+			}
 			throw e;
 		}
 	},

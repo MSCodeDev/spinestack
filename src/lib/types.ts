@@ -97,3 +97,6 @@ export type MetadataResult = {
 
 /** A lookup result plus the id of the library book with the same ISBN, if any. */
 export type LookupResult = MetadataResult & { existingId: string | null };
+
+/** An image a cover can be chosen from. */
+export type CoverCandidate = { url: string; label: string; source: MetadataResult['source'] };

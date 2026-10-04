@@ -2,6 +2,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import type { Db } from '../db/factory.js';
 import type { CoverStore } from '../covers/store.js';
 import { book } from '../db/schema.js';
+import { downloadImage } from '../covers/download.js';
 
 const owned = (libraryId: string, bookId: string) =>
 	and(eq(book.id, bookId), eq(book.libraryId, libraryId));
@@ -38,4 +39,17 @@ export async function clearBookCover(
 		.get();
 	if (updated) await store.remove(bookId);
 	return !!updated;
+}
+
+/** Download an image from a provider URL and use it as the book's cover. */
+export async function setBookCoverFromUrl(
+	db: Db,
+	store: CoverStore,
+	libraryId: string,
+	bookId: string,
+	url: string,
+	download: (url: string) => Promise<Buffer> = downloadImage
+): Promise<boolean> {
+	if (!db.select({ id: book.id }).from(book).where(owned(libraryId, bookId)).get()) return false;
+	return setBookCover(db, store, libraryId, bookId, await download(url));
 }

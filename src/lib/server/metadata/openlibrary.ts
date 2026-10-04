@@ -1,5 +1,6 @@
 import type { MetadataResult } from '../../types.js';
 import type { Http } from './http.js';
+import type { SearchQuery } from './index.js';
 import {
 	asArray,
 	asInt,
@@ -62,10 +63,14 @@ const FIELDS =
 
 export async function search(
 	http: Http,
-	{ title, author, limit = 12 }: { title: string; author?: string; limit?: number }
+	{ title, author, q, limit = 12 }: SearchQuery & { limit?: number }
 ): Promise<MetadataResult[]> {
-	const params = new URLSearchParams({ title, limit: String(limit), fields: FIELDS });
-	if (author) params.set('author', author);
+	const params = new URLSearchParams({ limit: String(limit), fields: FIELDS });
+	if (q) params.set('q', q);
+	else {
+		params.set('title', title ?? '');
+		if (author) params.set('author', author);
+	}
 
 	const data = asObject(await http.json(`${BASE}/search.json?${params}`));
 	return asArray(data.docs).flatMap((doc): MetadataResult[] => {
