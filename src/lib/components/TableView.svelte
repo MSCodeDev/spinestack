@@ -2,6 +2,8 @@
 	import { modalHref } from '#lib/modal-url.js';
 	import { ArrowDown, ArrowUp, Columns3 } from '@lucide/svelte';
 	import GroupHeading from './GroupHeading.svelte';
+	import { Button } from '#lib/components/ui/button/index.js';
+	import * as DropdownMenu from '#lib/components/ui/dropdown-menu/index.js';
 	import { formatMoney } from '#lib/money.js';
 	import type { Segment } from '#lib/library/groups.js';
 	import type { GroupField, LibraryQuery, SortField } from '#lib/library/query.js';
@@ -86,24 +88,32 @@
 	const shown = $derived(columns.filter((c) => visible.includes(c.id)));
 </script>
 
-<div class="space-y-2">
-	<details class="relative flex justify-end">
-		<summary class="btn cursor-pointer list-none"><Columns3 size={16} /> Columns</summary>
-		<div
-			class="absolute top-full right-0 z-10 mt-1 w-44 space-y-1 rounded-md border border-border bg-card p-2 shadow-lg"
-		>
-			{#each columns as c (c.id)}
-				<label class="flex items-center gap-2 text-sm">
-					<input type="checkbox" checked={visible.includes(c.id)} onchange={() => toggle(c.id)} />
-					{c.label}
-				</label>
-			{/each}
-		</div>
-	</details>
+<div class="space-y-3">
+	<div class="flex justify-end">
+		<DropdownMenu.Root>
+			<DropdownMenu.Trigger>
+				{#snippet child({ props })}
+					<Button variant="outline" size="sm" class="bg-card" {...props}
+						><Columns3 /> Columns</Button
+					>
+				{/snippet}
+			</DropdownMenu.Trigger>
+			<DropdownMenu.Content align="end" class="w-48">
+				{#each columns as c (c.id)}
+					<DropdownMenu.CheckboxItem
+						checked={visible.includes(c.id)}
+						onCheckedChange={() => toggle(c.id)}
+					>
+						{c.label}
+					</DropdownMenu.CheckboxItem>
+				{/each}
+			</DropdownMenu.Content>
+		</DropdownMenu.Root>
+	</div>
 
-	<div class="overflow-x-auto rounded-lg border border-border bg-card">
+	<div class="overflow-x-auto rounded-3xl border border-border bg-card shadow-sm">
 		<table class="w-full text-left text-sm">
-			<thead class="border-b border-border text-xs tracking-wide text-muted-foreground uppercase">
+			<thead class="bg-muted/60 text-xs tracking-wider text-muted-foreground uppercase">
 				<tr>
 					{@render head('Title', 'title')}
 					{#each shown as c (c.id)}{@render head(c.label, c.sort, c.align)}{/each}
@@ -112,20 +122,22 @@
 			<tbody>
 				{#each segments as segment (segment.label ?? '\u0000none')}
 					{#if group !== 'none'}
-						<tr class="bg-muted">
-							<td colspan={shown.length + 1} class="px-3 py-2"
-								><GroupHeading field={group} label={segment.label} count={segment.count} /></td
-							>
+						<tr class="bg-muted/40">
+							<td colspan={shown.length + 1} class="px-4 py-3">
+								<GroupHeading field={group} label={segment.label} count={segment.count} />
+							</td>
 						</tr>
 					{/if}
 					{#each segment.items as book (book.id)}
-						<tr class="border-b border-border last:border-0 hover:bg-muted">
-							<td class="px-3 py-2 font-medium">
-								<a href={modalHref({ book: book.id })} class="hover:underline">{book.title}</a>
+						<tr class="border-t border-border/70 transition hover:bg-muted/50">
+							<td class="px-4 py-3 font-bold">
+								<a href={modalHref({ book: book.id })} class="hover:text-primary hover:underline"
+									>{book.title}</a
+								>
 							</td>
 							{#each shown as c (c.id)}
 								<td
-									class="px-3 py-2 whitespace-nowrap {c.align === 'right'
+									class="px-4 py-3 whitespace-nowrap {c.align === 'right'
 										? 'text-right tabular-nums'
 										: ''}">{c.value(book)}</td
 								>

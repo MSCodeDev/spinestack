@@ -15,7 +15,7 @@
 				required
 				autocomplete="email"
 				value={form?.email ?? ''}
-				class="mt-1 w-full rounded-md"
+				class="input"
 			/>
 		</label>
 		<label class="block text-sm font-medium">
@@ -25,7 +25,7 @@
 				type="password"
 				required
 				autocomplete="current-password"
-				class="mt-1 w-full rounded-md"
+				class="input"
 			/>
 		</label>
 		{#if form?.error}<p class="text-sm text-destructive" role="alert">{form.error}</p>{/if}

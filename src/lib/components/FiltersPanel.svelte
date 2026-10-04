@@ -126,7 +126,7 @@
 
 		<section class="space-y-3">
 			<h3 class="font-display text-2xl leading-none font-bold">Filters</h3>
-			<div class="grid grid-cols-3 gap-3">
+			<div class="grid grid-cols-1 gap-3 min-[420px]:grid-cols-3">
 				<label class="block font-medium">
 					Status
 					<select

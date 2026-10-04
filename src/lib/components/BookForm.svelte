@@ -3,6 +3,7 @@
 	import { untrack } from 'svelte';
 	import { enhance } from '$app/forms';
 	import ChipInput from './ChipInput.svelte';
+	import SuggestInput from './SuggestInput.svelte';
 	import { toast } from '#lib/stores/toast.svelte.js';
 	import { fromMinor } from '#lib/money.js';
 	import type { BookDetail, Draft, Options } from '#lib/types.js';
@@ -38,7 +39,6 @@
 
 	const currency = initial?.currency ?? untrack(() => defaultCurrency);
 	const price = (minor: number | null) => (minor === null ? '' : fromMinor(minor, currency));
-	const lists = $props.id();
 </script>
 
 <form
@@ -67,124 +67,143 @@
 	{#if book}<input type="hidden" name="id" value={book.id} />{/if}
 	{#if initial?.coverUrl}<input type="hidden" name="coverUrl" value={initial.coverUrl} />{/if}
 
-	<div class="grid gap-4 sm:grid-cols-2">
-		<label class="block text-sm font-medium sm:col-span-2">
-			Title
-			<input name="title" required value={initial?.title ?? ''} class="input" />
-		</label>
-		<label class="block text-sm font-medium sm:col-span-2">
-			Subtitle
-			<input name="subtitle" value={initial?.subtitle ?? ''} class="input" />
-		</label>
-		<div class="text-sm font-medium sm:col-span-2">
-			Authors
-			<ChipInput
-				name="author"
-				bind:values={authors}
-				suggestions={options.authors}
-				placeholder="Add author"
-			/>
+	<section class="space-y-4">
+		<h3 class="font-display text-2xl leading-none font-bold">The book</h3>
+		<div class="grid gap-4 sm:grid-cols-2">
+			<label class="block text-sm font-semibold sm:col-span-2">
+				Title
+				<input name="title" required value={initial?.title ?? ''} class="input" />
+			</label>
+			<label class="block text-sm font-semibold sm:col-span-2">
+				Subtitle
+				<input name="subtitle" value={initial?.subtitle ?? ''} class="input" />
+			</label>
+			<div class="text-sm font-semibold sm:col-span-2">
+				Authors
+				<ChipInput
+					name="author"
+					bind:values={authors}
+					suggestions={options.authors}
+					placeholder="Add author"
+				/>
+			</div>
+			<label class="block text-sm font-semibold">
+				ISBN
+				<input name="isbn" inputmode="numeric" value={initial?.isbn ?? ''} class="input" />
+			</label>
+			<label class="block text-sm font-semibold">
+				Status
+				<select name="status" class="input" value={initial?.status ?? 'owned'}>
+					<option value="owned">Owned</option>
+					<option value="wishlist">Wishlist</option>
+				</select>
+			</label>
+			<label class="block text-sm font-semibold">
+				Pages
+				<input
+					name="pageCount"
+					type="number"
+					min="0"
+					value={initial?.pageCount ?? ''}
+					class="input"
+				/>
+			</label>
+			<label class="block text-sm font-semibold">
+				Language
+				<input name="language" value={initial?.language ?? ''} class="input" placeholder="en" />
+			</label>
 		</div>
-		<label class="block text-sm font-medium">
-			ISBN
-			<input name="isbn" inputmode="numeric" value={initial?.isbn ?? ''} class="input" />
-		</label>
-		<label class="block text-sm font-medium">
-			Status
-			<select name="status" class="input" value={initial?.status ?? 'owned'}>
-				<option value="owned">Owned</option>
-				<option value="wishlist">Wishlist</option>
-			</select>
-		</label>
-		<label class="block text-sm font-medium">
-			Publisher
-			<input
-				name="publisher"
-				list="{lists}-publishers"
-				value={initial?.publisher ?? ''}
-				class="input"
-			/>
-		</label>
-		<label class="block text-sm font-medium">
-			Location
-			<input
-				name="location"
-				list="{lists}-locations"
-				value={initial?.location ?? ''}
-				class="input"
-				placeholder="e.g. Study – Shelf 2"
-			/>
-		</label>
-		<label class="block text-sm font-medium">
-			Series
-			<input name="series" list="{lists}-series" value={initial?.series ?? ''} class="input" />
-		</label>
-		<label class="block text-sm font-medium">
-			Series number
-			<input name="seriesNumber" value={initial?.seriesNumber ?? ''} class="input" />
-		</label>
-		<div class="text-sm font-medium sm:col-span-2">
-			Tags
-			<ChipInput name="tag" bind:values={tags} suggestions={options.tags} placeholder="Add tag" />
+	</section>
+
+	<section class="space-y-4 rounded-3xl bg-muted/60 p-5">
+		<h3 class="font-display text-2xl leading-none font-bold">On the shelf</h3>
+		<div class="grid gap-4 sm:grid-cols-2">
+			<label class="block text-sm font-semibold">
+				Location
+				<SuggestInput
+					name="location"
+					suggestions={options.locations}
+					value={initial?.location ?? ''}
+					placeholder="e.g. Study – Shelf 2"
+					class="input"
+				/>
+			</label>
+			<label class="block text-sm font-semibold">
+				Publisher
+				<SuggestInput
+					name="publisher"
+					suggestions={options.publishers}
+					value={initial?.publisher ?? ''}
+					class="input"
+				/>
+			</label>
+			<label class="block text-sm font-semibold">
+				Series
+				<SuggestInput
+					name="series"
+					suggestions={options.series}
+					value={initial?.series ?? ''}
+					class="input"
+				/>
+			</label>
+			<label class="block text-sm font-semibold">
+				Series number
+				<input name="seriesNumber" value={initial?.seriesNumber ?? ''} class="input" />
+			</label>
+			<div class="text-sm font-semibold sm:col-span-2">
+				Tags
+				<ChipInput name="tag" bind:values={tags} suggestions={options.tags} placeholder="Add tag" />
+			</div>
 		</div>
-		<label class="block text-sm font-medium">
-			Pages
-			<input
-				name="pageCount"
-				type="number"
-				min="0"
-				value={initial?.pageCount ?? ''}
-				class="input"
-			/>
-		</label>
-		<label class="block text-sm font-medium">
-			Language
-			<input name="language" value={initial?.language ?? ''} class="input" placeholder="en" />
-		</label>
-	</div>
+	</section>
 
-	<fieldset class="grid gap-4 sm:grid-cols-3">
-		<legend class="mb-1 text-sm font-semibold">Purchase</legend>
-		<label class="block text-sm font-medium">
-			Currency
-			<input name="currency" maxlength="3" value={currency} class="input uppercase" />
-		</label>
-		<label class="block text-sm font-medium">
-			Label price
-			<input
-				name="labelPrice"
-				inputmode="decimal"
-				value={price(initial?.labelPrice ?? null)}
-				class="input"
-			/>
-		</label>
-		<label class="block text-sm font-medium">
-			Paid price
-			<input
-				name="paidPrice"
-				inputmode="decimal"
-				value={price(initial?.paidPrice ?? null)}
-				class="input"
-			/>
-		</label>
-		<label class="block text-sm font-medium sm:col-span-1">
-			Bought
-			<input name="boughtAt" type="date" value={initial?.boughtAt ?? ''} class="input" />
-		</label>
-		<label class="block text-sm font-medium sm:col-span-1">
-			Arrived
-			<input name="arrivedAt" type="date" value={initial?.arrivedAt ?? ''} class="input" />
-		</label>
-	</fieldset>
+	<section class="space-y-4">
+		<h3 class="font-display text-2xl leading-none font-bold">Purchase</h3>
+		<div class="grid gap-4 sm:grid-cols-3">
+			<label class="block text-sm font-semibold">
+				Currency
+				<input name="currency" maxlength="3" value={currency} class="input uppercase" />
+			</label>
+			<label class="block text-sm font-semibold">
+				Label price
+				<input
+					name="labelPrice"
+					inputmode="decimal"
+					value={price(initial?.labelPrice ?? null)}
+					class="input"
+				/>
+			</label>
+			<label class="block text-sm font-semibold">
+				Paid price
+				<input
+					name="paidPrice"
+					inputmode="decimal"
+					value={price(initial?.paidPrice ?? null)}
+					class="input"
+				/>
+			</label>
+			<label class="block text-sm font-semibold">
+				Bought
+				<input name="boughtAt" type="date" value={initial?.boughtAt ?? ''} class="input" />
+			</label>
+			<label class="block text-sm font-semibold">
+				Arrived
+				<input name="arrivedAt" type="date" value={initial?.arrivedAt ?? ''} class="input" />
+			</label>
+		</div>
+	</section>
 
-	<label class="block text-sm font-medium">
-		Synopsis
-		<textarea name="synopsis" rows="4" class="input">{initial?.synopsis ?? ''}</textarea>
-	</label>
-	<label class="block text-sm font-medium">
-		Notes
-		<textarea name="notes" rows="3" class="input">{initial?.notes ?? ''}</textarea>
-	</label>
+	<section class="space-y-4">
+		<h3 class="font-display text-2xl leading-none font-bold">Notes</h3>
+		<label class="block text-sm font-semibold">
+			Synopsis
+			<textarea name="synopsis" rows="4" class="input">{initial?.synopsis ?? ''}</textarea>
+		</label>
+		<label class="block text-sm font-semibold">
+			Notes
+			<textarea name="notes" rows="3" class="input">{initial?.notes ?? ''}</textarea>
+		</label>
+	</section>
 
 	{#if error}
 		<p class="text-sm text-destructive" role="alert">
@@ -200,13 +219,3 @@
 		<button class="btn btn-primary" disabled={busy}>{book ? 'Save' : 'Add book'}</button>
 	</div>
 </form>
-
-<datalist id="{lists}-publishers">
-	{#each options.publishers as v (v)}<option value={v}></option>{/each}
-</datalist>
-<datalist id="{lists}-series">
-	{#each options.series as v (v)}<option value={v}></option>{/each}
-</datalist>
-<datalist id="{lists}-locations">
-	{#each options.locations as v (v)}<option value={v}></option>{/each}
-</datalist>

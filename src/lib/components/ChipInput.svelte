@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { X } from '@lucide/svelte';
+	import SuggestInput from './SuggestInput.svelte';
+
 	type Props = {
 		/** When set, each value is also submitted as a hidden form field. */
 		name?: string;
@@ -16,7 +19,6 @@
 		onchange
 	}: Props = $props();
 
-	const listId = $props.id();
 	let draft = $state('');
 
 	function set(next: string[]) {
@@ -24,8 +26,8 @@
 		onchange?.(next);
 	}
 
-	function commit() {
-		const value = draft.trim().replace(/,+$/, '');
+	function add(raw: string) {
+		const value = raw.trim().replace(/,+$/, '');
 		draft = '';
 		if (value && !values.some((v) => v.toLowerCase() === value.toLowerCase())) {
 			set([...values, value]);
@@ -35,7 +37,7 @@
 	function onkeydown(e: KeyboardEvent) {
 		if (e.key === 'Enter' || e.key === ',') {
 			e.preventDefault();
-			commit();
+			add(draft);
 		} else if (e.key === 'Backspace' && !draft && values.length) {
 			set(values.slice(0, -1));
 		}
@@ -43,29 +45,32 @@
 </script>
 
 <div
-	class="mt-1 flex flex-wrap items-center gap-1.5 rounded-md border border-border bg-card p-1.5 focus-within:ring-2 focus-within:ring-ring/50"
+	class="mt-1 flex min-h-10 flex-wrap items-center gap-1.5 rounded-3xl border border-input bg-card px-2.5 py-1.5 shadow-xs transition focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/40"
 >
 	{#each values as value, i (value)}
-		<span class="flex items-center gap-1 rounded bg-muted px-2 py-0.5 text-sm">
+		<span
+			class="flex items-center gap-1 rounded-full bg-secondary py-0.5 pr-1 pl-3 text-sm font-semibold text-secondary-foreground"
+		>
 			{value}
 			<button
 				type="button"
 				onclick={() => set(values.filter((_, j) => j !== i))}
 				aria-label="Remove {value}"
-				class="text-muted-foreground hover:text-foreground dark:hover:text-white">×</button
+				class="grid size-5 place-items-center rounded-full hover:bg-foreground/10"
 			>
+				<X size={12} />
+			</button>
 			{#if name}<input type="hidden" {name} {value} />{/if}
 		</span>
 	{/each}
-	<input
+	<SuggestInput
 		bind:value={draft}
-		{onkeydown}
-		onblur={commit}
-		list={listId}
+		{suggestions}
 		{placeholder}
-		class="min-w-24 flex-1 border-0 bg-transparent p-0.5 text-sm focus:ring-0"
+		{onkeydown}
+		onblur={() => add(draft)}
+		onpick={add}
+		wrapperClass="min-w-28 flex-1"
+		class="w-full border-0 bg-transparent px-1 py-0.5 text-sm outline-none placeholder:text-muted-foreground"
 	/>
-	<datalist id={listId}>
-		{#each suggestions as s (s)}<option value={s}></option>{/each}
-	</datalist>
 </div>

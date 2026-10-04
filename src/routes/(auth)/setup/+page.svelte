@@ -5,17 +5,11 @@
 	let { form } = $props();
 </script>
 
-<AuthCard title="Welcome to SpineStack" subtitle="Create the administrator account to get started.">
+<AuthCard title="Welcome!" subtitle="Create the administrator account to get started.">
 	<form method="post" use:enhance class="space-y-4">
 		<label class="block text-sm font-medium">
 			Name
-			<input
-				name="name"
-				required
-				autocomplete="name"
-				value={form?.name ?? ''}
-				class="mt-1 w-full rounded-md"
-			/>
+			<input name="name" required autocomplete="name" value={form?.name ?? ''} class="input" />
 		</label>
 		<label class="block text-sm font-medium">
 			Email
@@ -25,7 +19,7 @@
 				required
 				autocomplete="email"
 				value={form?.email ?? ''}
-				class="mt-1 w-full rounded-md"
+				class="input"
 			/>
 		</label>
 		<label class="block text-sm font-medium">
@@ -36,7 +30,7 @@
 				required
 				minlength="8"
 				autocomplete="new-password"
-				class="mt-1 w-full rounded-md"
+				class="input"
 			/>
 		</label>
 		{#if form?.error}<p class="text-sm text-destructive" role="alert">{form.error}</p>{/if}

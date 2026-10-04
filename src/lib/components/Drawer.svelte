@@ -13,7 +13,11 @@
 </script>
 
 <Sheet.Root bind:open>
-	<Sheet.Content side="right" aria-describedby={undefined} class="w-full gap-0 sm:max-w-md">
+	<Sheet.Content
+		side="right"
+		aria-describedby={undefined}
+		class="gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md"
+	>
 		<Sheet.Header class="border-b px-6 py-4 pr-14">
 			<Sheet.Title class="font-display text-3xl leading-none font-bold">{title}</Sheet.Title>
 		</Sheet.Header>
