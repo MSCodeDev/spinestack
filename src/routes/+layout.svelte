@@ -2,6 +2,8 @@
 	import './layout.css';
 	import { onMount } from 'svelte';
 	import favicon from '#lib/assets/favicon.svg';
+	import caveatLatin from '#lib/assets/fonts/caveat-latin-wght-normal.woff2?url';
+	import nunitoLatin from '#lib/assets/fonts/nunito-latin-wght-normal.woff2?url';
 	import BackgroundBlobs from '#lib/components/BackgroundBlobs.svelte';
 	import ConfirmHost from '#lib/components/ConfirmHost.svelte';
 	import { Toaster } from '#lib/components/ui/sonner/index.js';
@@ -17,7 +19,12 @@
 	});
 </script>
 
-<svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<svelte:head>
+	<link rel="icon" href={favicon} />
+	<!-- Fetched with the page instead of when the CSS first needs them, so the fonts are ready on first paint. -->
+	<link rel="preload" as="font" type="font/woff2" href={nunitoLatin} crossorigin="anonymous" />
+	<link rel="preload" as="font" type="font/woff2" href={caveatLatin} crossorigin="anonymous" />
+</svelte:head>
 <BackgroundBlobs />
 {@render children()}
 <Toaster position="bottom-right" />
