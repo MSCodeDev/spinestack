@@ -128,59 +128,97 @@
 
 	{#if error}
 		<p class="text-destructive" role="alert">{error}</p>
-	{:else if !rows}
-		<p class="text-muted-foreground">Loading…</p>
-	{:else if !rows.length}
-		<p class="text-muted-foreground">
-			No {current.plural.toLowerCase()} yet. They are created as you add books.
-		</p>
 	{:else}
-		<ul class="divide-y divide-dashed divide-border overflow-hidden soft-f border border-border">
-			{#each rows as row (row.id)}
-				<li class="flex items-center gap-2 px-3 py-2">
-					{#if editing === row.id}
-						<form
-							class="flex flex-1 items-center gap-1"
-							onsubmit={(e) => {
-								e.preventDefault();
-								saveEdit(row);
-							}}
+		<div
+			class="overflow-hidden rounded-[0.7rem_0.9rem_0.8rem_1rem/0.9rem_0.7rem_1rem_0.8rem] border border-border"
+		>
+			<table class="w-full text-left">
+				<thead class="bg-muted/60 text-xs tracking-wider text-muted-foreground uppercase">
+					<tr>
+						<th class="px-4 py-2.5 font-bold">Name</th>
+						<th class="px-4 py-2.5 font-bold">Books</th>
+						<th class="w-24 px-4 py-2.5"><span class="sr-only">Actions</span></th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-dashed divide-border">
+					{#if !rows}
+						<tr
+							><td colspan="3" class="px-4 py-8 text-center text-muted-foreground">Loading…</td></tr
 						>
-							<input class="input mt-0 flex-1" bind:value={draft} aria-label="New name" />
-							<button class="rounded p-1.5 hover:bg-muted" aria-label="Save"
-								><Check size={16} /></button
-							>
-							<button
-								type="button"
-								class="rounded p-1.5 hover:bg-muted"
-								aria-label="Cancel"
-								onclick={() => (editing = null)}><X size={16} /></button
-							>
-						</form>
+					{:else if !rows.length}
+						<tr>
+							<td colspan="3" class="px-4 py-8 text-center text-muted-foreground">
+								No {current.plural.toLowerCase()} yet. They are created as you add books.
+							</td>
+						</tr>
 					{:else}
-						<span class="flex-1 truncate">{row.name}</span>
-						<span class="text-xs text-muted-foreground"
-							>{row.count} {row.count === 1 ? 'book' : 'books'}</span
-						>
-						<button
-							type="button"
-							class="rounded p-1.5 hover:bg-muted"
-							aria-label="Rename {row.name}"
-							onclick={() => startEdit(row)}><Pencil size={16} /></button
-						>
-						<button
-							type="button"
-							class="rounded p-1.5 text-destructive hover:bg-muted"
-							aria-label="Delete {row.name}"
-							onclick={() => remove(row)}><Trash2 size={16} /></button
-						>
+						{#each rows as row (row.id)}
+							<tr>
+								{#if editing === row.id}
+									<td class="px-4 py-1.5">
+										<input
+											class="input mt-0 h-9"
+											bind:value={draft}
+											aria-label="New name"
+											onkeydown={(e) => {
+												if (e.key === 'Enter') saveEdit(row);
+												else if (e.key === 'Escape') {
+													e.stopPropagation();
+													editing = null;
+												}
+											}}
+										/>
+									</td>
+									<td class="px-4 py-2 whitespace-nowrap text-muted-foreground">{row.count}</td>
+									<td class="px-4 py-1.5">
+										<div class="flex justify-end gap-1">
+											<button
+												type="button"
+												class="rounded p-1.5 hover:bg-muted"
+												aria-label="Save"
+												onclick={() => saveEdit(row)}><Check size={16} /></button
+											>
+											<button
+												type="button"
+												class="rounded p-1.5 hover:bg-muted"
+												aria-label="Cancel"
+												onclick={() => (editing = null)}><X size={16} /></button
+											>
+										</div>
+									</td>
+								{:else}
+									<td class="max-w-0 truncate px-4 py-2.5 font-medium">{row.name}</td>
+									<td class="px-4 py-2.5 whitespace-nowrap text-muted-foreground"
+										>{row.count} {row.count === 1 ? 'book' : 'books'}</td
+									>
+									<td class="px-4 py-1.5">
+										<div class="flex justify-end gap-1">
+											<button
+												type="button"
+												class="rounded p-1.5 hover:bg-muted"
+												aria-label="Rename {row.name}"
+												onclick={() => startEdit(row)}><Pencil size={16} /></button
+											>
+											<button
+												type="button"
+												class="rounded p-1.5 text-destructive hover:bg-muted"
+												aria-label="Delete {row.name}"
+												onclick={() => remove(row)}><Trash2 size={16} /></button
+											>
+										</div>
+									</td>
+								{/if}
+							</tr>
+						{/each}
 					{/if}
-				</li>
-			{/each}
-		</ul>
-		{#if unused}
-			<button type="button" class="btn" onclick={removeUnused}>Delete {unused} unused</button>
+				</tbody>
+			</table>
+		</div>
+		{#if rows?.length}
+			{#if unused}
+				<button type="button" class="btn" onclick={removeUnused}>Delete {unused} unused</button>
+			{/if}
+			<p class="text-xs text-muted-foreground">Renaming to an existing name merges the two.</p>
 		{/if}
-		<p class="text-xs text-muted-foreground">Renaming to an existing name merges the two.</p>
 	{/if}
 </div>
