@@ -111,7 +111,7 @@
 		</DropdownMenu.Root>
 	</div>
 
-	<div class="overflow-x-auto rounded-3xl border border-border bg-card shadow-sm">
+	<div class="overflow-x-auto soft-e border border-border bg-card shadow-sm">
 		<table class="w-full text-left text-sm">
 			<thead class="bg-muted/60 text-xs tracking-wider text-muted-foreground uppercase">
 				<tr>

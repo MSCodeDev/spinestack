@@ -1,5 +1,6 @@
 <script lang="ts">
 	import GroupHeading from './GroupHeading.svelte';
+	import { hashString } from '#lib/blob.js';
 	import { placeholderColors, readableInk } from '#lib/library/placeholder.js';
 	import { modalHref } from '#lib/modal-url.js';
 	import type { Segment } from '#lib/library/groups.js';
@@ -10,7 +11,13 @@
 
 	const PILE = 12;
 
-	const hash = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
+	const hash = hashString;
+
+	const ends = [
+		'rounded-[0.35rem_1.2rem_1rem_0.4rem/0.5rem_1rem_1.1rem_0.45rem]',
+		'rounded-[0.45rem_0.9rem_1.3rem_0.35rem/0.4rem_1.2rem_0.9rem_0.5rem]',
+		'rounded-[0.3rem_1.4rem_0.8rem_0.5rem/0.5rem_0.9rem_1.3rem_0.35rem]'
+	];
 
 	/**
 	 * Spine thickness follows page count; width and offset vary a little so the pile looks hand-stacked.
@@ -24,7 +31,9 @@
 		const fallback = placeholderColors(book.title);
 		const bg = book.coverColor ?? fallback.bg;
 		const ink = book.coverColor ? readableInk(book.coverColor) : fallback.ink;
-		return `height:${height}px;width:${width}px;margin-left:${offset}px;background:${bg};color:${ink}`;
+		// a hair of tilt makes the pile look hand-stacked
+		const tilt = (((h >>> 5) % 13) - 6) / 8;
+		return `height:${height}px;width:${width}px;margin-left:${offset}px;background:${bg};color:${ink};rotate:${tilt}deg`;
 	}
 
 	const piles = (items: BookListItem[]) =>
@@ -50,7 +59,9 @@
 									<a
 										href={modalHref({ book: book.id })}
 										style={spine(book)}
-										class="relative flex max-w-full items-center justify-between gap-3 overflow-hidden rounded-md px-5 shadow-sm ring-1 ring-black/10 transition duration-150 outline-none after:pointer-events-none after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/30 after:via-transparent after:to-black/10 hover:-translate-y-0.5 hover:brightness-105 focus-visible:ring-[3px] focus-visible:ring-ring"
+										class="relative flex max-w-full items-center justify-between gap-3 overflow-hidden {ends[
+											hash(book.id) % ends.length
+										]} px-5 shadow-sm ring-1 ring-black/10 transition duration-150 outline-none after:pointer-events-none after:absolute after:inset-0 after:bg-gradient-to-b after:from-white/30 after:via-transparent after:to-black/10 hover:-translate-y-0.5 hover:brightness-105 focus-visible:ring-[3px] focus-visible:ring-ring"
 										title={book.title}
 									>
 										<!-- bands, like the ridges on a real spine -->
@@ -70,10 +81,21 @@
 								</li>
 							{/each}
 						</ul>
-						<!-- the shelf -->
-						<div
-							class="h-3 rounded-full bg-[oklch(0.76_0.07_65)] shadow-md dark:bg-[oklch(0.42_0.05_60)]"
-						></div>
+						<!-- the shelf: a gently wavy plank -->
+						<svg
+							viewBox="0 0 360 16"
+							preserveAspectRatio="none"
+							class="-mt-px block h-4 w-full drop-shadow-sm"
+							aria-hidden="true"
+						>
+							<path
+								d="M7 8C62 2 118 14 180 8S298 3 353 9"
+								fill="none"
+								class="stroke-wood"
+								stroke-width="11"
+								stroke-linecap="round"
+							/>
+						</svg>
 					</div>
 				{/each}
 			</div>

@@ -115,7 +115,7 @@
 		</div>
 	</section>
 
-	<section class="space-y-4 rounded-3xl bg-muted/60 p-5">
+	<section class="space-y-4 soft-c bg-muted/60 p-6">
 		<h3 class="font-display text-2xl leading-none font-bold">On the shelf</h3>
 		<div class="grid gap-4 sm:grid-cols-2">
 			<label class="block text-sm font-semibold">

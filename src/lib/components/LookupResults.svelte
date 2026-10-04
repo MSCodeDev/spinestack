@@ -43,7 +43,7 @@
 
 {#if error}<p class="mb-2 text-sm text-destructive" role="alert">{error}</p>{/if}
 
-<ul class="divide-y divide-border">
+<ul class="divide-y divide-dashed divide-border">
 	{#each results as r, i (keyOf(r, i))}
 		{@const key = keyOf(r, i)}
 		<li class="flex gap-3 py-3">

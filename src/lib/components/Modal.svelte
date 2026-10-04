@@ -26,14 +26,20 @@
 			widths[size]
 		)}
 	>
-		<Dialog.Header class="border-b px-6 py-4 pr-14">
-			<Dialog.Title class="font-display text-3xl leading-none font-bold">{title}</Dialog.Title>
-		</Dialog.Header>
-		<div class="overflow-y-auto px-6 py-5">{@render children()}</div>
+		<div>
+			<Dialog.Header class="px-8 pt-7 pr-16 pb-3">
+				<Dialog.Title class="font-display text-4xl leading-none font-bold">{title}</Dialog.Title>
+			</Dialog.Header>
+			<div class="squiggle mx-7"></div>
+		</div>
+		<div class="overflow-y-auto px-8 py-5">{@render children()}</div>
 		{#if footer}
-			<Dialog.Footer class="flex-row justify-end gap-2 border-t px-6 py-4">
-				{@render footer()}
-			</Dialog.Footer>
+			<div>
+				<div class="squiggle mx-7"></div>
+				<Dialog.Footer class="flex-row justify-end gap-2 px-8 pt-3 pb-6">
+					{@render footer()}
+				</Dialog.Footer>
+			</div>
 		{/if}
 	</Dialog.Content>
 </Dialog.Root>

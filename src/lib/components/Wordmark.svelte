@@ -7,7 +7,7 @@
 
 <span class={cn('inline-flex items-center gap-2.5', className)}>
 	<span
-		class="grid shrink-0 -rotate-6 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm {large
+		class="animate-morph grid shrink-0 -rotate-6 place-items-center bg-primary text-primary-foreground shadow-sm {large
 			? 'size-12'
 			: 'size-9'}"
 	>

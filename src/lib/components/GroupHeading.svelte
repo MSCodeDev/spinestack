@@ -11,5 +11,5 @@
 	<span class="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground"
 		>{count}</span
 	>
-	<span class="h-px flex-1 self-center bg-border"></span>
+	<span class="squiggle flex-1 self-center"></span>
 </h2>

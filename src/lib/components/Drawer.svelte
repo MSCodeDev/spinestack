@@ -18,12 +18,14 @@
 		aria-describedby={undefined}
 		class="gap-0 data-[side=right]:w-full data-[side=right]:sm:max-w-md"
 	>
-		<Sheet.Header class="border-b px-6 py-4 pr-14">
-			<Sheet.Title class="font-display text-3xl leading-none font-bold">{title}</Sheet.Title>
+		<Sheet.Header class="px-8 pt-7 pr-16 pb-3">
+			<Sheet.Title class="font-display text-4xl leading-none font-bold">{title}</Sheet.Title>
 		</Sheet.Header>
-		<div class="flex-1 overflow-y-auto px-6 py-5">{@render children()}</div>
+		<div class="squiggle mx-7"></div>
+		<div class="flex-1 overflow-y-auto px-8 py-5">{@render children()}</div>
 		{#if footer}
-			<Sheet.Footer class="flex-row justify-between gap-2 border-t px-6 py-4">
+			<div class="squiggle mx-7"></div>
+			<Sheet.Footer class="flex-row justify-between gap-2 px-8 pt-3 pb-6">
 				{@render footer()}
 			</Sheet.Footer>
 		{/if}

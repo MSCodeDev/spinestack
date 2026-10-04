@@ -135,7 +135,7 @@
 			No {current.plural.toLowerCase()} yet. They are created as you add books.
 		</p>
 	{:else}
-		<ul class="divide-y divide-border rounded-md border border-border">
+		<ul class="divide-y divide-dashed divide-border overflow-hidden soft-f border border-border">
 			{#each rows as row (row.id)}
 				<li class="flex items-center gap-2 px-3 py-2">
 					{#if editing === row.id}

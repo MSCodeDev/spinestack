@@ -2,6 +2,7 @@
 	import './layout.css';
 	import { onMount } from 'svelte';
 	import favicon from '#lib/assets/favicon.svg';
+	import BackgroundBlobs from '#lib/components/BackgroundBlobs.svelte';
 	import ConfirmHost from '#lib/components/ConfirmHost.svelte';
 	import { Toaster } from '#lib/components/ui/sonner/index.js';
 	import { THEMES, type Theme } from '#lib/preferences.js';
@@ -17,6 +18,7 @@
 </script>
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
+<BackgroundBlobs />
 {@render children()}
 <Toaster position="bottom-right" />
 <ConfirmHost />

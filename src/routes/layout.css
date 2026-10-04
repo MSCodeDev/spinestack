@@ -35,6 +35,7 @@
 	--tile-lilac: oklch(0.935 0.05 300);
 	--tile-mint: oklch(0.935 0.06 155);
 	--tile-sky: oklch(0.935 0.04 235);
+	--wood: oklch(0.76 0.07 65);
 }
 
 .dark {
@@ -63,6 +64,7 @@
 	--tile-lilac: oklch(0.33 0.05 300);
 	--tile-mint: oklch(0.32 0.05 155);
 	--tile-sky: oklch(0.32 0.045 235);
+	--wood: oklch(0.42 0.05 60);
 }
 
 @theme inline {
@@ -99,6 +101,7 @@
 	--color-tile-lilac: var(--tile-lilac);
 	--color-tile-mint: var(--tile-mint);
 	--color-tile-sky: var(--tile-sky);
+	--color-wood: var(--wood);
 }
 
 @layer base {
@@ -113,6 +116,109 @@
 			transparent 1px
 		);
 		background-size: 22px 22px;
+	}
+}
+
+/*
+ * Organic shapes. `blob-*` are percentage radii for small, roughly round things (avatars, marks);
+ * `soft-*` use fixed radii so wide boxes stay readable but never have matching corners.
+ */
+@utility blob-a {
+	border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+}
+@utility blob-b {
+	border-radius: 40% 60% 42% 58% / 52% 38% 62% 48%;
+}
+@utility blob-c {
+	border-radius: 52% 48% 38% 62% / 46% 60% 40% 54%;
+}
+@utility blob-d {
+	border-radius: 36% 64% 58% 42% / 60% 42% 58% 40%;
+}
+
+@utility soft-a {
+	border-radius: 2.2rem 3.4rem 2.6rem 3rem / 3rem 2.4rem 3.4rem 2.2rem;
+}
+@utility soft-b {
+	border-radius: 3.2rem 2.2rem 3.4rem 2.4rem / 2.4rem 3.2rem 2.2rem 3.4rem;
+}
+@utility soft-c {
+	border-radius: 2.6rem 2.8rem 3.4rem 2.2rem / 3.4rem 2.2rem 2.8rem 3rem;
+}
+@utility soft-d {
+	border-radius: 3.4rem 2.6rem 2.2rem 3.2rem / 2.2rem 3.4rem 3rem 2.6rem;
+}
+@utility soft-e {
+	border-radius: 2.8rem 3.4rem 3rem 2.4rem / 3.2rem 2.6rem 2.2rem 3.4rem;
+}
+@utility soft-f {
+	border-radius: 2.4rem 2.2rem 3.2rem 3.4rem / 2.8rem 3.4rem 2.4rem 2.2rem;
+}
+
+/* Large surfaces: dialogs and the side sheet. */
+@utility shape-modal {
+	border-radius: 2.8rem 3.4rem 3rem 2.6rem / 3.2rem 2.6rem 3.4rem 2.8rem;
+}
+@utility shape-sheet {
+	border-radius: 3.4rem 0 0 4rem / 4.2rem 0 0 3.2rem;
+}
+
+@utility transition-shape {
+	transition:
+		border-radius 0.7s ease,
+		transform 0.3s ease,
+		box-shadow 0.3s ease;
+}
+
+/* A hand-drawn wavy line, for dividers. */
+.squiggle {
+	height: 8px;
+	background: var(--border);
+	--squiggle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8' viewBox='0 0 24 8'%3E%3Cpath d='M0 4Q6 0.4 12 4T24 4' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+	-webkit-mask: var(--squiggle) repeat-x center / 24px 8px;
+	mask: var(--squiggle) repeat-x center / 24px 8px;
+}
+
+/* A wavy lower edge, for the header. */
+.wave-edge {
+	height: 14px;
+	background: color-mix(in oklch, var(--background) 88%, transparent);
+	--wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='14' viewBox='0 0 120 14'%3E%3Cpath d='M0 0H120V5C105 13 90 13 75 7 60 1 45 1 30 7 15 13 7 12 0 5Z'/%3E%3C/svg%3E");
+	-webkit-mask: var(--wave) repeat-x top / 120px 14px;
+	mask: var(--wave) repeat-x top / 120px 14px;
+}
+
+@keyframes drift {
+	0%,
+	100% {
+		transform: translate(0, 0) rotate(0deg);
+	}
+	50% {
+		transform: translate(28px, -22px) rotate(9deg);
+	}
+}
+
+@keyframes morph {
+	0%,
+	100% {
+		border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+	}
+	50% {
+		border-radius: 40% 60% 42% 58% / 52% 38% 62% 48%;
+	}
+}
+
+.animate-drift {
+	animation: drift 32s ease-in-out infinite;
+}
+.animate-morph {
+	animation: morph 11s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.animate-drift,
+	.animate-morph {
+		animation: none;
 	}
 }
 

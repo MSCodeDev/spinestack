@@ -95,7 +95,7 @@
 	{:else if !users}
 		<p class="text-muted-foreground">Loading…</p>
 	{:else}
-		<ul class="divide-y divide-border rounded-md border border-border">
+		<ul class="divide-y divide-dashed divide-border overflow-hidden soft-f border border-border">
 			{#each users as u (u.id)}
 				<li class="space-y-2 px-3 py-2">
 					<div class="flex flex-wrap items-center gap-2">

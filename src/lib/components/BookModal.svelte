@@ -185,7 +185,8 @@
 					</ul>
 				</section>
 
-				<div class="flex justify-between border-t border-border pt-3">
+				<div class="squiggle"></div>
+				<div class="flex justify-between">
 					<form
 						bind:this={deleteForm}
 						method="post"
