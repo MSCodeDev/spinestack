@@ -49,9 +49,9 @@
 		>
 			<span class="h-px w-8 bg-current opacity-40"></span>
 			<span
-				class="font-display leading-[0.95] font-bold text-balance break-words {title.length > 22
+				class="font-display leading-[0.95] font-bold text-balance break-words {longest > 11
 					? 'text-xl'
-					: title.length > 11
+					: longest > 8
 						? 'text-2xl'
 						: 'text-3xl'}">{title}</span
 			>
