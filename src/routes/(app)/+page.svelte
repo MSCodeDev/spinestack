@@ -122,7 +122,15 @@
 		filterCount={activeFilterCount(data.query)}
 		onsearch={(q) => update({ q })}
 		onview={(view) => update({ view })}
-		onfilters={() => (filtersOpen = true)}
+		{filtersOpen}
+		onfilters={() => (filtersOpen = !filtersOpen)}
+	/>
+	<FiltersPanel
+		open={filtersOpen}
+		query={data.query}
+		{options}
+		onchange={update}
+		onclear={resetAll}
 	/>
 	<ActiveFilters query={data.query} onchange={update} onclear={clearFilters} />
 
@@ -154,13 +162,6 @@
 	{/if}
 </div>
 
-<FiltersPanel
-	bind:open={filtersOpen}
-	query={data.query}
-	{options}
-	onchange={update}
-	onclear={resetAll}
-/>
 <AddBookModal
 	open={adding}
 	{options}

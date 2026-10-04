@@ -8,12 +8,13 @@
 		q: string;
 		view: View;
 		filterCount: number;
+		filtersOpen: boolean;
 		onsearch: (q: string) => void;
 		onview: (view: View) => void;
 		onfilters: () => void;
 	};
 
-	let { q, view, filterCount, onsearch, onview, onfilters }: Props = $props();
+	let { q, view, filterCount, filtersOpen, onsearch, onview, onfilters }: Props = $props();
 
 	// Follows the URL, but can be typed over until the next navigation.
 	let value = $derived(q);
@@ -44,7 +45,14 @@
 		/>
 	</label>
 
-	<Button variant="outline" size="lg" class="h-12 bg-card px-5 shadow-sm" onclick={onfilters}>
+	<Button
+		variant="outline"
+		size="lg"
+		class="h-12 bg-card px-5 shadow-sm"
+		aria-expanded={filtersOpen}
+		aria-controls="filters-panel"
+		onclick={onfilters}
+	>
 		<SlidersHorizontal /> Filters
 		{#if filterCount}
 			<span

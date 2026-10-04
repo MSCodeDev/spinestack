@@ -29,8 +29,18 @@ test('filters, grouping and view modes', async ({ page }) => {
 		wishlist: true
 	});
 
-	await page.getByRole('button', { name: 'Filters' }).click();
-	const panel = page.getByRole('dialog', { name: 'Filters & sorting' });
+	// the filters sit inline under the toolbar and the button shows and hides them
+	const toggle = page.getByRole('button', { name: 'Filters' });
+	const panel = page.getByRole('region', { name: 'Filters & sorting' });
+	await expect(panel).toHaveCount(0);
+	await toggle.click();
+	await expect(panel).toBeVisible();
+	await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+	await toggle.click();
+	await expect(panel).toHaveCount(0);
+	await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+	await toggle.click();
+	await expect(panel).toBeVisible();
 
 	// group by publisher
 	await panel.getByLabel('Group by').selectOption('publisher');
@@ -41,14 +51,12 @@ test('filters, grouping and view modes', async ({ page }) => {
 	// filter by status, then drop it through the chip
 	await panel.getByLabel(/^Status/).selectOption('wishlist');
 	await expect(page).toHaveURL(/status=wishlist/);
-	await panel.getByRole('button', { name: 'Done' }).click();
 	await expect(page.getByRole('link', { name: 'Emma' })).toHaveCount(0);
 	await expect(page.getByRole('link', { name: 'Hobbit' })).toBeVisible();
 	await page.getByRole('button', { name: 'Remove filter Status: wishlist' }).click();
 	await expect(page.getByRole('link', { name: 'Emma' })).toBeVisible();
 
 	// field search
-	await page.getByRole('button', { name: 'Filters' }).click();
 	await panel.getByRole('textbox', { name: 'Author', exact: true }).fill('tolkien');
 	await expect(page).toHaveURL(/qa=tolkien/);
 	await expect(page.getByRole('link', { name: 'Emma' })).toHaveCount(0);
@@ -61,7 +69,6 @@ test('filters, grouping and view modes', async ({ page }) => {
 	await expect(page).toHaveURL(/location=Study/);
 	await panel.getByLabel('Paid at least').fill('6');
 	await expect(page).toHaveURL(/min=6/);
-	await panel.getByRole('button', { name: 'Done' }).click();
 	await expect(page.getByRole('link', { name: 'Dune' })).toBeVisible();
 	await expect(page.getByRole('link', { name: 'Hobbit' })).toHaveCount(0);
 	await page.getByRole('button', { name: 'Clear all' }).click();
