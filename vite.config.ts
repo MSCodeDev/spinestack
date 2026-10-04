@@ -4,6 +4,18 @@ import adapter from '@sveltejs/adapter-node';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
+	// Pre-bundle these up front so the dev server does not reload the page when it first meets them.
+	optimizeDeps: {
+		include: [
+			'bits-ui',
+			'svelte-sonner',
+			'tailwind-variants',
+			'tailwind-merge',
+			'clsx',
+			'@zxing/browser',
+			'@lucide/svelte'
+		]
+	},
 	plugins: [
 		tailwindcss(),
 		sveltekit({

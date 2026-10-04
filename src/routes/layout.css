@@ -1,21 +1,106 @@
 @import 'tailwindcss';
-@plugin '@tailwindcss/forms';
-@plugin '@tailwindcss/typography';
+@import 'tw-animate-css';
+@import '@fontsource-variable/nunito';
+@import '@fontsource-variable/caveat';
 
 /* Dark mode follows the theme preference (a class on <html>), not just the OS setting. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Warm paper and ink with a coral accent. Light is the default. */
+:root {
+	--radius: 1rem;
+	--background: oklch(0.985 0.012 85);
+	--foreground: oklch(0.28 0.03 50);
+	--card: oklch(1 0.004 85);
+	--card-foreground: oklch(0.28 0.03 50);
+	--popover: oklch(1 0.004 85);
+	--popover-foreground: oklch(0.28 0.03 50);
+	--primary: oklch(0.64 0.18 35);
+	--primary-foreground: oklch(0.99 0.01 85);
+	--secondary: oklch(0.94 0.035 185);
+	--secondary-foreground: oklch(0.32 0.06 195);
+	--muted: oklch(0.958 0.016 85);
+	--muted-foreground: oklch(0.5 0.03 60);
+	--accent: oklch(0.95 0.06 95);
+	--accent-foreground: oklch(0.34 0.06 80);
+	--destructive: oklch(0.58 0.2 25);
+	--border: oklch(0.9 0.02 80);
+	--input: oklch(0.9 0.02 80);
+	--ring: oklch(0.7 0.14 35);
+}
+
+.dark {
+	--background: oklch(0.2 0.015 55);
+	--foreground: oklch(0.95 0.015 85);
+	--card: oklch(0.245 0.018 55);
+	--card-foreground: oklch(0.95 0.015 85);
+	--popover: oklch(0.245 0.018 55);
+	--popover-foreground: oklch(0.95 0.015 85);
+	--primary: oklch(0.72 0.16 38);
+	--primary-foreground: oklch(0.2 0.02 50);
+	--secondary: oklch(0.3 0.04 195);
+	--secondary-foreground: oklch(0.92 0.03 190);
+	--muted: oklch(0.285 0.015 55);
+	--muted-foreground: oklch(0.72 0.025 75);
+	--accent: oklch(0.34 0.05 90);
+	--accent-foreground: oklch(0.95 0.04 95);
+	--destructive: oklch(0.68 0.19 25);
+	--border: oklch(1 0.01 85 / 14%);
+	--input: oklch(1 0.01 85 / 18%);
+	--ring: oklch(0.65 0.13 38);
+}
+
+@theme inline {
+	--font-sans: 'Nunito Variable', ui-sans-serif, system-ui, sans-serif;
+	/* Hand-lettered accents (logo, headings, stat labels); body text stays in Nunito. */
+	--font-display: 'Caveat Variable', 'Segoe Print', 'Comic Sans MS', cursive;
+
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+
+	--color-background: var(--background);
+	--color-foreground: var(--foreground);
+	--color-card: var(--card);
+	--color-card-foreground: var(--card-foreground);
+	--color-popover: var(--popover);
+	--color-popover-foreground: var(--popover-foreground);
+	--color-primary: var(--primary);
+	--color-primary-foreground: var(--primary-foreground);
+	--color-secondary: var(--secondary);
+	--color-secondary-foreground: var(--secondary-foreground);
+	--color-muted: var(--muted);
+	--color-muted-foreground: var(--muted-foreground);
+	--color-accent: var(--accent);
+	--color-accent-foreground: var(--accent-foreground);
+	--color-destructive: var(--destructive);
+	--color-border: var(--border);
+	--color-input: var(--input);
+	--color-ring: var(--ring);
+}
+
+@layer base {
+	* {
+		@apply border-border outline-ring/50;
+	}
+	body {
+		@apply bg-background font-sans text-foreground antialiased;
+	}
+}
+
+/* Plain-element helpers for the parts that are not shadcn components yet. */
 @layer components {
 	.input {
-		@apply mt-1 w-full rounded-md border-stone-300 text-sm dark:border-stone-700 dark:bg-stone-800;
+		@apply mt-1 w-full rounded-xl border border-input bg-card px-3 py-2 text-sm shadow-xs transition outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40;
 	}
 	.btn {
-		@apply inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium hover:bg-stone-100 dark:hover:bg-stone-800;
+		@apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition hover:bg-muted disabled:pointer-events-none disabled:opacity-50;
 	}
 	.btn-primary {
-		@apply bg-indigo-600 text-white hover:bg-indigo-500 dark:hover:bg-indigo-500;
+		@apply bg-primary text-primary-foreground hover:bg-primary/90;
 	}
 	.btn-danger {
-		@apply bg-red-600 text-white hover:bg-red-500 dark:hover:bg-red-500;
+		@apply bg-destructive text-white hover:bg-destructive/90;
 	}
 }
