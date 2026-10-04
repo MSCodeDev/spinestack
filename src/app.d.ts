@@ -1,4 +1,4 @@
-import type { auth } from '$lib/server/auth';
+import type { auth } from '#lib/server/auth.js';
 
 type AuthSession = typeof auth.$Infer.Session;
 

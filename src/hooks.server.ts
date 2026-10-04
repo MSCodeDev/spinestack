@@ -1,8 +1,8 @@
-import type { Handle, ServerInit } from '@sveltejs/kit';
-import { building } from '$app/environment';
-import { auth } from '$lib/server/auth';
-import { db, runMigrations } from '$lib/server/db';
-import { library } from '$lib/server/db/schema';
+import type { Handle, ServerInit } from '@sveltejs/kit/hooks';
+import { building } from '$app/env';
+import { auth } from '#lib/server/auth.js';
+import { db, runMigrations } from '#lib/server/db/index.js';
+import { library } from '#lib/server/db/schema.js';
 import { eq } from 'drizzle-orm';
 import { svelteKitHandler } from 'better-auth/svelte-kit';
 

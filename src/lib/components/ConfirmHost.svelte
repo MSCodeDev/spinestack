@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Modal from './Modal.svelte';
-	import { confirmState } from '$lib/stores/confirm.svelte';
+	import { confirmState } from '#lib/stores/confirm.svelte.js';
 
 	let open = $derived(confirmState.current !== null);
 

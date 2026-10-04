@@ -1,15 +1,15 @@
-import { env } from '$env/dynamic/private';
+import { ORIGIN, BETTER_AUTH_SECRET } from '$app/env/private';
 import { betterAuth } from 'better-auth/minimal';
 import { admin } from 'better-auth/plugins';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { sveltekitCookies } from 'better-auth/svelte-kit';
 import { getRequestEvent } from '$app/server';
-import { db } from '$lib/server/db';
-import { library } from '$lib/server/db/schema';
+import { db } from '#lib/server/db/index.js';
+import { library } from '#lib/server/db/schema.js';
 
 export const auth = betterAuth({
-	baseURL: env.ORIGIN,
-	secret: env.BETTER_AUTH_SECRET,
+	baseURL: ORIGIN,
+	secret: BETTER_AUTH_SECRET,
 	database: drizzleAdapter(db, { provider: 'sqlite' }),
 	// Accounts are created by the first-run setup or by an admin.
 	emailAndPassword: { enabled: true, disableSignUp: true },

@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { hasUsers } from '$lib/server/users';
+import { hasUsers } from '#lib/server/users.js';
 import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ locals }) => {

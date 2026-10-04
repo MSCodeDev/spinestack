@@ -4,7 +4,7 @@ import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 import * as schema from './schema';
-import { databaseUrl } from '$lib/server/config';
+import { databaseUrl } from '#lib/server/config.js';
 
 fs.mkdirSync(path.dirname(path.resolve(databaseUrl)), { recursive: true });
 
