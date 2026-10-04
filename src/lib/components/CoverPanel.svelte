@@ -1,17 +1,22 @@
 <script lang="ts">
 	import { actionHref } from '#lib/modal-url.js';
 	import { enhance } from '$app/forms';
-	import { ImagePlus, Trash2 } from '@lucide/svelte';
+	import { ImagePlus, Search, Trash2 } from '@lucide/svelte';
+	import CoverSearchModal from './CoverSearchModal.svelte';
 	import { toast } from '#lib/stores/toast.svelte.js';
 
 	type Props = {
 		bookId: string;
 		title: string;
+		author?: string | null;
+		isbn?: string | null;
 		coverVersion: number;
 		onchanged: () => void | Promise<void>;
 	};
 
-	let { bookId, title, coverVersion, onchanged }: Props = $props();
+	let { bookId, title, author = null, isbn = null, coverVersion, onchanged }: Props = $props();
+
+	let searching = $state(false);
 
 	let form = $state<HTMLFormElement>();
 	let input = $state<HTMLInputElement>();
@@ -37,6 +42,14 @@
 			</div>
 		{/if}
 	</div>
+
+	<button
+		type="button"
+		class="btn w-full justify-center border border-stone-300 dark:border-stone-700"
+		onclick={() => (searching = true)}
+	>
+		<Search size={16} /> Find cover
+	</button>
 
 	<form
 		bind:this={form}
@@ -94,3 +107,15 @@
 		</form>
 	{/if}
 </div>
+
+<CoverSearchModal
+	open={searching}
+	{bookId}
+	query={[title, author].filter(Boolean).join(' ')}
+	{isbn}
+	onclose={() => (searching = false)}
+	onpicked={async () => {
+		searching = false;
+		await onchanged();
+	}}
+/>

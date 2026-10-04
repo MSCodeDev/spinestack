@@ -106,6 +106,8 @@
 			<CoverPanel
 				bookId={book.id}
 				title={book.title}
+				author={book.authors[0] ?? null}
+				isbn={book.isbn}
 				coverVersion={book.coverVersion}
 				onchanged={async () => {
 					if (bookId) await load(bookId);
