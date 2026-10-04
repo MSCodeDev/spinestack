@@ -5,6 +5,7 @@
 	import AddBookModal from '#lib/components/AddBookModal.svelte';
 	import BookModal from '#lib/components/BookModal.svelte';
 	import ActiveFilters from '#lib/components/ActiveFilters.svelte';
+	import EmptyState from '#lib/components/EmptyState.svelte';
 	import CoversView from '#lib/components/CoversView.svelte';
 	import FiltersPanel from '#lib/components/FiltersPanel.svelte';
 	import SettingsModal from '#lib/components/SettingsModal.svelte';
@@ -21,7 +22,7 @@
 		type LibraryQuery,
 		type SortField
 	} from '#lib/library/query.js';
-	import { modalHref, withParams, withQuery } from '#lib/modal-url.js';
+	import { withParams, withQuery } from '#lib/modal-url.js';
 	import { toast } from '#lib/stores/toast.svelte.js';
 	import type { BookListItem, BookPage, Options } from '#lib/types.js';
 
@@ -113,7 +114,7 @@
 	}
 </script>
 
-<div class="space-y-5">
+<div class="space-y-6">
 	<StatsStrip stats={data.stats} />
 	<LibraryToolbar
 		q={data.query.q}
@@ -148,12 +149,8 @@
 				</button>
 			</div>
 		{/if}
-	{:else if activeFilterCount(data.query) || data.query.q}
-		<p class="py-12 text-center text-muted-foreground">No books match your search or filters.</p>
 	{:else}
-		<p class="py-12 text-center text-muted-foreground">
-			No books yet. <a href={modalHref({ add: '' })} class="underline">Add your first book</a>.
-		</p>
+		<EmptyState filtered={!!(activeFilterCount(data.query) || data.query.q)} />
 	{/if}
 </div>
 

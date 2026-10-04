@@ -1,27 +1,38 @@
 <script lang="ts">
-	import { modalHref } from '#lib/modal-url.js';
-	import { Plus, Settings } from '@lucide/svelte';
+	import { Plus } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
+	import Wordmark from '#lib/components/Wordmark.svelte';
+	import { Button } from '#lib/components/ui/button/index.js';
+	import { modalHref } from '#lib/modal-url.js';
 
 	let { data, children } = $props();
+
+	const initial = $derived(data.user.name.trim().charAt(0).toUpperCase() || '?');
 </script>
 
-<div class="min-h-screen bg-muted text-foreground">
-	<header class="sticky top-0 z-10 border-b border-border bg-card/90 backdrop-blur">
-		<div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-			<a href={resolve('/(app)')} class="text-lg font-semibold">SpineStack</a>
-			<div class="flex items-center gap-4">
-				<a href={modalHref({ add: '' })} class="btn btn-primary"><Plus size={16} /> Add book</a>
+<div class="min-h-dvh">
+	<header class="sticky top-0 z-20 border-b border-border/60 bg-background/80 backdrop-blur-md">
+		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+			<a href={resolve('/(app)')} aria-label="SpineStack home"><Wordmark /></a>
+			<div class="flex items-center gap-2 sm:gap-3">
+				<Button href={modalHref({ add: '' })} size="lg" class="shadow-sm">
+					<Plus /> Add book
+				</Button>
 				<a
 					href={modalHref({ settings: 'preferences' })}
-					class="flex items-center gap-2 rounded p-1.5 text-sm text-muted-foreground hover:bg-muted"
 					aria-label="Settings"
+					class="flex items-center gap-2 rounded-full bg-secondary p-1 transition hover:bg-secondary/70 sm:pr-4"
 				>
-					{data.user.name}
-					<Settings size={18} />
+					<span
+						class="grid size-8 place-items-center rounded-full bg-primary text-sm font-extrabold text-primary-foreground"
+						>{initial}</span
+					>
+					<span class="hidden text-sm font-bold text-secondary-foreground sm:inline"
+						>{data.user.name}</span
+					>
 				</a>
 			</div>
 		</div>
 	</header>
-	<main class="mx-auto max-w-7xl px-4 py-6">{@render children()}</main>
+	<main class="mx-auto max-w-7xl px-4 py-8 sm:px-6">{@render children()}</main>
 </div>

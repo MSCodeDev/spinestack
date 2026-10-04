@@ -16,7 +16,7 @@ test('setup, add, edit and delete a book', async ({ page }) => {
 	await add.getByRole('button', { name: 'Add book' }).click();
 
 	const view = page.getByRole('dialog', { name: 'Dune' });
-	await expect(view.getByText('Frank Herbert')).toBeVisible();
+	await expect(view.getByText('Frank Herbert').first()).toBeVisible();
 	await expect(view.getByText('9780306406157')).toBeVisible();
 	await expect(view.getByText('Study – Shelf 2')).toBeVisible();
 
@@ -64,5 +64,5 @@ test('setup, add, edit and delete a book', async ({ page }) => {
 		.getByRole('button', { name: 'Delete' })
 		.click();
 	await expect(page.getByRole('link', { name: 'Dune Messiah' })).toHaveCount(0);
-	await expect(page.getByText('No books yet.')).toBeVisible();
+	await expect(page.getByText("Let's fill these shelves!")).toBeVisible();
 });

@@ -2,6 +2,7 @@
 	import { actionHref } from '#lib/modal-url.js';
 	import { enhance } from '$app/forms';
 	import { ImagePlus, Search, Trash2 } from '@lucide/svelte';
+	import BookCover from './BookCover.svelte';
 	import CoverSearchModal from './CoverSearchModal.svelte';
 	import { toast } from '#lib/stores/toast.svelte.js';
 
@@ -21,27 +22,10 @@
 	let form = $state<HTMLFormElement>();
 	let input = $state<HTMLInputElement>();
 	let busy = $state(false);
-
-	const hue = $derived([...title].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 0));
 </script>
 
-<div class="w-36 shrink-0 space-y-2">
-	<div class="aspect-[2/3] overflow-hidden rounded-md shadow-sm ring-1 ring-black/10">
-		{#if coverVersion > 0}
-			<img
-				src="/covers/{bookId}/512?v={coverVersion}"
-				alt="Cover of {title}"
-				class="h-full w-full object-cover"
-			/>
-		{:else}
-			<div
-				class="flex h-full w-full items-center justify-center p-3 text-center text-sm font-medium text-white"
-				style="background: hsl({hue} 35% 38%)"
-			>
-				{title}
-			</div>
-		{/if}
-	</div>
+<div class="w-40 shrink-0 space-y-2">
+	<BookCover {bookId} {title} {author} {coverVersion} size="512" lazy={false} />
 
 	<button
 		type="button"

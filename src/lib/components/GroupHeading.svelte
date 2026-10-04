@@ -6,7 +6,10 @@
 		$props();
 </script>
 
-<h2 class="flex items-baseline gap-2 border-b border-border pb-1 text-base font-semibold">
-	{groupLabel(field, label)}
-	<span class="text-sm font-normal text-muted-foreground">{count}</span>
+<h2 class="flex items-baseline gap-3">
+	<span class="font-display text-3xl leading-none font-bold">{groupLabel(field, label)}</span>
+	<span class="rounded-full bg-muted px-2.5 py-0.5 text-xs font-semibold text-muted-foreground"
+		>{count}</span
+	>
+	<span class="h-px flex-1 self-center bg-border"></span>
 </h2>

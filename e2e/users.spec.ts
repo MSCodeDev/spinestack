@@ -41,7 +41,7 @@ test('administrators manage users', async ({ page, browser, baseURL }) => {
 	await readerPage.getByLabel('Email').fill('reader@example.com');
 	await readerPage.getByLabel('Password').fill('reader-secret-1');
 	await readerPage.getByRole('button', { name: 'Sign in' }).click();
-	await expect(readerPage.getByText('No books yet.')).toBeVisible();
+	await expect(readerPage.getByText("Let's fill these shelves!")).toBeVisible();
 	await expect(readerPage.getByText('Admin Book')).toHaveCount(0);
 	await readerPage.getByRole('link', { name: 'Settings' }).click();
 	const readerSettings = readerPage.getByRole('dialog', { name: 'Settings' });
@@ -75,7 +75,7 @@ test('administrators manage users', async ({ page, browser, baseURL }) => {
 	await againPage.getByLabel('Email').fill('reader@example.com');
 	await againPage.getByLabel('Password').fill('reader-secret-2');
 	await againPage.getByRole('button', { name: 'Sign in' }).click();
-	await expect(againPage.getByText('No books yet.')).toBeVisible();
+	await expect(againPage.getByText("Let's fill these shelves!")).toBeVisible();
 	await again.close();
 
 	// delete the user

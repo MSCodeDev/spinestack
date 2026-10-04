@@ -1,40 +1,31 @@
 <script lang="ts">
+	import BookCover from './BookCover.svelte';
+	import { Badge } from '#lib/components/ui/badge/index.js';
 	import { modalHref } from '#lib/modal-url.js';
 	import type { BookListItem } from '#lib/types.js';
 
 	let { book }: { book: BookListItem } = $props();
-
-	const hue = $derived([...book.title].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 360, 0));
 </script>
 
-<a href={modalHref({ book: book.id })} class="group block">
-	<div
-		class="relative aspect-[2/3] overflow-hidden rounded-md shadow-sm ring-1 ring-black/10 transition group-hover:shadow-md"
-	>
-		{#if book.coverVersion > 0}
-			<img
-				src="/covers/{book.id}/256?v={book.coverVersion}"
-				alt=""
-				loading="lazy"
-				class="h-full w-full object-cover"
-			/>
-		{:else}
-			<div
-				class="flex h-full w-full items-center justify-center p-3 text-center text-sm font-medium text-white"
-				style="background: hsl({hue} 35% 38%)"
-			>
-				{book.title}
-			</div>
-		{/if}
+<a
+	href={modalHref({ book: book.id })}
+	class="group block rounded-2xl outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+>
+	<div class="relative transition duration-200 group-hover:-translate-y-1.5 group-hover:-rotate-1">
+		<BookCover
+			bookId={book.id}
+			title={book.title}
+			author={book.authors[0]}
+			coverVersion={book.coverVersion}
+		/>
 		{#if book.status === 'wishlist'}
-			<span
-				class="absolute top-1.5 left-1.5 rounded bg-accent-foreground px-1.5 py-0.5 text-[10px] font-semibold text-white uppercase"
-				>Wishlist</span
+			<Badge class="absolute top-2 right-2 z-20 bg-accent text-accent-foreground shadow-sm"
+				>Wishlist</Badge
 			>
 		{/if}
 	</div>
-	<p class="mt-1.5 line-clamp-2 text-sm leading-tight font-medium">{book.title}</p>
+	<p class="mt-3 line-clamp-2 text-sm leading-tight font-bold">{book.title}</p>
 	{#if book.authors.length}
-		<p class="line-clamp-1 text-xs text-muted-foreground">{book.authors.join(', ')}</p>
+		<p class="mt-0.5 line-clamp-1 text-xs text-muted-foreground">{book.authors.join(', ')}</p>
 	{/if}
 </a>

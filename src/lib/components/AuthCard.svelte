@@ -1,16 +1,16 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import Wordmark from './Wordmark.svelte';
 
 	let { title, subtitle, children }: { title: string; subtitle?: string; children: Snippet } =
 		$props();
 </script>
 
-<main class="flex min-h-screen items-center justify-center bg-muted p-4">
-	<div class="w-full max-w-sm rounded-xl bg-card p-6 shadow-sm">
-		<h1 class="text-xl font-semibold">{title}</h1>
-		{#if subtitle}<p class="mt-1 mb-4 text-sm text-muted-foreground">{subtitle}</p>{:else}<div
-				class="mb-4"
-			></div>{/if}
-		{@render children()}
+<main class="flex min-h-dvh flex-col items-center justify-center gap-8 p-4">
+	<Wordmark large />
+	<div class="w-full max-w-sm rounded-[2rem] border border-border bg-card p-8 shadow-lg">
+		<h1 class="font-display text-4xl leading-none font-bold">{title}</h1>
+		{#if subtitle}<p class="mt-2 text-sm text-muted-foreground">{subtitle}</p>{/if}
+		<div class="mt-6">{@render children()}</div>
 	</div>
 </main>

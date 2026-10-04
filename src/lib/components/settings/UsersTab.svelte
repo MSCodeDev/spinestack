@@ -157,7 +157,7 @@
 		</ul>
 
 		<form class="space-y-3" onsubmit={create}>
-			<h3 class="font-semibold">Add a user</h3>
+			<h3 class="font-display text-2xl leading-none font-bold">Add a user</h3>
 			<div class="grid gap-3 sm:grid-cols-2">
 				<label class="block font-medium"
 					>Name<input class="input" bind:value={name} required /></label

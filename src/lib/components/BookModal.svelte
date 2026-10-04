@@ -146,7 +146,7 @@
 
 				<section>
 					<div class="flex items-center justify-between">
-						<h3 class="text-sm font-semibold">Reading</h3>
+						<h3 class="font-display text-2xl leading-none font-bold">Reading</h3>
 						<form
 							method="post"
 							action={actionHref('startReading')}

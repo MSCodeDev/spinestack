@@ -3,6 +3,7 @@
 	import Modal from './Modal.svelte';
 	import BookForm from './BookForm.svelte';
 	import IsbnQueue from './IsbnQueue.svelte';
+	import SegmentedTabs from './SegmentedTabs.svelte';
 	import LookupResults from './LookupResults.svelte';
 	import type { Draft, LookupResult, Options } from '#lib/types.js';
 
@@ -87,21 +88,7 @@
 			/>
 		{/key}
 	{:else}
-		<div class="mb-4 flex gap-1 border-b border-border" role="tablist">
-			{#each tabs as t (t.id)}
-				<button
-					type="button"
-					role="tab"
-					aria-selected={tab === t.id}
-					class="-mb-px border-b-2 px-3 py-2 text-sm font-medium {tab === t.id
-						? 'border-primary text-primary '
-						: 'border-transparent text-muted-foreground hover:text-foreground dark:hover:text-white'}"
-					onclick={() => pick(t.id)}
-				>
-					{t.label}
-				</button>
-			{/each}
-		</div>
+		<SegmentedTabs {tabs} value={tab} onchange={pick} />
 
 		{#if tab === 'search'}
 			<form class="flex flex-wrap items-end gap-2" onsubmit={searchByName}>

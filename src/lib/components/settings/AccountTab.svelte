@@ -43,7 +43,7 @@
 
 <div class="space-y-8 text-sm">
 	<form class="space-y-3" onsubmit={saveName}>
-		<h3 class="font-semibold">Profile</h3>
+		<h3 class="font-display text-2xl leading-none font-bold">Profile</h3>
 		<p class="text-muted-foreground">{email}</p>
 		<label class="block font-medium">
 			Name
@@ -54,7 +54,7 @@
 	</form>
 
 	<form class="space-y-3" onsubmit={savePassword}>
-		<h3 class="font-semibold">Change password</h3>
+		<h3 class="font-display text-2xl leading-none font-bold">Change password</h3>
 		<label class="block font-medium">
 			Current password
 			<input

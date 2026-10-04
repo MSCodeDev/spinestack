@@ -69,7 +69,7 @@
 <Drawer bind:open title="Filters & sorting">
 	<div class="space-y-6 text-sm">
 		<section class="space-y-2">
-			<h3 class="font-semibold">Search in field</h3>
+			<h3 class="font-display text-2xl leading-none font-bold">Search in field</h3>
 			<div class="grid grid-cols-2 gap-3">
 				{#each fieldSearches as [key, label] (key)}
 					<label class="block font-medium">
@@ -88,7 +88,7 @@
 		</section>
 
 		<section class="space-y-2">
-			<h3 class="font-semibold">Sort &amp; group</h3>
+			<h3 class="font-display text-2xl leading-none font-bold">Sort &amp; group</h3>
 			<div class="flex items-end gap-2">
 				<label class="block flex-1 font-medium">
 					Sort by
@@ -125,7 +125,7 @@
 		</section>
 
 		<section class="space-y-3">
-			<h3 class="font-semibold">Filters</h3>
+			<h3 class="font-display text-2xl leading-none font-bold">Filters</h3>
 			<div class="grid grid-cols-3 gap-3">
 				<label class="block font-medium">
 					Status

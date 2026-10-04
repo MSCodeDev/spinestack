@@ -43,7 +43,7 @@ test('add books from lookup results', async ({ page }) => {
 
 	await add.getByRole('button', { name: 'Add', exact: true }).first().click();
 	const view = page.getByRole('dialog', { name: 'Dune' });
-	await expect(view.getByText('Frank Herbert')).toBeVisible();
+	await expect(view.getByText('Frank Herbert').first()).toBeVisible();
 	await expect(view.getByText('9780441172719')).toBeVisible();
 	await expect(page.getByText('could not be downloaded')).toBeVisible();
 	const bookId = new URL(page.url()).searchParams.get('book')!;

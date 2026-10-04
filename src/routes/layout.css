@@ -27,6 +27,14 @@
 	--border: oklch(0.9 0.02 80);
 	--input: oklch(0.9 0.02 80);
 	--ring: oklch(0.7 0.14 35);
+
+	/* Soft tints for stat tiles and other playful surfaces. */
+	--tile-coral: oklch(0.935 0.05 40);
+	--tile-teal: oklch(0.935 0.05 190);
+	--tile-butter: oklch(0.955 0.07 95);
+	--tile-lilac: oklch(0.935 0.05 300);
+	--tile-mint: oklch(0.935 0.06 155);
+	--tile-sky: oklch(0.935 0.04 235);
 }
 
 .dark {
@@ -48,6 +56,13 @@
 	--border: oklch(1 0.01 85 / 14%);
 	--input: oklch(1 0.01 85 / 18%);
 	--ring: oklch(0.65 0.13 38);
+
+	--tile-coral: oklch(0.33 0.05 40);
+	--tile-teal: oklch(0.32 0.045 190);
+	--tile-butter: oklch(0.34 0.05 95);
+	--tile-lilac: oklch(0.33 0.05 300);
+	--tile-mint: oklch(0.32 0.05 155);
+	--tile-sky: oklch(0.32 0.045 235);
 }
 
 @theme inline {
@@ -78,6 +93,12 @@
 	--color-border: var(--border);
 	--color-input: var(--input);
 	--color-ring: var(--ring);
+	--color-tile-coral: var(--tile-coral);
+	--color-tile-teal: var(--tile-teal);
+	--color-tile-butter: var(--tile-butter);
+	--color-tile-lilac: var(--tile-lilac);
+	--color-tile-mint: var(--tile-mint);
+	--color-tile-sky: var(--tile-sky);
 }
 
 @layer base {
@@ -86,19 +107,32 @@
 	}
 	body {
 		@apply bg-background font-sans text-foreground antialiased;
+		/* A faint dotted-paper texture. */
+		background-image: radial-gradient(
+			color-mix(in oklch, var(--foreground) 7%, transparent) 1px,
+			transparent 1px
+		);
+		background-size: 22px 22px;
 	}
 }
 
-/* Plain-element helpers for the parts that are not shadcn components yet. */
+/* Plain-element helpers that match the shadcn Input and Button shapes. */
 @layer components {
 	.input {
-		@apply mt-1 w-full rounded-xl border border-input bg-card px-3 py-2 text-sm shadow-xs transition outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40;
+		@apply mt-1 h-10 w-full rounded-full border border-input bg-card px-4 text-sm shadow-xs transition outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/40;
+	}
+	textarea.input {
+		@apply h-auto rounded-2xl px-4 py-2.5;
+	}
+	select.input {
+		@apply appearance-none bg-[length:1.1rem] bg-[right_0.9rem_center] bg-no-repeat pr-10;
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 	}
 	.btn {
-		@apply inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition hover:bg-muted disabled:pointer-events-none disabled:opacity-50;
+		@apply inline-flex h-9 items-center gap-1.5 rounded-full px-4 text-sm font-medium transition hover:bg-muted active:translate-y-px disabled:pointer-events-none disabled:opacity-50;
 	}
 	.btn-primary {
-		@apply bg-primary text-primary-foreground hover:bg-primary/90;
+		@apply bg-primary text-primary-foreground shadow-xs hover:bg-primary/90;
 	}
 	.btn-danger {
 		@apply bg-destructive text-white hover:bg-destructive/90;

@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { LayoutGrid, Layers, Search, SlidersHorizontal, Table2 } from '@lucide/svelte';
+	import { Layers, LayoutGrid, Search, SlidersHorizontal, Table2 } from '@lucide/svelte';
+	import { Button } from '#lib/components/ui/button/index.js';
 	import type { View } from '#lib/library/query.js';
+	import { cn } from '#lib/utils.js';
 
 	type Props = {
 		q: string;
@@ -29,41 +31,45 @@
 	] as const;
 </script>
 
-<div class="flex items-center gap-2">
-	<label class="relative flex-1">
+<div class="flex flex-wrap items-center gap-3">
+	<label class="relative min-w-60 flex-1">
 		<span class="sr-only">Search books</span>
-		<Search size={16} class="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground" />
+		<Search size={18} class="absolute top-1/2 left-4 -translate-y-1/2 text-muted-foreground" />
 		<input
 			type="search"
 			bind:value
 			oninput={input}
 			placeholder="Search title, author, ISBN…"
-			class="input mt-0 pl-9"
+			class="input mt-0 h-12 bg-card pl-11 text-base shadow-sm"
 		/>
 	</label>
 
-	<button type="button" class="btn border border-border" onclick={onfilters}>
-		<SlidersHorizontal size={16} /> Filters
+	<Button variant="outline" size="lg" class="h-12 bg-card px-5 shadow-sm" onclick={onfilters}>
+		<SlidersHorizontal /> Filters
 		{#if filterCount}
-			<span class="rounded-full bg-primary px-1.5 text-xs text-primary-foreground"
+			<span
+				class="grid size-5 place-items-center rounded-full bg-primary text-xs font-bold text-primary-foreground"
 				>{filterCount}</span
 			>
 		{/if}
-	</button>
+	</Button>
 
-	<div class="flex rounded-md border border-border p-0.5" role="group" aria-label="View">
+	<div class="flex rounded-full border border-border bg-muted p-1" role="group" aria-label="View">
 		{#each views as v (v.id)}
 			<button
 				type="button"
 				aria-label={v.label}
 				aria-pressed={view === v.id}
 				title={v.label}
-				class="rounded p-1.5 {view === v.id
-					? 'bg-primary text-primary-foreground'
-					: 'hover:bg-muted '}"
+				class={cn(
+					'grid size-10 place-items-center rounded-full transition',
+					view === v.id
+						? 'bg-card text-primary shadow-sm'
+						: 'text-muted-foreground hover:text-foreground'
+				)}
 				onclick={() => onview(v.id)}
 			>
-				<v.icon size={16} />
+				<v.icon size={18} />
 			</button>
 		{/each}
 	</div>
