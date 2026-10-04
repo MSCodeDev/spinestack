@@ -49,9 +49,13 @@ export type BookListItem = {
 	createdAt: number;
 	coverVersion: number;
 	coverColor: string | null;
+	/** Group label when the list is grouped; null means "none of this". */
+	group: string | null;
 };
 
-export type BookPage = { items: BookListItem[]; total: number };
+export type GroupCount = { label: string | null; count: number };
+
+export type BookPage = { items: BookListItem[]; total: number; groups?: GroupCount[] };
 
 export type Stats = {
 	owned: number;

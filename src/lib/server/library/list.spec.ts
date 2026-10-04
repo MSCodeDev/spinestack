@@ -115,6 +115,117 @@ describe('queryBooks', () => {
 	});
 });
 
+describe('queryBooks filters and groups', () => {
+	let hobbit: string;
+
+	beforeEach(() => {
+		saveBook(
+			db,
+			lib,
+			book({
+				title: 'Dune',
+				authors: ['Frank Herbert'],
+				publisher: 'Ace',
+				location: 'Study',
+				tags: ['scifi'],
+				currency: 'USD',
+				paidPrice: 1000,
+				boughtAt: '2024-03-01'
+			})
+		);
+		saveBook(
+			db,
+			lib,
+			book({
+				title: 'Emma',
+				authors: ['Jane Austen'],
+				publisher: 'Penguin',
+				location: 'Hall',
+				tags: ['classic'],
+				currency: 'USD',
+				paidPrice: 500,
+				boughtAt: '2023-05-01'
+			})
+		);
+		hobbit = saveBook(
+			db,
+			lib,
+			book({
+				title: 'Hobbit',
+				authors: ['J.R.R. Tolkien'],
+				publisher: 'Ace',
+				status: 'wishlist',
+				currency: 'JPY',
+				paidPrice: 900,
+				boughtAt: '2023-08-01'
+			})
+		);
+		startReading(db, lib, hobbit, 'u1');
+	});
+
+	it('filters by entity names, any-of within a filter', () => {
+		expect(titles({ publisher: ['ace'] }).sort()).toEqual(['Dune', 'Hobbit']);
+		expect(titles({ author: ['Jane Austen', 'Frank Herbert'] }).sort()).toEqual(['Dune', 'Emma']);
+		expect(titles({ tag: ['classic'], publisher: ['Penguin'] })).toEqual(['Emma']);
+		expect(titles({ tag: ['classic'], publisher: ['Ace'] })).toEqual([]);
+		expect(titles({ location: ['Study'] })).toEqual(['Dune']);
+	});
+
+	it('filters by status, reading state and cover', () => {
+		expect(titles({ status: 'wishlist' })).toEqual(['Hobbit']);
+		expect(titles({ reading: 'reading' })).toEqual(['Hobbit']);
+		expect(titles({ reading: 'unread' }).sort()).toEqual(['Dune', 'Emma']);
+		expect(titles({ cover: true })).toEqual([]);
+		expect(titles({ cover: false })).toHaveLength(3);
+	});
+
+	it('filters by price in major units and by bought date', () => {
+		expect(titles({ priceMin: 6 }).sort()).toEqual(['Dune', 'Hobbit']);
+		expect(titles({ priceMin: 6, priceMax: 20 })).toEqual(['Dune']);
+		expect(titles({ boughtFrom: '2023-06-01', boughtTo: '2024-12-31' }).sort()).toEqual([
+			'Dune',
+			'Hobbit'
+		]);
+	});
+
+	it('searches within a field only', () => {
+		const fieldTitles = (fields: Partial<typeof DEFAULT_QUERY.fields>) =>
+			titles({ fields: { ...DEFAULT_QUERY.fields, ...fields } });
+		expect(fieldTitles({ qa: 'austen' })).toEqual(['Emma']);
+		expect(fieldTitles({ qp: 'ace' }).sort()).toEqual(['Dune', 'Hobbit']);
+		expect(fieldTitles({ qt: 'austen' })).toEqual([]);
+	});
+
+	it('groups with labels, ordered groups and counts', () => {
+		const result = queryBooks(
+			db,
+			lib,
+			{ ...DEFAULT_QUERY, group: 'publisher', sort: 'title', dir: 'asc' },
+			page
+		);
+		expect(result.items.map((i) => [i.group, i.title])).toEqual([
+			['Ace', 'Dune'],
+			['Ace', 'Hobbit'],
+			['Penguin', 'Emma']
+		]);
+		expect(result.groups).toEqual([
+			{ label: 'Ace', count: 2 },
+			{ label: 'Penguin', count: 1 }
+		]);
+	});
+
+	it('orders date groups newest first and puts empty groups last', () => {
+		saveBook(db, lib, book({ title: 'Undated' }));
+		const result = queryBooks(db, lib, { ...DEFAULT_QUERY, group: 'boughtYear' }, page);
+		expect(result.groups!.map((g) => g.label)).toEqual(['2024', '2023', null]);
+	});
+
+	it('groups by reading state in a fixed order', () => {
+		const result = queryBooks(db, lib, { ...DEFAULT_QUERY, group: 'reading' }, page);
+		expect(result.groups!.map((g) => g.label)).toEqual(['reading', 'unread']);
+	});
+});
+
 describe('getStats', () => {
 	it('aggregates counts, spend and reading', () => {
 		const now = new Date('2026-10-15T12:00:00Z');

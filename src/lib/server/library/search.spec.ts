@@ -14,4 +14,9 @@ describe('buildMatch', () => {
 	it('keeps accented and non-latin letters', () => {
 		expect(buildMatch('Émile 東京')).toBe('"Émile"* "東京"*');
 	});
+
+	it('scopes field searches to their column', () => {
+		expect(buildMatch('', { qa: 'frank herb' })).toBe('authors : ("frank"* "herb"*)');
+		expect(buildMatch('dune', { qt: 'mess', qi: '' })).toBe('"dune"* title : ("mess"*)');
+	});
 });

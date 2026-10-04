@@ -1,10 +1,19 @@
 import { type SQL, sql } from 'drizzle-orm';
 import type { Db } from '../db/factory.js';
-import type { LibraryQuery, SortField } from '../../library/query.js';
-import type { BookListItem, BookPage } from '../../types.js';
+import type { GroupField, LibraryQuery, ListFilter, SortField } from '../../library/query.js';
+import type { BookListItem, BookPage, GroupCount } from '../../types.js';
 import { buildMatch } from './search.js';
 
-type Row = Omit<BookListItem, 'authors' | 'createdAt'> & { createdAt: number };
+type Row = Omit<BookListItem, 'authors'>;
+
+/** Currencies without minor units, for the price filter. */
+const ZERO_DECIMAL = ['JPY', 'KRW', 'VND', 'CLP', 'ISK', 'UGX', 'XAF', 'XOF'];
+
+const list = (values: unknown[]) =>
+	sql.join(
+		values.map((v) => sql`${v}`),
+		sql`, `
+	);
 
 const firstAuthor = sql`(select p.name from book_person bp join person p on p.id = bp.person_id
 	where bp.book_id = b.id order by bp.position limit 1)`;
@@ -21,12 +30,96 @@ const sortKey: Record<SortField, SQL> = {
 	price: sql`b.paid_price`
 };
 
-function orderBy({ sort, dir }: Pick<LibraryQuery, 'sort' | 'dir'>): SQL {
+const readingState = sql`(case
+	when exists (select 1 from reading r where r.book_id = b.id and r.finished_at is null) then 'reading'
+	when exists (select 1 from reading r where r.book_id = b.id) then 'read'
+	else 'unread' end)`;
+
+type Group = { label: SQL; order: SQL; dir: 'asc' | 'desc' };
+
+/** Group label shown in the UI, plus the key and direction the groups are ordered by. */
+const groups: Record<Exclude<GroupField, 'none'>, Group> = {
+	author: { label: firstAuthor, order: sql`${firstAuthor} collate nocase`, dir: 'asc' },
+	series: {
+		label: sql`(select name from series where id = b.series_id)`,
+		order: sql`(select name from series where id = b.series_id) collate nocase`,
+		dir: 'asc'
+	},
+	publisher: {
+		label: sql`(select name from publisher where id = b.publisher_id)`,
+		order: sql`(select name from publisher where id = b.publisher_id) collate nocase`,
+		dir: 'asc'
+	},
+	location: {
+		label: sql`(select name from location where id = b.location_id)`,
+		order: sql`(select name from location where id = b.location_id) collate nocase`,
+		dir: 'asc'
+	},
+	status: { label: sql`b.status`, order: sql`b.status`, dir: 'asc' },
+	reading: {
+		label: readingState,
+		order: sql`(case ${readingState} when 'reading' then 0 when 'unread' then 1 else 2 end)`,
+		dir: 'asc'
+	},
+	addedMonth: {
+		label: sql`strftime('%Y-%m', b.created_at / 1000, 'unixepoch')`,
+		order: sql`strftime('%Y-%m', b.created_at / 1000, 'unixepoch')`,
+		dir: 'desc'
+	},
+	boughtYear: {
+		label: sql`substr(b.bought_at, 1, 4)`,
+		order: sql`substr(b.bought_at, 1, 4)`,
+		dir: 'desc'
+	}
+};
+
+function orderBy({ sort, dir, group }: Pick<LibraryQuery, 'sort' | 'dir' | 'group'>): SQL {
 	const key = sortKey[sort];
 	const direction = dir === 'asc' ? sql`asc` : sql`desc`;
 	const seriesNumber =
 		sort === 'series' ? sql`, cast(b.series_number as real) ${direction}` : sql``;
-	return sql`${key} is null, ${key} ${direction}${seriesNumber}, b.title collate nocase, b.id`;
+	const groupOrder =
+		group === 'none'
+			? sql``
+			: sql`${groups[group].order} is null, ${groups[group].order} ${groups[group].dir === 'asc' ? sql`asc` : sql`desc`}, `;
+	return sql`${groupOrder}${key} is null, ${key} ${direction}${seriesNumber}, b.title collate nocase, b.id`;
+}
+
+/** Subquery selecting book ids that have any of the given names in a relation. */
+const relation: Record<ListFilter, (names: SQL) => SQL> = {
+	author: (names) => sql`b.id in (select bp.book_id from book_person bp
+		join person p on p.id = bp.person_id where lower(p.name) in (${names}))`,
+	tag: (names) => sql`b.id in (select bt.book_id from book_tag bt
+		join tag t on t.id = bt.tag_id where lower(t.name) in (${names}))`,
+	series: (names) => sql`b.series_id in (select id from series where lower(name) in (${names}))`,
+	publisher: (names) =>
+		sql`b.publisher_id in (select id from publisher where lower(name) in (${names}))`,
+	location: (names) =>
+		sql`b.location_id in (select id from location where lower(name) in (${names}))`
+};
+
+function buildWhere(libraryId: string, q: LibraryQuery): SQL {
+	const c: SQL[] = [sql`b.library_id = ${libraryId}`];
+
+	const match = buildMatch(q.q, q.fields);
+	if (match) c.push(sql`b.id in (select book_id from book_fts where book_fts match ${match})`);
+
+	for (const key of Object.keys(relation) as ListFilter[]) {
+		if (q[key].length) c.push(relation[key](list(q[key].map((n) => n.toLowerCase()))));
+	}
+
+	if (q.status) c.push(sql`b.status = ${q.status}`);
+	if (q.reading) c.push(sql`${readingState} = ${q.reading}`);
+	if (q.cover !== null) c.push(q.cover ? sql`b.cover_version > 0` : sql`b.cover_version = 0`);
+
+	const major = sql`(b.paid_price / (case when b.currency in (${list(ZERO_DECIMAL)}) then 1.0 else 100.0 end))`;
+	if (q.priceMin !== null) c.push(sql`${major} >= ${q.priceMin}`);
+	if (q.priceMax !== null) c.push(sql`${major} <= ${q.priceMax}`);
+
+	if (q.boughtFrom) c.push(sql`b.bought_at >= ${q.boughtFrom}`);
+	if (q.boughtTo) c.push(sql`b.bought_at <= ${q.boughtTo}`);
+
+	return sql.join(c, sql` and `);
 }
 
 export function queryBooks(
@@ -35,14 +128,8 @@ export function queryBooks(
 	query: LibraryQuery,
 	page: { offset: number; limit: number }
 ): BookPage {
-	const conditions: SQL[] = [sql`b.library_id = ${libraryId}`];
-
-	const match = buildMatch(query.q);
-	if (match) {
-		conditions.push(sql`b.id in (select book_id from book_fts where book_fts match ${match})`);
-	}
-
-	const where = sql.join(conditions, sql` and `);
+	const where = buildWhere(libraryId, query);
+	const group = query.group === 'none' ? null : groups[query.group];
 
 	const total = db.get<{ n: number }>(sql`select count(*) as n from book b where ${where}`).n;
 
@@ -60,7 +147,8 @@ export function queryBooks(
 			b.bought_at as boughtAt,
 			b.created_at as createdAt,
 			b.cover_version as coverVersion,
-			b.cover_color as coverColor
+			b.cover_color as coverColor,
+			${group ? group.label : sql`null`} as "group"
 		from book b
 		where ${where}
 		order by ${orderBy(query)}
@@ -69,14 +157,10 @@ export function queryBooks(
 
 	const authors = new Map<string, string[]>();
 	if (rows.length) {
-		const ids = sql.join(
-			rows.map((r) => sql`${r.id}`),
-			sql`, `
-		);
 		const found = db.all<{ bookId: string; name: string }>(sql`
 			select bp.book_id as bookId, p.name
 			from book_person bp join person p on p.id = bp.person_id
-			where bp.book_id in (${ids})
+			where bp.book_id in (${list(rows.map((r) => r.id))})
 			order by bp.position
 		`);
 		for (const { bookId, name } of found) {
@@ -84,8 +168,23 @@ export function queryBooks(
 		}
 	}
 
+	// Per-group totals so headers can show counts even when a group spans pages.
+	const groupCounts: GroupCount[] | undefined = group
+		? db
+				.all<GroupCount>(
+					sql`
+					select ${group.label} as label, count(*) as count
+					from book b where ${where}
+					group by label
+					order by ${group.order} is null, ${group.order} ${group.dir === 'asc' ? sql`asc` : sql`desc`}
+				`
+				)
+				.map((g) => ({ label: g.label, count: g.count }))
+		: undefined;
+
 	return {
 		total,
+		groups: groupCounts,
 		items: rows.map((r) => ({ ...r, authors: authors.get(r.id) ?? [] }))
 	};
 }
