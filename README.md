@@ -36,6 +36,19 @@ Camera scanning needs a secure context, so use HTTPS (or `localhost`) when scann
 | `PORT`, `HOST`                   | `3000`, `0.0.0.0`         | Where the server listens.                                                                                               |
 | `PROTOCOL_HEADER`, `HOST_HEADER` |                           | Behind a reverse proxy, set to `x-forwarded-proto` and `x-forwarded-host`. Takes the place of `ORIGIN` for form checks. |
 
+## Migrating from the old SpineStack
+
+The earlier Kotlin/Vue version kept its data in a SQLite file (`database.sqlite` in its config directory). To bring those books into a user's library:
+
+```sh
+npm run import:legacy -- path/to/database.sqlite --email you@example.com --dry-run   # preview
+npm run import:legacy -- path/to/database.sqlite --email you@example.com
+```
+
+It imports books with their authors, publisher, ISBN, page count, synopsis, prices, dates, wishlist status and reading history, keeping the original "added" dates. The target database is backed up first, and the old image files aren't part of the database, so covers are downloaded again from Open Library by ISBN (`--no-covers` skips that). Running it twice is safe: books already in the library are skipped.
+
+Not carried over: series, stores, non-author contributors (illustrators, printers…), and per-book links.
+
 ## Development
 
 ```sh
@@ -46,17 +59,18 @@ npm run dev
 
 The database is created and migrated on first start.
 
-| Script                | Purpose                                        |
-| --------------------- | ---------------------------------------------- |
-| `npm run dev`         | Start the dev server                           |
-| `npm run build`       | Production build                               |
-| `npm start`           | Run the production build                       |
-| `npm run check`       | Type-check                                     |
-| `npm run lint`        | Check formatting and lint                      |
-| `npm run format`      | Format                                         |
-| `npm test`            | Unit tests                                     |
-| `npm run test:e2e`    | Browser tests (Playwright)                     |
-| `npm run db:generate` | Generate a migration after changing the schema |
+| Script                  | Purpose                                        |
+| ----------------------- | ---------------------------------------------- |
+| `npm run dev`           | Start the dev server                           |
+| `npm run build`         | Production build                               |
+| `npm start`             | Run the production build                       |
+| `npm run check`         | Type-check                                     |
+| `npm run lint`          | Check formatting and lint                      |
+| `npm run format`        | Format                                         |
+| `npm test`              | Unit tests                                     |
+| `npm run test:e2e`      | Browser tests (Playwright)                     |
+| `npm run import:legacy` | Import from the old SpineStack database        |
+| `npm run db:generate`   | Generate a migration after changing the schema |
 
 End-to-end tests need a browser: `npx playwright install --with-deps chromium`.
 
