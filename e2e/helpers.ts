@@ -31,9 +31,16 @@ type NewBook = {
 	wishlist?: boolean;
 };
 
-export async function addBook(page: Page, book: NewBook) {
+/** Open the Add book modal on its Manual tab. */
+export async function openManualAdd(page: Page) {
 	await page.getByRole('link', { name: 'Add book' }).click();
 	const dialog = page.getByRole('dialog', { name: 'Add book' });
+	await dialog.getByRole('tab', { name: 'Manual' }).click();
+	return dialog;
+}
+
+export async function addBook(page: Page, book: NewBook) {
+	const dialog = await openManualAdd(page);
 	await dialog.getByLabel('Title', { exact: true }).fill(book.title);
 	await dialog.getByPlaceholder('Add author').fill(book.author);
 	await dialog.getByPlaceholder('Add author').press('Enter');

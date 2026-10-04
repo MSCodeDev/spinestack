@@ -3,21 +3,24 @@
 	import { untrack } from 'svelte';
 	import { enhance } from '$app/forms';
 	import ChipInput from './ChipInput.svelte';
+	import { toast } from '#lib/stores/toast.svelte.js';
 	import { fromMinor } from '#lib/money.js';
-	import type { BookDetail, Options } from '#lib/types.js';
+	import type { BookDetail, Draft, Options } from '#lib/types.js';
 
 	type Props = {
 		id: string;
 		book?: BookDetail | null;
+		/** Prefill for a new book, e.g. from a lookup result. */
+		draft?: Draft | null;
 		options: Options;
 		onsaved: (bookId: string) => void | Promise<void>;
 		oncancel: () => void;
 	};
 
-	let { id, book = null, options, onsaved, oncancel }: Props = $props();
+	let { id, book = null, draft = null, options, onsaved, oncancel }: Props = $props();
 
 	// The parent re-keys the form per book, so the initial value is all we need.
-	const initial = untrack(() => book);
+	const initial: Draft | null = untrack(() => book ?? draft);
 	let authors = $state(initial?.authors ?? []);
 	let tags = $state(initial?.tags ?? []);
 	let error = $state<string | null>(null);
@@ -40,6 +43,7 @@
 		return async ({ result, update }) => {
 			busy = false;
 			if (result.type === 'success' && result.data?.saved) {
+				if (result.data.coverFailed) toast('Saved, but the cover could not be downloaded', 'error');
 				await update({ reset: false });
 				await onsaved(result.data.saved as string);
 			} else if (result.type === 'failure') {
@@ -52,15 +56,16 @@
 	}}
 >
 	{#if book}<input type="hidden" name="id" value={book.id} />{/if}
+	{#if initial?.coverUrl}<input type="hidden" name="coverUrl" value={initial.coverUrl} />{/if}
 
 	<div class="grid gap-4 sm:grid-cols-2">
 		<label class="block text-sm font-medium sm:col-span-2">
 			Title
-			<input name="title" required value={book?.title ?? ''} class="input" />
+			<input name="title" required value={initial?.title ?? ''} class="input" />
 		</label>
 		<label class="block text-sm font-medium sm:col-span-2">
 			Subtitle
-			<input name="subtitle" value={book?.subtitle ?? ''} class="input" />
+			<input name="subtitle" value={initial?.subtitle ?? ''} class="input" />
 		</label>
 		<div class="text-sm font-medium sm:col-span-2">
 			Authors
@@ -73,11 +78,11 @@
 		</div>
 		<label class="block text-sm font-medium">
 			ISBN
-			<input name="isbn" inputmode="numeric" value={book?.isbn ?? ''} class="input" />
+			<input name="isbn" inputmode="numeric" value={initial?.isbn ?? ''} class="input" />
 		</label>
 		<label class="block text-sm font-medium">
 			Status
-			<select name="status" class="input" value={book?.status ?? 'owned'}>
+			<select name="status" class="input" value={initial?.status ?? 'owned'}>
 				<option value="owned">Owned</option>
 				<option value="wishlist">Wishlist</option>
 			</select>
@@ -87,7 +92,7 @@
 			<input
 				name="publisher"
 				list="{lists}-publishers"
-				value={book?.publisher ?? ''}
+				value={initial?.publisher ?? ''}
 				class="input"
 			/>
 		</label>
@@ -96,18 +101,18 @@
 			<input
 				name="location"
 				list="{lists}-locations"
-				value={book?.location ?? ''}
+				value={initial?.location ?? ''}
 				class="input"
 				placeholder="e.g. Study – Shelf 2"
 			/>
 		</label>
 		<label class="block text-sm font-medium">
 			Series
-			<input name="series" list="{lists}-series" value={book?.series ?? ''} class="input" />
+			<input name="series" list="{lists}-series" value={initial?.series ?? ''} class="input" />
 		</label>
 		<label class="block text-sm font-medium">
 			Series number
-			<input name="seriesNumber" value={book?.seriesNumber ?? ''} class="input" />
+			<input name="seriesNumber" value={initial?.seriesNumber ?? ''} class="input" />
 		</label>
 		<div class="text-sm font-medium sm:col-span-2">
 			Tags
@@ -115,11 +120,17 @@
 		</div>
 		<label class="block text-sm font-medium">
 			Pages
-			<input name="pageCount" type="number" min="0" value={book?.pageCount ?? ''} class="input" />
+			<input
+				name="pageCount"
+				type="number"
+				min="0"
+				value={initial?.pageCount ?? ''}
+				class="input"
+			/>
 		</label>
 		<label class="block text-sm font-medium">
 			Language
-			<input name="language" value={book?.language ?? ''} class="input" placeholder="en" />
+			<input name="language" value={initial?.language ?? ''} class="input" placeholder="en" />
 		</label>
 	</div>
 
@@ -134,7 +145,7 @@
 			<input
 				name="labelPrice"
 				inputmode="decimal"
-				value={price(book?.labelPrice ?? null)}
+				value={price(initial?.labelPrice ?? null)}
 				class="input"
 			/>
 		</label>
@@ -143,27 +154,27 @@
 			<input
 				name="paidPrice"
 				inputmode="decimal"
-				value={price(book?.paidPrice ?? null)}
+				value={price(initial?.paidPrice ?? null)}
 				class="input"
 			/>
 		</label>
 		<label class="block text-sm font-medium sm:col-span-1">
 			Bought
-			<input name="boughtAt" type="date" value={book?.boughtAt ?? ''} class="input" />
+			<input name="boughtAt" type="date" value={initial?.boughtAt ?? ''} class="input" />
 		</label>
 		<label class="block text-sm font-medium sm:col-span-1">
 			Arrived
-			<input name="arrivedAt" type="date" value={book?.arrivedAt ?? ''} class="input" />
+			<input name="arrivedAt" type="date" value={initial?.arrivedAt ?? ''} class="input" />
 		</label>
 	</fieldset>
 
 	<label class="block text-sm font-medium">
 		Synopsis
-		<textarea name="synopsis" rows="4" class="input">{book?.synopsis ?? ''}</textarea>
+		<textarea name="synopsis" rows="4" class="input">{initial?.synopsis ?? ''}</textarea>
 	</label>
 	<label class="block text-sm font-medium">
 		Notes
-		<textarea name="notes" rows="3" class="input">{book?.notes ?? ''}</textarea>
+		<textarea name="notes" rows="3" class="input">{initial?.notes ?? ''}</textarea>
 	</label>
 
 	{#if error}

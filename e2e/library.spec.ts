@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { login, resetLibrary } from './helpers';
+import { login, openManualAdd, resetLibrary } from './helpers';
 
 test.beforeEach(resetLibrary);
 
@@ -7,8 +7,7 @@ test('setup, add, edit and delete a book', async ({ page }) => {
 	await login(page);
 
 	// add a book
-	await page.getByRole('link', { name: 'Add book' }).click();
-	const add = page.getByRole('dialog', { name: 'Add book' });
+	const add = await openManualAdd(page);
 	await add.getByLabel('Title', { exact: true }).fill('Dune');
 	await add.getByPlaceholder('Add author').fill('Frank Herbert');
 	await add.getByPlaceholder('Add author').press('Enter');
@@ -44,7 +43,7 @@ test('setup, add, edit and delete a book', async ({ page }) => {
 
 	// duplicate ISBN is rejected
 	await page.keyboard.press('Escape');
-	await page.getByRole('link', { name: 'Add book' }).click();
+	await openManualAdd(page);
 	await add.getByLabel('Title', { exact: true }).fill('Dune again');
 	await add.getByLabel('ISBN').fill('9780306406157');
 	await add.getByRole('button', { name: 'Add book' }).click();
