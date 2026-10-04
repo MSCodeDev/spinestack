@@ -1,7 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { desc, eq } from 'drizzle-orm';
 import { db } from '#lib/server/db/index.js';
-import { book } from '#lib/server/db/schema.js';
 import { requireLibrary } from '#lib/server/guard.js';
 import {
 	DuplicateIsbnError,
@@ -11,20 +9,14 @@ import {
 	startReading
 } from '#lib/server/library/books.js';
 import { parseBookForm } from '#lib/server/library/book-form.js';
+import { queryBooks } from '#lib/server/library/list.js';
+import { PAGE_SIZE, parseQuery } from '#lib/library/query.js';
 import type { Actions, PageServerLoad } from './$types';
 
-// Interim list; replaced by the full library query.
-export const load: PageServerLoad = ({ locals }) => {
+export const load: PageServerLoad = ({ locals, url }) => {
 	const { libraryId } = requireLibrary(locals);
-	return {
-		books: db
-			.select({ id: book.id, title: book.title })
-			.from(book)
-			.where(eq(book.libraryId, libraryId))
-			.orderBy(desc(book.createdAt))
-			.limit(60)
-			.all()
-	};
+	const query = parseQuery(url.searchParams);
+	return { query, page: queryBooks(db, libraryId, query, { offset: 0, limit: PAGE_SIZE }) };
 };
 
 export const actions: Actions = {

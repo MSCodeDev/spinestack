@@ -34,6 +34,18 @@ test('setup, add, edit and delete a book', async ({ page }) => {
 	await expect(page.getByRole('dialog', { name: 'Dune' })).toBeVisible();
 	expect(dataRequests).toBe(0);
 
+	// stats and search
+	await page.keyboard.press('Escape');
+	await expect(page.getByText('Books', { exact: true })).toBeVisible();
+	await expect(page.locator('dd', { hasText: /^1$/ }).first()).toBeVisible();
+	await page.getByPlaceholder('Search title').fill('herb');
+	await expect(page).toHaveURL(/q=herb/);
+	await expect(page.getByRole('link', { name: 'Dune' })).toBeVisible();
+	await page.getByPlaceholder('Search title').fill('zzz');
+	await expect(page.getByText('No books match')).toBeVisible();
+	await page.getByPlaceholder('Search title').fill('');
+	await expect(page.getByRole('link', { name: 'Dune' })).toBeVisible();
+
 	// duplicate ISBN is rejected
 	await page.keyboard.press('Escape');
 	await page.getByRole('link', { name: 'Add book' }).click();
