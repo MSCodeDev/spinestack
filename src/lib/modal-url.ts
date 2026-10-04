@@ -25,3 +25,9 @@ export function withQuery(url: { search: string }, query: LibraryQuery) {
 /** Link to the library page with modal params changed and the list state kept. */
 export const modalHref = (changes: Record<string, string | null>) =>
 	resolve('/(app)') + withParams(page.url, changes);
+
+/** Form action URL that keeps the current query string, so the page (and its open modal) stays put. */
+export const actionHref = (name: string) => {
+	const query = new URLSearchParams(page.url.search).toString();
+	return `?${query ? `${query}&` : ''}/${name}`;
+};

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { modalHref } from '#lib/modal-url.js';
+	import { actionHref, modalHref } from '#lib/modal-url.js';
 	import { untrack } from 'svelte';
 	import { enhance } from '$app/forms';
 	import ChipInput from './ChipInput.svelte';
@@ -32,7 +32,7 @@
 <form
 	{id}
 	method="post"
-	action="?/save"
+	action={actionHref('save')}
 	class="space-y-4"
 	use:enhance={() => {
 		busy = true;

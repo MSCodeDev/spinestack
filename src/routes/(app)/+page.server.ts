@@ -1,4 +1,6 @@
 import { fail } from '@sveltejs/kit';
+import { InvalidImageError, MAX_IMAGE_BYTES, coverStore } from '#lib/server/covers/index.js';
+import { clearBookCover, setBookCover } from '#lib/server/library/cover.js';
 import { db } from '#lib/server/db/index.js';
 import { requireLibrary } from '#lib/server/guard.js';
 import {
@@ -40,7 +42,40 @@ export const actions: Actions = {
 	delete: async ({ request, locals }) => {
 		const { libraryId } = requireLibrary(locals);
 		const id = String((await request.formData()).get('id') ?? '');
-		return { deleted: deleteBook(db, libraryId, id) };
+		const deleted = deleteBook(db, libraryId, id);
+		if (deleted) await coverStore.remove(id);
+		return { deleted };
+	},
+
+	uploadCover: async ({ request, locals }) => {
+		const { libraryId } = requireLibrary(locals);
+		const form = await request.formData();
+		const id = String(form.get('id') ?? '');
+		const file = form.get('cover');
+
+		if (!(file instanceof File) || file.size === 0) return fail(400, { error: 'Choose an image.' });
+		if (file.size > MAX_IMAGE_BYTES) return fail(400, { error: 'Image must be under 5 MB.' });
+
+		try {
+			const ok = await setBookCover(
+				db,
+				coverStore,
+				libraryId,
+				id,
+				Buffer.from(await file.arrayBuffer())
+			);
+			return ok ? { cover: id } : fail(404, { error: 'Book not found.' });
+		} catch (e) {
+			if (e instanceof InvalidImageError) return fail(400, { error: e.message });
+			throw e;
+		}
+	},
+
+	removeCover: async ({ request, locals }) => {
+		const { libraryId } = requireLibrary(locals);
+		const id = String((await request.formData()).get('id') ?? '');
+		await clearBookCover(db, coverStore, libraryId, id);
+		return { cover: id };
 	},
 
 	startReading: async ({ request, locals }) => {
