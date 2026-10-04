@@ -55,7 +55,8 @@ test('add books from lookup results', async ({ page }) => {
 	await add.getByRole('tab', { name: 'ISBN' }).click();
 	await add.getByLabel('ISBN').fill('978-0-441-17271-9');
 	await add.getByRole('button', { name: 'Find' }).click();
-	expect(requests.at(-1)).toContain('isbn=978-0-441-17271-9');
+	await expect(add.getByRole('link', { name: 'In library' })).toBeVisible();
+	expect(requests.at(-1)).toContain('isbn=9780441172719');
 	await add.getByRole('link', { name: 'In library' }).click();
 	await expect(page.getByRole('dialog', { name: 'Dune' })).toBeVisible();
 	await page.getByRole('dialog', { name: 'Dune' }).getByRole('button', { name: 'Close' }).click();

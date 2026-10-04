@@ -161,7 +161,13 @@
 	onchange={update}
 	onclear={resetAll}
 />
-<AddBookModal open={adding} {options} onclose={closeAll} onsaved={saved} />
+<AddBookModal
+	open={adding}
+	{options}
+	onclose={closeAll}
+	onsaved={saved}
+	onadded={() => refreshAll()}
+/>
 <BookModal
 	{bookId}
 	edit={editing}

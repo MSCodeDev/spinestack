@@ -5,7 +5,19 @@ const port = 5174;
 export default defineConfig({
 	testDir: 'e2e',
 	workers: 1,
-	use: { baseURL: `http://localhost:${port}` },
+	globalSetup: './e2e/global-setup.ts',
+	use: {
+		baseURL: `http://localhost:${port}`,
+		permissions: ['camera'],
+		launchOptions: {
+			// Fake camera that plays a clip of an ISBN barcode (see e2e/global-setup.ts)
+			args: [
+				'--use-fake-device-for-media-stream',
+				'--use-fake-ui-for-media-stream',
+				'--use-file-for-fake-video-capture=e2e/.tmp/barcode.y4m'
+			]
+		}
+	},
 	webServer: {
 		command: `rm -rf .e2e-data && npm run dev -- --port ${port} --strictPort`,
 		url: `http://localhost:${port}`,

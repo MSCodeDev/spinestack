@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import { actionHref, modalHref } from '#lib/modal-url.js';
+	import { modalHref } from '#lib/modal-url.js';
+	import { saveDraft } from '#lib/client/save-book.js';
 	import { resultToDraft } from '#lib/library/draft.js';
 	import { toast } from '#lib/stores/toast.svelte.js';
 	import type { Draft, LookupResult } from '#lib/types.js';
@@ -8,25 +8,44 @@
 	type Props = {
 		results: LookupResult[];
 		onreview: (draft: Draft) => void;
-		onsaved: (bookId: string) => void | Promise<void>;
+		/** Called after a one-click add. Without `stay`, the caller usually opens the new book. */
+		onsaved: (bookId: string, result: LookupResult) => void | Promise<void>;
+		/** ISBN to book id for results already added during this session. */
+		added?: Record<string, string>;
 	};
 
-	let { results, onreview, onsaved }: Props = $props();
+	let { results, onreview, onsaved, added = {} }: Props = $props();
 
-	let busy = $state<number | null>(null);
+	let busy = $state<string | null>(null);
 	let error = $state<string | null>(null);
+
+	const keyOf = (r: LookupResult, i: number) => `${r.isbn ?? ''}|${r.title}|${i}`;
 
 	const details = (r: LookupResult) =>
 		[r.publisher, r.year, r.pageCount ? `${r.pageCount} pages` : null, r.language?.toUpperCase()]
 			.filter(Boolean)
 			.join(' · ');
+
+	async function add(r: LookupResult, key: string) {
+		busy = key;
+		error = null;
+		try {
+			const { id, coverFailed } = await saveDraft(resultToDraft(r));
+			if (coverFailed) toast('Added, but the cover could not be downloaded', 'error');
+			await onsaved(id, r);
+		} catch (e) {
+			error = e instanceof Error ? e.message : 'Could not add the book.';
+		} finally {
+			busy = null;
+		}
+	}
 </script>
 
 {#if error}<p class="mb-2 text-sm text-red-600" role="alert">{error}</p>{/if}
 
 <ul class="divide-y divide-stone-200 dark:divide-stone-800">
-	{#each results as r, i (`${r.isbn ?? ''}|${r.title}|${i}`)}
-		{@const draft = resultToDraft(r)}
+	{#each results as r, i (keyOf(r, i))}
+		{@const key = keyOf(r, i)}
 		<li class="flex gap-3 py-3">
 			<div class="h-20 w-14 shrink-0 overflow-hidden rounded bg-stone-200 dark:bg-stone-800">
 				{#if r.coverUrl}
@@ -49,49 +68,20 @@
 				{#if r.isbn}<p class="text-xs text-stone-500">ISBN {r.isbn}</p>{/if}
 			</div>
 			<div class="flex shrink-0 flex-col items-end gap-1.5">
-				{#if r.existingId}
+				{#if r.isbn && added[r.isbn]}
+					<span class="text-sm font-medium text-green-700 dark:text-green-400">Added ✓</span>
+				{:else if r.existingId}
 					<a href={modalHref({ add: null, book: r.existingId })} class="btn text-xs">In library</a>
 				{:else}
-					<form
-						method="post"
-						action={actionHref('save')}
-						use:enhance={() => {
-							busy = i;
-							error = null;
-							return async ({ result, update }) => {
-								busy = null;
-								if (result.type === 'success' && result.data?.saved) {
-									if (result.data.coverFailed)
-										toast('Added, but the cover could not be downloaded', 'error');
-									await update({ reset: false });
-									await onsaved(result.data.saved as string);
-								} else if (result.type === 'failure') {
-									error = (result.data?.error as string) ?? 'Could not add the book.';
-								} else {
-									await update();
-								}
-							};
-						}}
+					<button
+						type="button"
+						class="btn btn-primary text-xs"
+						disabled={busy !== null}
+						onclick={() => add(r, key)}
 					>
-						<input type="hidden" name="title" value={draft.title} />
-						<input type="hidden" name="subtitle" value={draft.subtitle ?? ''} />
-						{#each draft.authors ?? [] as a (a)}<input
-								type="hidden"
-								name="author"
-								value={a}
-							/>{/each}
-						<input type="hidden" name="isbn" value={draft.isbn ?? ''} />
-						<input type="hidden" name="publisher" value={draft.publisher ?? ''} />
-						<input type="hidden" name="pageCount" value={draft.pageCount ?? ''} />
-						<input type="hidden" name="language" value={draft.language ?? ''} />
-						<input type="hidden" name="synopsis" value={draft.synopsis ?? ''} />
-						<input type="hidden" name="coverUrl" value={draft.coverUrl ?? ''} />
-						<input type="hidden" name="status" value="owned" />
-						<button class="btn btn-primary text-xs" disabled={busy !== null}>
-							{busy === i ? 'Adding…' : 'Add'}
-						</button>
-					</form>
-					<button type="button" class="btn text-xs" onclick={() => onreview(draft)}
+						{busy === key ? 'Adding…' : 'Add'}
+					</button>
+					<button type="button" class="btn text-xs" onclick={() => onreview(resultToDraft(r))}
 						>Edit first</button
 					>
 				{/if}

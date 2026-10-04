@@ -2,6 +2,7 @@
 	import { ArrowLeft } from '@lucide/svelte';
 	import Modal from './Modal.svelte';
 	import BookForm from './BookForm.svelte';
+	import IsbnQueue from './IsbnQueue.svelte';
 	import LookupResults from './LookupResults.svelte';
 	import type { Draft, LookupResult, Options } from '#lib/types.js';
 
@@ -10,9 +11,11 @@
 		options: Options;
 		onclose: () => void;
 		onsaved: (bookId: string) => void | Promise<void>;
+		/** A book was added from the ISBN queue, which keeps the modal open. */
+		onadded: () => void | Promise<void>;
 	};
 
-	let { open, options, onclose, onsaved }: Props = $props();
+	let { open, options, onclose, onsaved, onadded }: Props = $props();
 
 	type Tab = 'search' | 'isbn' | 'manual';
 	const tabs: { id: Tab; label: string }[] = [
@@ -25,7 +28,6 @@
 	let draft = $state<Draft | null>(null);
 	let title = $state('');
 	let author = $state('');
-	let isbn = $state('');
 	let results = $state<LookupResult[] | null>(null);
 	let loading = $state(false);
 	let error = $state<string | null>(null);
@@ -35,7 +37,7 @@
 		if (open) return;
 		tab = 'search';
 		draft = null;
-		title = author = isbn = '';
+		title = author = '';
 		results = null;
 		error = null;
 	});
@@ -65,10 +67,6 @@
 	const searchByName = (e: SubmitEvent) => {
 		e.preventDefault();
 		return lookup({ title, author });
-	};
-	const searchByIsbn = (e: SubmitEvent) => {
-		e.preventDefault();
-		return lookup({ isbn });
 	};
 </script>
 
@@ -110,18 +108,12 @@
 				<button class="btn btn-primary" disabled={loading}>Search</button>
 			</form>
 		{:else if tab === 'isbn'}
-			<form class="flex items-end gap-2" onsubmit={searchByIsbn}>
-				<label class="block flex-1 text-sm font-medium">
-					ISBN
-					<input class="input" bind:value={isbn} required inputmode="numeric" placeholder="978…" />
-				</label>
-				<button class="btn btn-primary" disabled={loading}>Find</button>
-			</form>
+			<IsbnQueue onreview={(d) => (draft = d)} {onadded} {onclose} />
 		{:else}
 			<BookForm id="add-book-form" {options} {onsaved} oncancel={onclose} />
 		{/if}
 
-		{#if tab !== 'manual'}
+		{#if tab === 'search'}
 			<div class="mt-4">
 				{#if loading}
 					<p class="text-sm text-stone-500">Searching…</p>
@@ -133,18 +125,13 @@
 						<button
 							type="button"
 							class="underline"
-							onclick={() =>
-								(draft = {
-									title: tab === 'search' ? title : '',
-									isbn: tab === 'isbn' ? isbn : null,
-									authors: author ? [author] : []
-								})}
+							onclick={() => (draft = { title, authors: author ? [author] : [] })}
 						>
 							Add it manually
 						</button>
 					</p>
 				{:else if results}
-					<LookupResults {results} onreview={(d) => (draft = d)} {onsaved} />
+					<LookupResults {results} onreview={(d) => (draft = d)} onsaved={(id) => onsaved(id)} />
 				{/if}
 			</div>
 		{/if}
