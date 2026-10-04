@@ -108,6 +108,24 @@ describe('queryBooks', () => {
 		expect(titles({ sort: 'title', dir: 'asc' }, { offset: 3, limit: 3 })).toEqual(['Emma']);
 	});
 
+	it('returns every match when there is no limit', () => {
+		const all = queryBooks(
+			db,
+			lib,
+			{ ...DEFAULT_QUERY, sort: 'title', dir: 'asc' },
+			{ offset: 0, limit: null }
+		);
+		expect(all.items).toHaveLength(4);
+		expect(all.total).toBe(4);
+		const rest = queryBooks(
+			db,
+			lib,
+			{ ...DEFAULT_QUERY, sort: 'title', dir: 'asc' },
+			{ offset: 1, limit: null }
+		);
+		expect(rest.items.map((i) => i.title)).toEqual(['Dune', 'Dune Messiah', 'Emma']);
+	});
+
 	it('returns authors in order and stays within the library', () => {
 		const [item] = queryBooks(db, lib, { ...DEFAULT_QUERY, q: 'emma' }, page).items;
 		expect(item.authors).toEqual(['Jane Austen']);

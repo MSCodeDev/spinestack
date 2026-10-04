@@ -11,5 +11,10 @@ export const GET: RequestHandler = ({ locals, url }) => {
 	const prefs = getPreferences(db, userId);
 	const offset = Math.max(0, Number(url.searchParams.get('offset')) || 0);
 	const query = parseQuery(url.searchParams, { view: prefs.defaultView });
-	return json(queryBooks(db, libraryId, query, { offset, limit: prefs.pageSize }));
+	return json(
+		queryBooks(db, libraryId, query, {
+			offset,
+			limit: query.group === 'none' ? prefs.pageSize : null
+		})
+	);
 };

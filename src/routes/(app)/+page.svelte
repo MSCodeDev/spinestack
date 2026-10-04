@@ -10,6 +10,7 @@
 	import FiltersPanel from '#lib/components/FiltersPanel.svelte';
 	import SettingsModal from '#lib/components/SettingsModal.svelte';
 	import LibraryToolbar from '#lib/components/LibraryToolbar.svelte';
+	import LoadMore from '#lib/components/LoadMore.svelte';
 	import StackedView from '#lib/components/StackedView.svelte';
 	import StatsStrip from '#lib/components/StatsStrip.svelte';
 	import TableView from '#lib/components/TableView.svelte';
@@ -87,25 +88,35 @@
 		await go({ add: null, edit: null, book: id });
 	}
 
-	// Pages beyond the first are fetched client-side and dropped whenever the load reruns.
+	// Batches beyond the first are fetched as you scroll and dropped whenever the load reruns.
+	// A grouped list is loaded whole by the server, so there is never anything more to fetch.
 	let more = $state<BookListItem[]>([]);
 	let loadingMore = $state(false);
+	let loadError = $state<string | null>(null);
 	$effect(() => {
 		void data.page;
 		more = [];
+		loadError = null;
 	});
 
 	const items = $derived([...data.page.items, ...more]);
 	const segments = $derived(toSegments(items, data.page.groups));
-	const remaining = $derived(data.page.total - items.length);
 
 	async function loadMore() {
+		if (loadingMore || items.length >= data.page.total) return;
+		const loadedFor = data.page;
 		loadingMore = true;
+		loadError = null;
 		try {
 			const params = serializeQuery(data.query, defaults);
 			params.set('offset', String(items.length));
-			const next: BookPage = await (await fetch(`/api/books?${params}`)).json();
-			more = [...more, ...next.items];
+			const res = await fetch(`/api/books?${params}`);
+			if (!res.ok) throw new Error('Could not load more books.');
+			const next: BookPage = await res.json();
+			// the list may have changed (new search, filter…) while this was in flight
+			if (loadedFor === data.page) more = [...more, ...next.items];
+		} catch (e) {
+			loadError = e instanceof Error ? e.message : 'Could not load more books.';
 		} finally {
 			loadingMore = false;
 		}
@@ -147,15 +158,14 @@
 		{:else}
 			<CoversView {segments} group={data.query.group} />
 		{/if}
-		{#if remaining > 0}
-			<div class="text-center">
-				<button class="btn" onclick={loadMore} disabled={loadingMore}>
-					{loadingMore
-						? 'Loading…'
-						: `Load more (${Math.min(remaining, data.pageSize)} of ${remaining})`}
-				</button>
-			</div>
-		{/if}
+		<LoadMore
+			shown={items.length}
+			total={data.page.total}
+			batch={data.pageSize}
+			loading={loadingMore}
+			error={loadError}
+			onload={loadMore}
+		/>
 	{:else}
 		<EmptyState filtered={!!(activeFilterCount(data.query) || data.query.q)} />
 	{/if}

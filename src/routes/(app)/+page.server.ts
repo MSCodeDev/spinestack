@@ -29,7 +29,11 @@ export const load: PageServerLoad = ({ locals, url }) => {
 	return {
 		query,
 		pageSize: prefs.pageSize,
-		page: queryBooks(db, libraryId, query, { offset: 0, limit: prefs.pageSize })
+		// A grouped list needs every book, so its headings and counts are complete.
+		page: queryBooks(db, libraryId, query, {
+			offset: 0,
+			limit: query.group === 'none' ? prefs.pageSize : null
+		})
 	};
 };
 

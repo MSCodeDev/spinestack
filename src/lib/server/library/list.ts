@@ -123,7 +123,8 @@ export function queryBooks(
 	db: Db,
 	libraryId: string,
 	query: LibraryQuery,
-	page: { offset: number; limit: number }
+	/** `limit: null` returns every match. */
+	page: { offset: number; limit: number | null }
 ): BookPage {
 	const where = buildWhere(libraryId, query);
 	const group = query.group === 'none' ? null : groups[query.group];
@@ -149,7 +150,7 @@ export function queryBooks(
 		from book b
 		where ${where}
 		order by ${orderBy(query)}
-		limit ${page.limit} offset ${page.offset}
+		limit ${page.limit ?? -1} offset ${page.offset}
 	`);
 
 	const authors = new Map<string, string[]>();

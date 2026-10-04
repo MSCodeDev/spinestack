@@ -62,7 +62,7 @@
 	</label>
 
 	<label class="block font-medium">
-		Books per page
+		Books loaded at a time
 		<select
 			class="input"
 			value={prefs.pageSize}
