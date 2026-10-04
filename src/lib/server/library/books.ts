@@ -1,4 +1,4 @@
-import { and, asc, eq, sql } from 'drizzle-orm';
+import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import type { Db } from '../db/factory.js';
 import {
 	book,
@@ -109,6 +109,17 @@ export function saveBook(db: Db, libraryId: string, input: BookInput, id?: strin
 		refreshFts(tx, bookId);
 		return bookId;
 	});
+}
+
+/** Map of ISBN to book id for those ISBNs already in the library. */
+export function findExistingIsbns(db: Db, libraryId: string, isbns: string[]): Map<string, string> {
+	if (!isbns.length) return new Map();
+	const rows = db
+		.select({ id: book.id, isbn: book.isbn })
+		.from(book)
+		.where(and(eq(book.libraryId, libraryId), inArray(book.isbn, isbns)))
+		.all();
+	return new Map(rows.map((r) => [r.isbn!, r.id]));
 }
 
 export function getBook(db: Db, libraryId: string, id: string): BookDetail | null {

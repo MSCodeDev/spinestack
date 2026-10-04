@@ -70,10 +70,12 @@ export function mergeLists(lists: MetadataResult[][], limit = 20): MetadataResul
 export function createMetadata({ http, googleBooksKey }: Deps) {
 	/** Run each provider; fail only when every one of them failed. */
 	async function fanOut<T>(tasks: Promise<T>[]): Promise<T[]> {
-		const settled = await Promise.allSettled(tasks);
-		const ok = settled.filter((s): s is PromiseFulfilledResult<T> => s.status === 'fulfilled');
-		if (!ok.length) throw new ProviderError('Book lookup services are unavailable right now.');
-		return ok.map((s) => s.value);
+		const values: T[] = [];
+		for (const result of await Promise.allSettled(tasks)) {
+			if (result.status === 'fulfilled') values.push(result.value as T);
+		}
+		if (!values.length) throw new ProviderError('Book lookup services are unavailable right now.');
+		return values;
 	}
 
 	return {

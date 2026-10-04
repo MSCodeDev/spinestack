@@ -7,6 +7,7 @@ import type { BookInput } from '../../types.js';
 import {
 	DuplicateIsbnError,
 	deleteBook,
+	findExistingIsbns,
 	finishReading,
 	getBook,
 	getOptions,
@@ -103,5 +104,13 @@ describe('books service', () => {
 		expect(r.finishedAt).toBeNull();
 		finishReading(db, libraryId, r.id);
 		expect(getBook(db, libraryId, id)!.readings[0].finishedAt).not.toBeNull();
+	});
+
+	it('finds existing books by ISBN', () => {
+		const id = saveBook(db, libraryId, base);
+		const found = findExistingIsbns(db, libraryId, ['9780441172719', '9780306406157']);
+		expect(found).toEqual(new Map([['9780441172719', id]]));
+		expect(findExistingIsbns(db, 'other', ['9780441172719']).size).toBe(0);
+		expect(findExistingIsbns(db, libraryId, []).size).toBe(0);
 	});
 });

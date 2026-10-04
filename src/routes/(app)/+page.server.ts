@@ -1,5 +1,10 @@
 import { fail } from '@sveltejs/kit';
-import { InvalidImageError, MAX_IMAGE_BYTES, coverStore } from '#lib/server/covers/index.js';
+import {
+	InvalidImageError,
+	MAX_IMAGE_BYTES,
+	coverStore,
+	downloadImage
+} from '#lib/server/covers/index.js';
 import { clearBookCover, setBookCover } from '#lib/server/library/cover.js';
 import { db } from '#lib/server/db/index.js';
 import { requireLibrary } from '#lib/server/guard.js';
@@ -21,6 +26,29 @@ export const load: PageServerLoad = ({ locals, url }) => {
 	return { query, page: queryBooks(db, libraryId, query, { offset: 0, limit: PAGE_SIZE }) };
 };
 
+/**
+ * Best-effort poster for a new book: the provider's cover URL, else Open Library's cover for the ISBN.
+ * Returns false only when a cover was expected (a URL was given) but could not be fetched.
+ */
+async function fetchNewCover(
+	libraryId: string,
+	bookId: string,
+	coverUrl: string,
+	isbn: string | null
+) {
+	const url =
+		coverUrl || (isbn ? `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false` : '');
+	if (!url) return true;
+	try {
+		const image = await downloadImage(url, { timeoutMs: 6_000 });
+		await setBookCover(db, coverStore, libraryId, bookId, image);
+		return true;
+	} catch (e) {
+		console.warn(`Cover download failed for ${bookId}:`, e instanceof Error ? e.message : e);
+		return !coverUrl;
+	}
+}
+
 export const actions: Actions = {
 	save: async ({ request, locals }) => {
 		const { libraryId } = requireLibrary(locals);
@@ -30,7 +58,16 @@ export const actions: Actions = {
 
 		const id = String(form.get('id') ?? '') || undefined;
 		try {
-			return { saved: saveBook(db, libraryId, parsed.input, id) };
+			const saved = saveBook(db, libraryId, parsed.input, id);
+			const coverFailed = id
+				? false
+				: !(await fetchNewCover(
+						libraryId,
+						saved,
+						String(form.get('coverUrl') ?? ''),
+						parsed.input.isbn
+					));
+			return { saved, coverFailed };
 		} catch (e) {
 			if (e instanceof DuplicateIsbnError) {
 				return fail(400, { error: e.message, duplicateId: e.bookId });

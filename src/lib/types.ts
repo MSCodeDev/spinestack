@@ -23,6 +23,9 @@ export type BookInput = {
 	arrivedAt: string | null;
 };
 
+/** Prefill for the add form, e.g. from a lookup result. */
+export type Draft = Partial<BookInput> & { coverUrl?: string | null };
+
 export type Reading = { id: string; startedAt: string; finishedAt: string | null };
 
 export type BookDetail = BookInput & {
