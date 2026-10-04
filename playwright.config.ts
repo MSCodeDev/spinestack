@@ -22,6 +22,10 @@ export default defineConfig({
 		command: `rm -rf .e2e-data && npm run dev -- --port ${port} --strictPort`,
 		url: `http://localhost:${port}`,
 		reuseExistingServer: false,
-		env: { DATA_DIR: './.e2e-data', ORIGIN: `http://localhost:${port}` }
+		env: {
+			DATA_DIR: './.e2e-data',
+			ORIGIN: `http://localhost:${port}`,
+			BETTER_AUTH_SECRET: 'e2e-only-secret-do-not-use-in-production-0123456789'
+		}
 	}
 });
