@@ -12,6 +12,8 @@ export const GET: RequestHandler = ({ locals }) => {
 export const PUT: RequestHandler = async ({ locals, request, cookies }) => {
 	const { userId } = requireLibrary(locals);
 	const prefs = setPreferences(db, userId, await request.json());
-	cookies.set('theme', prefs.theme, { path: '/', maxAge: 60 * 60 * 24 * 365, httpOnly: false });
+	for (const key of ['theme', 'accent'] as const) {
+		cookies.set(key, prefs[key], { path: '/', maxAge: 60 * 60 * 24 * 365, httpOnly: false });
+	}
 	return json(prefs);
 };

@@ -12,7 +12,7 @@
 			value: String(stats.owned),
 			hint: `+${stats.addedThisMonth} this month`,
 			icon: Library,
-			tint: 'bg-tile-coral soft-a hover:soft-d'
+			tint: 'bg-tile-lilac soft-a hover:soft-d'
 		},
 		{
 			label: 'Series',

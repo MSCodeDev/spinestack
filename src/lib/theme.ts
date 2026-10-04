@@ -1,4 +1,4 @@
-import type { Theme } from './preferences.js';
+import type { Accent, Theme } from './preferences.js';
 import { themeState } from './stores/theme.svelte.js';
 
 /** Apply a theme to the page immediately, without a reload. */
@@ -10,3 +10,8 @@ export function applyTheme(theme: Theme) {
 		theme === 'dark' || (theme === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
 	root.classList.toggle('dark', dark);
 }
+
+/** Apply the main colour to the page immediately, without a reload. */
+export const applyAccent = (accent: Accent) => {
+	document.documentElement.dataset.accent = accent;
+};

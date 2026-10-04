@@ -26,6 +26,7 @@ describe('preferences', () => {
 			defaultView: 'covers',
 			pageSize: 120,
 			theme: 'dark',
+			accent: 'coral',
 			avatarSeed: ''
 		});
 		expect(getPreferences(db, 'u1')).toMatchObject({ currency: 'EUR', theme: 'dark' });

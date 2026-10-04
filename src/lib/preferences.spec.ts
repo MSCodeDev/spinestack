@@ -13,6 +13,7 @@ describe('normalizePreferences', () => {
 				defaultView: 'table',
 				pageSize: '120',
 				theme: 'dark',
+				accent: 'teal',
 				avatarSeed: ' abc '
 			})
 		).toEqual({
@@ -20,6 +21,7 @@ describe('normalizePreferences', () => {
 			defaultView: 'table',
 			pageSize: 120,
 			theme: 'dark',
+			accent: 'teal',
 			avatarSeed: 'abc'
 		});
 	});
@@ -31,6 +33,7 @@ describe('normalizePreferences', () => {
 				defaultView: 'grid',
 				pageSize: 7,
 				theme: 'neon',
+				accent: 'chartreuse',
 				avatarSeed: 'x'.repeat(65)
 			})
 		).toEqual(DEFAULT_PREFERENCES);
@@ -48,12 +51,14 @@ describe('parsePreferencesPatch', () => {
 				currency: 'gbp',
 				pageSize: '30',
 				theme: 'neon',
+				accent: 'violet',
 				avatarSeed: 'seed-1',
 				extra: 1
 			})
 		).toEqual({
 			currency: 'GBP',
 			pageSize: 30,
+			accent: 'violet',
 			avatarSeed: 'seed-1'
 		});
 		expect(parsePreferencesPatch({})).toEqual({});

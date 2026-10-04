@@ -8,8 +8,10 @@ import type { LayoutServerLoad } from './$types';
 export const load: LayoutServerLoad = async ({ locals, cookies }) => {
 	if (!locals.user || !locals.libraryId) redirect(303, (await hasUsers()) ? '/login' : '/setup');
 	const prefs = getPreferences(db, locals.user.id);
-	if (cookies.get('theme') !== prefs.theme) {
-		cookies.set('theme', prefs.theme, { path: '/', maxAge: 60 * 60 * 24 * 365, httpOnly: false });
+	for (const key of ['theme', 'accent'] as const) {
+		if (cookies.get(key) !== prefs[key]) {
+			cookies.set(key, prefs[key], { path: '/', maxAge: 60 * 60 * 24 * 365, httpOnly: false });
+		}
 	}
 
 	return {

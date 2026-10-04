@@ -139,7 +139,7 @@
 	--foreground: oklch(0.95 0.015 85);
 	--card: oklch(0.245 0.018 55);
 	--card-foreground: oklch(0.95 0.015 85);
-	--popover: oklch(0.245 0.018 55);
+	--popover: oklch(0.235 0.018 55);
 	--popover-foreground: oklch(0.95 0.015 85);
 	--primary: oklch(0.72 0.16 38);
 	--primary-foreground: oklch(0.2 0.02 50);
@@ -161,6 +161,92 @@
 	--tile-mint: oklch(0.32 0.05 155);
 	--tile-sky: oklch(0.32 0.045 235);
 	--wood: oklch(0.42 0.05 60);
+}
+
+/* In dark mode, dialogs, sheets and menus take the hue of the theme colour. */
+@supports (color: oklch(from red l c h)) {
+	.dark {
+		--popover: oklch(from var(--primary) 0.27 0.045 h);
+	}
+}
+
+/* Main colour choices. The attribute sits on <html>, and on the swatches in Settings. */
+[data-accent='coral'] {
+	--primary: oklch(0.64 0.18 35);
+	--primary-foreground: oklch(0.99 0.01 85);
+	--ring: oklch(0.7 0.14 35);
+}
+.dark[data-accent='coral'],
+.dark [data-accent='coral'] {
+	--primary: oklch(0.72 0.16 38);
+	--primary-foreground: oklch(0.2 0.02 50);
+	--ring: oklch(0.65 0.13 38);
+}
+[data-accent='amber'] {
+	--primary: oklch(0.76 0.15 75);
+	--primary-foreground: oklch(0.28 0.05 70);
+	--ring: oklch(0.78 0.13 75);
+}
+.dark[data-accent='amber'],
+.dark [data-accent='amber'] {
+	--primary: oklch(0.8 0.14 78);
+	--primary-foreground: oklch(0.22 0.03 70);
+	--ring: oklch(0.7 0.12 78);
+}
+[data-accent='green'] {
+	--primary: oklch(0.56 0.14 150);
+	--primary-foreground: oklch(0.99 0.01 150);
+	--ring: oklch(0.65 0.12 150);
+}
+.dark[data-accent='green'],
+.dark [data-accent='green'] {
+	--primary: oklch(0.72 0.15 150);
+	--primary-foreground: oklch(0.2 0.02 150);
+	--ring: oklch(0.6 0.12 150);
+}
+[data-accent='teal'] {
+	--primary: oklch(0.58 0.11 190);
+	--primary-foreground: oklch(0.99 0.01 190);
+	--ring: oklch(0.66 0.1 190);
+}
+.dark[data-accent='teal'],
+.dark [data-accent='teal'] {
+	--primary: oklch(0.72 0.12 190);
+	--primary-foreground: oklch(0.2 0.02 190);
+	--ring: oklch(0.6 0.1 190);
+}
+[data-accent='blue'] {
+	--primary: oklch(0.57 0.17 255);
+	--primary-foreground: oklch(0.99 0.01 250);
+	--ring: oklch(0.66 0.14 255);
+}
+.dark[data-accent='blue'],
+.dark [data-accent='blue'] {
+	--primary: oklch(0.72 0.14 250);
+	--primary-foreground: oklch(0.2 0.02 250);
+	--ring: oklch(0.62 0.12 250);
+}
+[data-accent='violet'] {
+	--primary: oklch(0.57 0.18 295);
+	--primary-foreground: oklch(0.99 0.01 295);
+	--ring: oklch(0.66 0.15 295);
+}
+.dark[data-accent='violet'],
+.dark [data-accent='violet'] {
+	--primary: oklch(0.72 0.15 295);
+	--primary-foreground: oklch(0.2 0.02 295);
+	--ring: oklch(0.62 0.13 295);
+}
+[data-accent='pink'] {
+	--primary: oklch(0.62 0.19 355);
+	--primary-foreground: oklch(0.99 0.01 355);
+	--ring: oklch(0.7 0.15 355);
+}
+.dark[data-accent='pink'],
+.dark [data-accent='pink'] {
+	--primary: oklch(0.74 0.15 355);
+	--primary-foreground: oklch(0.2 0.02 355);
+	--ring: oklch(0.65 0.13 355);
 }
 
 @theme inline {
