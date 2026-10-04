@@ -67,6 +67,8 @@ export function resetLibrary() {
 			delete from person; delete from publisher; delete from series; delete from tag; delete from location;
 			delete from user_preference;
 			update user set name = 'Admin';
+			delete from user where email != 'admin@example.com';
+			update user set role = 'admin';
 		`);
 	} catch {
 		// tables are created on first request; nothing to reset yet
