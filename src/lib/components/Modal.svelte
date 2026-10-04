@@ -16,12 +16,23 @@
 
 	const widths = { sm: 'max-w-sm', md: 'max-w-2xl', lg: 'max-w-5xl' };
 
+	// Closing because `open` turned false must not fire `onclose`, or it can undo a navigation
+	// that just opened another modal.
+	let closingFromProp = false;
+
 	$effect(() => {
 		if (open && !dialog.open) dialog.showModal();
-		else if (!open && dialog.open) dialog.close();
+		else if (!open && dialog.open) {
+			closingFromProp = true;
+			dialog.close();
+		}
 	});
 
 	function handleClose() {
+		if (closingFromProp) {
+			closingFromProp = false;
+			return;
+		}
 		open = false;
 		onclose?.();
 	}
