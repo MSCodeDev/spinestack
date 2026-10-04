@@ -12,14 +12,27 @@ describe('normalizePreferences', () => {
 				currency: 'eur',
 				defaultView: 'table',
 				pageSize: '120',
-				theme: 'dark'
+				theme: 'dark',
+				avatarSeed: ' abc '
 			})
-		).toEqual({ currency: 'EUR', defaultView: 'table', pageSize: 120, theme: 'dark' });
+		).toEqual({
+			currency: 'EUR',
+			defaultView: 'table',
+			pageSize: 120,
+			theme: 'dark',
+			avatarSeed: 'abc'
+		});
 	});
 
 	it('falls back per field for invalid values', () => {
 		expect(
-			normalizePreferences({ currency: 'dollars', defaultView: 'grid', pageSize: 7, theme: 'neon' })
+			normalizePreferences({
+				currency: 'dollars',
+				defaultView: 'grid',
+				pageSize: 7,
+				theme: 'neon',
+				avatarSeed: 'x'.repeat(65)
+			})
 		).toEqual(DEFAULT_PREFERENCES);
 		expect(normalizePreferences({ currency: 'GBP', theme: 'nope' })).toMatchObject({
 			currency: 'GBP',
@@ -31,11 +44,23 @@ describe('normalizePreferences', () => {
 describe('parsePreferencesPatch', () => {
 	it('keeps only valid fields', () => {
 		expect(
-			parsePreferencesPatch({ currency: 'gbp', pageSize: '30', theme: 'neon', extra: 1 })
+			parsePreferencesPatch({
+				currency: 'gbp',
+				pageSize: '30',
+				theme: 'neon',
+				avatarSeed: 'seed-1',
+				extra: 1
+			})
 		).toEqual({
 			currency: 'GBP',
-			pageSize: 30
+			pageSize: 30,
+			avatarSeed: 'seed-1'
 		});
 		expect(parsePreferencesPatch({})).toEqual({});
+	});
+
+	it('ignores empty and oversized avatar seeds', () => {
+		expect(parsePreferencesPatch({ avatarSeed: '  ' })).toEqual({});
+		expect(parsePreferencesPatch({ avatarSeed: 'x'.repeat(65) })).toEqual({});
 	});
 });

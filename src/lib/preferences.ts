@@ -11,13 +11,21 @@ export type Preferences = {
 	defaultView: View;
 	pageSize: (typeof PAGE_SIZES)[number];
 	theme: Theme;
+	/** Seed for the generated avatar; empty means "use the user id", so everyone has one from the start. */
+	avatarSeed: string;
 };
 
 export const DEFAULT_PREFERENCES: Preferences = {
 	currency: 'USD',
 	defaultView: 'covers',
 	pageSize: 60,
-	theme: 'system'
+	theme: 'system',
+	avatarSeed: ''
+};
+
+const validSeed = (value: unknown) => {
+	const seed = typeof value === 'string' ? value.trim() : '';
+	return seed && seed.length <= 64 ? seed : null;
 };
 
 /** Coerce stored or submitted values into valid preferences, falling back to defaults per field. */
@@ -33,7 +41,8 @@ export function normalizePreferences(raw: Record<string, unknown>): Preferences 
 		pageSize: (PAGE_SIZES as readonly number[]).includes(size)
 			? (size as Preferences['pageSize'])
 			: d.pageSize,
-		theme: THEMES.includes(raw.theme as Theme) ? (raw.theme as Theme) : d.theme
+		theme: THEMES.includes(raw.theme as Theme) ? (raw.theme as Theme) : d.theme,
+		avatarSeed: validSeed(raw.avatarSeed) ?? d.avatarSeed
 	};
 }
 
@@ -47,5 +56,7 @@ export function parsePreferencesPatch(raw: Record<string, unknown>): Partial<Pre
 		patch.pageSize = Number(raw.pageSize) as Preferences['pageSize'];
 	}
 	if (THEMES.includes(raw.theme as Theme)) patch.theme = raw.theme as Theme;
+	const seed = validSeed(raw.avatarSeed);
+	if (seed) patch.avatarSeed = seed;
 	return patch;
 }

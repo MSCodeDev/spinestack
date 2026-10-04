@@ -14,7 +14,12 @@ export const load: LayoutServerLoad = async ({ locals, cookies }) => {
 
 	return {
 		prefs,
-		user: { name: locals.user.name, email: locals.user.email, role: locals.user.role },
+		user: {
+			id: locals.user.id,
+			name: locals.user.name,
+			email: locals.user.email,
+			role: locals.user.role
+		},
 		stats: getStats(db, locals.libraryId)
 	};
 };

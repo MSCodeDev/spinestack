@@ -13,7 +13,7 @@
 		/** Active tab, or null when closed. */
 		tab: string | null;
 		prefs: Preferences;
-		user: { name: string; email: string; role?: string | null };
+		user: { id: string; name: string; email: string; role?: string | null };
 		ontab: (tab: SettingsTab) => void;
 		onclose: () => void;
 	};
@@ -43,6 +43,6 @@
 	{:else if active === 'users'}
 		<UsersTab currentUserEmail={user.email} />
 	{:else}
-		<AccountTab name={user.name} email={user.email} />
+		<AccountTab name={user.name} email={user.email} avatarSeed={prefs.avatarSeed || user.id} />
 	{/if}
 </Modal>

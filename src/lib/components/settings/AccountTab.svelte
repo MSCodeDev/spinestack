@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { RefreshCw } from '@lucide/svelte';
 	import { invalidateAll } from '$app/navigation';
+	import Avatar from '#lib/components/Avatar.svelte';
 	import { api } from '#lib/client/api.js';
 	import { toast } from '#lib/stores/toast.svelte.js';
 
-	let { name, email }: { name: string; email: string } = $props();
+	let { name, email, avatarSeed }: { name: string; email: string; avatarSeed: string } = $props();
 
 	let displayName = $derived(name);
 	let current = $state('');
@@ -11,6 +13,24 @@
 	let confirm = $state('');
 	let nameError = $state<string | null>(null);
 	let passwordError = $state<string | null>(null);
+
+	// Shown straight away; the saved preference catches up after the refresh.
+	let pending = $state<string | null>(null);
+	const shownSeed = $derived(pending ?? avatarSeed);
+
+	async function regenerateAvatar() {
+		const seed = crypto.randomUUID();
+		pending = seed;
+		try {
+			await api('/api/settings/preferences', 'PUT', { avatarSeed: seed });
+			await invalidateAll();
+			toast('New avatar generated');
+		} catch (err) {
+			toast(err instanceof Error ? err.message : 'Could not save the avatar', 'error');
+		} finally {
+			pending = null;
+		}
+	}
 
 	async function saveName(e: SubmitEvent) {
 		e.preventDefault();
@@ -44,7 +64,15 @@
 <div class="space-y-8 text-sm">
 	<form class="space-y-3" onsubmit={saveName}>
 		<h3 class="font-display text-2xl leading-none font-bold">Profile</h3>
-		<p class="text-muted-foreground">{email}</p>
+		<div class="flex items-center gap-4">
+			<Avatar seed={shownSeed} class="size-20 shadow-sm ring-1 ring-border" />
+			<div class="space-y-2">
+				<p class="text-muted-foreground">{email}</p>
+				<button type="button" class="btn border border-border" onclick={regenerateAvatar}>
+					<RefreshCw size={16} /> Regenerate avatar
+				</button>
+			</div>
+		</div>
 		<label class="block font-medium">
 			Name
 			<input class="input" bind:value={displayName} required />

@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { Plus } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
+	import Avatar from '#lib/components/Avatar.svelte';
 	import Wordmark from '#lib/components/Wordmark.svelte';
 	import { Button } from '#lib/components/ui/button/index.js';
 	import { modalHref } from '#lib/modal-url.js';
 
 	let { data, children } = $props();
 
-	const initial = $derived(data.user.name.trim().charAt(0).toUpperCase() || '?');
+	const avatarSeed = $derived(data.prefs.avatarSeed || data.user.id);
 </script>
 
 <div class="min-h-dvh">
@@ -23,10 +24,7 @@
 					aria-label="Settings"
 					class="flex items-center gap-2 rounded-full bg-secondary p-1 transition hover:bg-secondary/70 sm:pr-4"
 				>
-					<span
-						class="grid size-8 place-items-center blob-c bg-primary text-sm font-extrabold text-primary-foreground"
-						>{initial}</span
-					>
+					<Avatar seed={avatarSeed} class="size-8" />
 					<span class="hidden text-sm font-bold text-secondary-foreground sm:inline"
 						>{data.user.name}</span
 					>
