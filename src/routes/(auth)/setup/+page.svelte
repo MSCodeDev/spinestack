@@ -40,10 +40,6 @@
 			/>
 		</label>
 		{#if form?.error}<p class="text-sm text-red-600" role="alert">{form.error}</p>{/if}
-		<button
-			class="w-full rounded-md bg-indigo-600 px-3 py-2 font-medium text-white hover:bg-indigo-500"
-		>
-			Create account
-		</button>
+		<button class="btn btn-primary w-full justify-center"> Create account </button>
 	</form>
 </AuthCard>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { LogOut } from '@lucide/svelte';
+	import { LogOut, Plus } from '@lucide/svelte';
 	import { resolve } from '$app/paths';
 
 	let { data, children } = $props();
@@ -11,15 +11,18 @@
 	>
 		<div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
 			<a href={resolve('/(app)')} class="text-lg font-semibold">SpineStack</a>
-			<form method="post" action="/logout" class="flex items-center gap-3 text-sm">
-				<span class="text-stone-500">{data.user.name}</span>
-				<button
-					aria-label="Sign out"
-					class="rounded p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800"
-				>
-					<LogOut size={18} />
-				</button>
-			</form>
+			<div class="flex items-center gap-4">
+				<a href="{resolve('/(app)')}?add" class="btn btn-primary"><Plus size={16} /> Add book</a>
+				<form method="post" action="/logout" class="flex items-center gap-3 text-sm">
+					<span class="text-stone-500">{data.user.name}</span>
+					<button
+						aria-label="Sign out"
+						class="rounded p-1.5 hover:bg-stone-100 dark:hover:bg-stone-800"
+					>
+						<LogOut size={18} />
+					</button>
+				</form>
+			</div>
 		</div>
 	</header>
 	<main class="mx-auto max-w-7xl px-4 py-6">{@render children()}</main>

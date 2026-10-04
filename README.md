@@ -21,3 +21,5 @@ npm run dev
 | `npm run lint` / `npm run format` | Lint / format         |
 | `npm test`                        | Run unit tests        |
 | `npm run db:push`                 | Sync schema to SQLite |
+
+E2E tests need browsers: `npx playwright install --with-deps chromium`.
