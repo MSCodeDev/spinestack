@@ -82,6 +82,7 @@ describe('books service', () => {
 		const id = saveBook(db, libraryId, base);
 		expect(ftsHits('herbert*')).toHaveLength(1);
 		expect(ftsHits('scifi')).toHaveLength(1);
+		expect(ftsHits('shelf')).toHaveLength(1); // location
 
 		saveBook(db, libraryId, { ...base, authors: ['Brian Herbert'], tags: [] }, id);
 		expect(ftsHits('frank')).toHaveLength(0);
