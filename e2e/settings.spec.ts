@@ -10,13 +10,13 @@ test('preferences apply and persist', async ({ page }) => {
 	await expect(page).toHaveURL(/settings=preferences/);
 
 	// theme applies immediately and survives a reload without a flash (server-rendered class)
-	await settings.getByLabel('Theme').selectOption('dark');
+	await settings.getByRole('combobox', { name: 'Theme' }).selectOption('dark');
 	await expect(page.locator('html')).toHaveClass(/dark/);
 	await page.reload();
 	await expect(page.locator('html')).toHaveClass(/dark/);
 	await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
 
-	await page.getByRole('dialog', { name: 'Settings' }).getByLabel('Theme').selectOption('light');
+	await settings.getByRole('combobox', { name: 'Theme' }).selectOption('light');
 	await expect(page.locator('html')).not.toHaveClass(/dark/);
 
 	// default view
@@ -44,7 +44,7 @@ test('preferences apply and persist', async ({ page }) => {
 		.getByRole('button', { name: 'Close' })
 		.click();
 	const add = await openManualAdd(page);
-	await expect(add.getByLabel('Currency')).toHaveValue('EUR');
+	await expect(add.getByText('EUR', { exact: true })).toBeVisible();
 });
 
 test('change name and password', async ({ page }) => {

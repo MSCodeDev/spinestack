@@ -85,9 +85,9 @@ test('filters, grouping and view modes', async ({ page }) => {
 	await page.getByRole('button', { name: 'Table' }).click();
 	await expect(page).toHaveURL(/view=table/);
 	await expect(page.getByRole('table')).toBeVisible();
-	await page.getByRole('button', { name: 'Pages' }).click();
+	await page.getByRole('button', { name: 'Pages', exact: true }).click();
 	await expect(page).toHaveURL(/sort=pages%3Adesc/);
-	await page.getByRole('button', { name: 'Pages' }).click();
+	await page.getByRole('button', { name: 'Pages', exact: true }).click();
 	await expect(page).toHaveURL(/sort=pages%3Aasc/);
 
 	// stacked view
