@@ -75,6 +75,7 @@ The database is created and migrated on first start.
 | `npm test`              | Unit tests                                     |
 | `npm run test:e2e`      | Browser tests (Playwright)                     |
 | `npm run import:legacy` | Import from the old SpineStack database        |
+| `npm run icons`         | Regenerate the favicon and PWA icons           |
 | `npm run db:generate`   | Generate a migration after changing the schema |
 
 End-to-end tests need a browser: `npx playwright install --with-deps chromium`.

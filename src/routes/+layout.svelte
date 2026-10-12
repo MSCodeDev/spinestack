@@ -22,6 +22,8 @@
 <svelte:head>
 	<title>SpineStack</title>
 	<link rel="icon" href={favicon} />
+	<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+	<link rel="manifest" href="/manifest.webmanifest" />
 	<!-- Fetched with the page instead of when the CSS first needs them, so the fonts are ready on first paint. -->
 	<link rel="preload" as="font" type="font/woff2" href={nunitoLatin} crossorigin="anonymous" />
 	<link rel="preload" as="font" type="font/woff2" href={caveatLatin} crossorigin="anonymous" />

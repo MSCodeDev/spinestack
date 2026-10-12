@@ -24,7 +24,8 @@
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
 		"auth:schema": "auth generate --config src/lib/server/auth.ts --output src/lib/server/db/auth.schema.ts --yes",
-		"import:legacy": "tsx --env-file=.env scripts/import-legacy.ts"
+		"import:legacy": "tsx --env-file=.env scripts/import-legacy.ts",
+		"icons": "tsx scripts/build-icons.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
