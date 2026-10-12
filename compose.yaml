@@ -1,5 +1,7 @@
 services:
   spinestack:
+    image: ghcr.io/mscodedev/spinestack:latest
+    # Only used by `docker compose build`; `pull` and `up -d` use the published image.
     build: .
     restart: unless-stopped
     ports:

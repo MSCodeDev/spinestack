@@ -15,8 +15,13 @@ Book data comes from [Open Library](https://openlibrary.org) and, if you provide
 
 ```sh
 cp .env.example .env     # set BETTER_AUTH_SECRET and ORIGIN
+docker compose pull
 docker compose up -d
 ```
+
+This uses the image published to `ghcr.io/mscodedev/spinestack`. To build it locally instead (for example to test a Dockerfile change), use `docker compose build` in place of `pull`.
+
+GHCR packages are private by default. If `pull` gets a 401/403, make the package public (repo → Packages → spinestack → Package settings) or `docker login ghcr.io` first with a token that has `read:packages`.
 
 Open the app at your `ORIGIN` (default `http://localhost:3000`) and create the administrator account.
 
@@ -73,6 +78,10 @@ The database is created and migrated on first start.
 | `npm run db:generate`   | Generate a migration after changing the schema |
 
 End-to-end tests need a browser: `npx playwright install --with-deps chromium`.
+
+### Releases and versioning
+
+Every push to `main` runs CI and, if it passes, publishes the image to GHCR as `<major>.<minor>.<run number>` (for example `0.1.7`), alongside `latest`, and tags the commit `v0.1.7`. `<major>.<minor>` is `VERSION_PREFIX` in `.github/workflows/docker-publish.yml`; change it there for a deliberate release, and the patch number keeps counting up. The running version is shown at the bottom of Settings (`dev` for local builds). The `version` in `package.json` is not used.
 
 ### Layout
 
