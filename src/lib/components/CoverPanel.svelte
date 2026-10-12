@@ -24,7 +24,7 @@
 	let busy = $state(false);
 </script>
 
-<div class="w-40 shrink-0 space-y-2">
+<div class="w-40 shrink-0 space-y-2 self-center sm:self-start">
 	<BookCover {bookId} {title} {author} {coverVersion} size="512" lazy={false} />
 
 	<button

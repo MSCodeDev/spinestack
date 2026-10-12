@@ -114,4 +114,14 @@ describe('books service', () => {
 		expect(findExistingIsbns(db, 'other', ['9780441172719']).size).toBe(0);
 		expect(findExistingIsbns(db, libraryId, []).size).toBe(0);
 	});
+
+	it('reports whether any book has a subtitle', () => {
+		saveBook(db, libraryId, base);
+		expect(getOptions(db, libraryId).hasSubtitles).toBe(false);
+		saveBook(db, libraryId, { ...base, title: 'Dune 2', isbn: null, subtitle: '   ' });
+		expect(getOptions(db, libraryId).hasSubtitles).toBe(false);
+		saveBook(db, libraryId, { ...base, title: 'Dune 3', isbn: null, subtitle: 'Book Three' });
+		expect(getOptions(db, libraryId).hasSubtitles).toBe(true);
+		expect(getOptions(db, 'other').hasSubtitles).toBe(false);
+	});
 });

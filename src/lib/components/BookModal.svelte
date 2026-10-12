@@ -63,17 +63,9 @@
 						],
 						['Location', book.location],
 						['Pages', book.pageCount],
-						['Language', book.language],
-						['Bought', book.boughtAt],
-						['Arrived', book.arrivedAt],
+						['Added', new Date(book.createdAt).toLocaleDateString()],
 						[
-							'Label price',
-							book.labelPrice !== null && book.currency
-								? formatMoney(book.labelPrice, book.currency)
-								: null
-						],
-						[
-							'Paid',
+							'Price',
 							book.paidPrice !== null && book.currency
 								? formatMoney(book.paidPrice, book.currency)
 								: null
@@ -119,7 +111,6 @@
 				<div>
 					{#if book.subtitle}<p class="text-muted-foreground">{book.subtitle}</p>{/if}
 					{#if book.authors.length}<p class="font-medium">{book.authors.join(', ')}</p>{/if}
-					<p class="mt-1 text-xs tracking-wide text-muted-foreground uppercase">{book.status}</p>
 				</div>
 
 				<dl class="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm">
@@ -138,11 +129,6 @@
 				{/if}
 
 				{#if book.synopsis}<p class="text-sm whitespace-pre-line">{book.synopsis}</p>{/if}
-				{#if book.notes}
-					<p class="rounded bg-accent p-3 text-sm whitespace-pre-line">
-						{book.notes}
-					</p>
-				{/if}
 
 				<section>
 					<div class="flex items-center justify-between">

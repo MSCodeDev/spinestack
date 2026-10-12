@@ -9,10 +9,8 @@ const empty: Record<GroupField, string> = {
 	series: 'Standalone',
 	publisher: 'No publisher',
 	location: 'No location',
-	status: 'Unknown',
 	reading: 'Unknown',
-	addedMonth: 'Unknown date',
-	boughtYear: 'Not bought yet'
+	addedMonth: 'Unknown date'
 };
 
 const capitalise = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -28,7 +26,7 @@ export function groupLabel(field: GroupField, label: string | null): string {
 			timeZone: 'UTC'
 		});
 	}
-	if (field === 'status' || field === 'reading') return capitalise(label);
+	if (field === 'reading') return capitalise(label);
 	return label;
 }
 

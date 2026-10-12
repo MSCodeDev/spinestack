@@ -2,7 +2,8 @@ import { sql } from 'drizzle-orm';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 import { createDb, type Db } from '../db/factory.js';
-import { library, user } from '../db/schema.js';
+import { book as bookTable, library, user } from '../db/schema.js';
+import { eq } from 'drizzle-orm';
 import type { BookInput } from '../../types.js';
 import { DEFAULT_QUERY } from '../../library/query.js';
 import { finishReading, saveBook, startReading } from './books.js';
@@ -34,6 +35,14 @@ const book = (over: Partial<BookInput>): BookInput => ({
 
 let db: Db;
 let lib: string;
+
+/** Pretend a book was added on the given day. */
+const addedOn = (id: string, day: string) =>
+	db
+		.update(bookTable)
+		.set({ createdAt: new Date(`${day}T12:00:00Z`) })
+		.where(eq(bookTable.id, id))
+		.run();
 const page = { offset: 0, limit: 10 };
 const titles = (q: Partial<typeof DEFAULT_QUERY>, p = page) =>
 	queryBooks(db, lib, { ...DEFAULT_QUERY, ...q }, p).items.map((i) => i.title);
@@ -137,7 +146,7 @@ describe('queryBooks filters and groups', () => {
 	let hobbit: string;
 
 	beforeEach(() => {
-		saveBook(
+		const dune = saveBook(
 			db,
 			lib,
 			book({
@@ -147,11 +156,10 @@ describe('queryBooks filters and groups', () => {
 				location: 'Study',
 				tags: ['scifi'],
 				currency: 'USD',
-				paidPrice: 1000,
-				boughtAt: '2024-03-01'
+				paidPrice: 1000
 			})
 		);
-		saveBook(
+		const emma = saveBook(
 			db,
 			lib,
 			book({
@@ -161,8 +169,7 @@ describe('queryBooks filters and groups', () => {
 				location: 'Hall',
 				tags: ['classic'],
 				currency: 'USD',
-				paidPrice: 500,
-				boughtAt: '2023-05-01'
+				paidPrice: 500
 			})
 		);
 		hobbit = saveBook(
@@ -174,10 +181,12 @@ describe('queryBooks filters and groups', () => {
 				publisher: 'Ace',
 				status: 'wishlist',
 				currency: 'JPY',
-				paidPrice: 900,
-				boughtAt: '2023-08-01'
+				paidPrice: 900
 			})
 		);
+		addedOn(dune, '2024-03-01');
+		addedOn(emma, '2023-05-01');
+		addedOn(hobbit, '2023-08-01');
 		startReading(db, lib, hobbit, 'u1');
 	});
 
@@ -204,11 +213,11 @@ describe('queryBooks filters and groups', () => {
 		expect(titles({ price: 'not a price' })).toHaveLength(3); // unclear text filters nothing
 	});
 
-	it('filters by one bought field: a year, a month, or a range', () => {
-		expect(titles({ bought: '2023' }).sort()).toEqual(['Emma', 'Hobbit']);
-		expect(titles({ bought: '2024-03' })).toEqual(['Dune']);
-		expect(titles({ bought: '2023-06..2024-12' }).sort()).toEqual(['Dune', 'Hobbit']);
-		expect(titles({ bought: '2024..' })).toEqual(['Dune']);
+	it('filters by one date-added field: a year, a month, or a range', () => {
+		expect(titles({ date: '2023' }).sort()).toEqual(['Emma', 'Hobbit']);
+		expect(titles({ date: '2024-03' })).toEqual(['Dune']);
+		expect(titles({ date: '2023-06..2024-12' }).sort()).toEqual(['Dune', 'Hobbit']);
+		expect(titles({ date: '2024..' })).toEqual(['Dune']);
 	});
 
 	it('groups with labels, ordered groups and counts', () => {
@@ -229,10 +238,9 @@ describe('queryBooks filters and groups', () => {
 		]);
 	});
 
-	it('orders date groups newest first and puts empty groups last', () => {
-		saveBook(db, lib, book({ title: 'Undated' }));
-		const result = queryBooks(db, lib, { ...DEFAULT_QUERY, group: 'boughtYear' }, page);
-		expect(result.groups!.map((g) => g.label)).toEqual(['2024', '2023', null]);
+	it('groups by month added, newest first', () => {
+		const result = queryBooks(db, lib, { ...DEFAULT_QUERY, group: 'addedMonth' }, page);
+		expect(result.groups!.map((g) => g.label)).toEqual(['2024-03', '2023-08', '2023-05']);
 	});
 
 	it('groups by reading state in a fixed order', () => {
@@ -274,8 +282,7 @@ describe('getStats', () => {
 			series: 1,
 			authors: 1,
 			// $5 and $10 paid, plus a wishlist book at $99.99, rounded outwards
-			priceRange: { min: 5, max: 100 },
-			boughtRange: { min: '2026-01-02', max: '2026-10-02' }
+			priceRange: { min: 5, max: 100 }
 		});
 
 		const readingId = db.all<{ id: string }>(sql`select id from reading`)[0].id;
@@ -297,15 +304,16 @@ describe('getStats price range', () => {
 		expect(getStats(db, lib).priceRange).toEqual({ min: 10, max: 11 });
 	});
 
-	it('reports the span of bought dates, widening a single date', () => {
-		saveBook(db, lib, book({ title: 'A', boughtAt: '2024-05-01' }));
-		expect(getStats(db, lib).boughtRange).toEqual({ min: '2024-05-01', max: '2024-05-02' });
-		saveBook(db, lib, book({ title: 'B', boughtAt: '2023-12-31' }));
-		expect(getStats(db, lib).boughtRange).toEqual({ min: '2023-12-31', max: '2024-05-01' });
+	it('reports the span of days books were added, widening a single day', () => {
+		const a = saveBook(db, lib, book({ title: 'A' }));
+		addedOn(a, '2024-05-01');
+		expect(getStats(db, lib).dateRange).toEqual({ min: '2024-05-01', max: '2024-05-02' });
+		const b = saveBook(db, lib, book({ title: 'B' }));
+		addedOn(b, '2023-12-31');
+		expect(getStats(db, lib).dateRange).toEqual({ min: '2023-12-31', max: '2024-05-01' });
 	});
 
-	it('is null without bought dates', () => {
-		saveBook(db, lib, book({ title: 'A' }));
-		expect(getStats(db, lib).boughtRange).toBeNull();
+	it('is null for an empty library', () => {
+		expect(getStats(db, lib).dateRange).toBeNull();
 	});
 });

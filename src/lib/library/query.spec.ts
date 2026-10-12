@@ -29,7 +29,7 @@ describe('library query', () => {
 			view: 'table',
 			reading: 'read',
 			price: '5-20.5',
-			bought: '2024-01..2024-06',
+			date: '2024-01..2024-06',
 			series: ['Dune', 'Foundation'],
 			publisher: ['Ace'],
 			location: ['Study – Shelf 2']
@@ -61,9 +61,7 @@ describe('library query', () => {
 	it('counts active filters but not sort, group or view', () => {
 		expect(activeFilterCount(DEFAULT_QUERY)).toBe(0);
 		expect(activeFilterCount(parse('sort=title&group=author&view=table'))).toBe(0);
-		expect(activeFilterCount(parse('reading=read&series=a&series=b&price=5-10&bought=2024'))).toBe(
-			5
-		);
+		expect(activeFilterCount(parse('reading=read&series=a&series=b&price=5-10&date=2024'))).toBe(5);
 		expect(activeFilterCount(parse('q=dune'))).toBe(0);
 	});
 });

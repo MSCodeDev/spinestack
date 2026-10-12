@@ -29,9 +29,9 @@
 			out.push({ id: 'reading', label: `Reading: ${query.reading}`, remove: { reading: null } });
 		}
 		if (query.price)
-			out.push({ id: 'price', label: `Paid: ${query.price}`, remove: { price: '' } });
-		if (query.bought) {
-			out.push({ id: 'bought', label: `Bought: ${query.bought}`, remove: { bought: '' } });
+			out.push({ id: 'price', label: `Price: ${query.price}`, remove: { price: '' } });
+		if (query.date) {
+			out.push({ id: 'date', label: `Date: ${query.date}`, remove: { date: '' } });
 		}
 		return out;
 	});

@@ -25,8 +25,7 @@ test('filters, grouping and view modes', async ({ page }) => {
 		title: 'Hobbit',
 		author: 'J.R.R. Tolkien',
 		publisher: 'Ace',
-		location: 'Study',
-		wishlist: true
+		location: 'Study'
 	});
 
 	// the filters sit inline under the toolbar and the button shows and hides them
@@ -59,7 +58,7 @@ test('filters, grouping and view modes', async ({ page }) => {
 
 	// price slider: dragging the lower handle up filters out cheaper books
 	const slider = panel.getByRole('slider');
-	await expect(slider).toHaveCount(4); // two handles each for price and bought date
+	await expect(slider).toHaveCount(4); // two handles each for price and date
 	await slider.first().focus();
 	await page.keyboard.press('End');
 	await expect(page).toHaveURL(/price=/);
@@ -67,10 +66,10 @@ test('filters, grouping and view modes', async ({ page }) => {
 	await page.getByRole('button', { name: 'Clear all' }).click();
 	await expect(page.getByRole('link', { name: 'Emma' })).toBeVisible();
 
-	// bought date slider works the same way
+	// the date slider (date added) works the same way
 	await slider.nth(2).focus();
 	await page.keyboard.press('End');
-	await expect(page).toHaveURL(/bought=/);
+	await expect(page).toHaveURL(/date=/);
 	await page.getByRole('button', { name: 'Clear all' }).click();
 
 	// entity filter

@@ -23,11 +23,12 @@ const sortKey: Record<SortField, SQL> = {
 	author: sql`${firstAuthor} collate nocase`,
 	series: sql`(select name from series where id = b.series_id) collate nocase`,
 	added: sql`b.created_at`,
-	bought: sql`b.bought_at`,
-	arrived: sql`b.arrived_at`,
 	pages: sql`b.page_count`,
 	price: sql`b.paid_price`
 };
+
+/** The day a book was added, as YYYY-MM-DD. */
+const addedDay = sql`strftime('%Y-%m-%d', b.created_at / 1000, 'unixepoch')`;
 
 const readingState = sql`(case
 	when exists (select 1 from reading r where r.book_id = b.id and r.finished_at is null) then 'reading'
@@ -54,7 +55,6 @@ const groups: Record<Exclude<GroupField, 'none'>, Group> = {
 		order: sql`(select name from location where id = b.location_id) collate nocase`,
 		dir: 'asc'
 	},
-	status: { label: sql`b.status`, order: sql`b.status`, dir: 'asc' },
 	reading: {
 		label: readingState,
 		order: sql`(case ${readingState} when 'reading' then 0 when 'unread' then 1 else 2 end)`,
@@ -63,11 +63,6 @@ const groups: Record<Exclude<GroupField, 'none'>, Group> = {
 	addedMonth: {
 		label: sql`strftime('%Y-%m', b.created_at / 1000, 'unixepoch')`,
 		order: sql`strftime('%Y-%m', b.created_at / 1000, 'unixepoch')`,
-		dir: 'desc'
-	},
-	boughtYear: {
-		label: sql`substr(b.bought_at, 1, 4)`,
-		order: sql`substr(b.bought_at, 1, 4)`,
 		dir: 'desc'
 	}
 };
@@ -112,9 +107,9 @@ function buildWhere(libraryId: string, q: LibraryQuery): SQL {
 		if (price.max !== null) c.push(sql`${paidMajor} <= ${price.max + 0.005}`);
 	}
 
-	const bought = parseDateRange(q.bought);
-	if (bought?.from) c.push(sql`b.bought_at >= ${bought.from}`);
-	if (bought?.to) c.push(sql`b.bought_at <= ${bought.to}`);
+	const date = parseDateRange(q.date);
+	if (date?.from) c.push(sql`${addedDay} >= ${date.from}`);
+	if (date?.to) c.push(sql`${addedDay} <= ${date.to}`);
 
 	return sql.join(c, sql` and `);
 }
@@ -142,7 +137,6 @@ export function queryBooks(
 			b.page_count as pageCount,
 			b.currency,
 			b.paid_price as paidPrice,
-			b.bought_at as boughtAt,
 			b.created_at as createdAt,
 			b.cover_version as coverVersion,
 			b.cover_color as coverColor,

@@ -74,10 +74,14 @@
 				Title
 				<input name="title" required value={initial?.title ?? ''} class="input" />
 			</label>
-			<label class="block text-sm font-semibold sm:col-span-2">
-				Subtitle
-				<input name="subtitle" value={initial?.subtitle ?? ''} class="input" />
-			</label>
+			{#if options.hasSubtitles || initial?.subtitle}
+				<label class="block text-sm font-semibold sm:col-span-2">
+					Subtitle
+					<input name="subtitle" value={initial?.subtitle ?? ''} class="input" />
+				</label>
+			{:else}
+				<input type="hidden" name="subtitle" value="" />
+			{/if}
 			<div class="text-sm font-semibold sm:col-span-2">
 				Authors
 				<ChipInput
@@ -92,13 +96,6 @@
 				<input name="isbn" inputmode="numeric" value={initial?.isbn ?? ''} class="input" />
 			</label>
 			<label class="block text-sm font-semibold">
-				Status
-				<select name="status" class="input" value={initial?.status ?? 'owned'}>
-					<option value="owned">Owned</option>
-					<option value="wishlist">Wishlist</option>
-				</select>
-			</label>
-			<label class="block text-sm font-semibold">
 				Pages
 				<input
 					name="pageCount"
@@ -107,10 +104,6 @@
 					value={initial?.pageCount ?? ''}
 					class="input"
 				/>
-			</label>
-			<label class="block text-sm font-semibold">
-				Language
-				<input name="language" value={initial?.language ?? ''} class="input" placeholder="en" />
 			</label>
 		</div>
 	</section>
@@ -158,52 +151,40 @@
 	</section>
 
 	<section class="space-y-4">
-		<h3 class="font-display text-2xl leading-none font-bold">Purchase</h3>
-		<div class="grid gap-4 sm:grid-cols-3">
-			<label class="block text-sm font-semibold">
-				Currency
-				<input name="currency" maxlength="3" value={currency} class="input uppercase" />
-			</label>
-			<label class="block text-sm font-semibold">
-				Label price
-				<input
-					name="labelPrice"
-					inputmode="decimal"
-					value={price(initial?.labelPrice ?? null)}
-					class="input"
-				/>
-			</label>
-			<label class="block text-sm font-semibold">
-				Paid price
+		<h3 class="font-display text-2xl leading-none font-bold">Price</h3>
+		<label class="block max-w-xs text-sm font-semibold">
+			Price
+			<span class="relative block">
 				<input
 					name="paidPrice"
 					inputmode="decimal"
 					value={price(initial?.paidPrice ?? null)}
-					class="input"
+					class="input pr-16"
 				/>
-			</label>
-			<label class="block text-sm font-semibold">
-				Bought
-				<input name="boughtAt" type="date" value={initial?.boughtAt ?? ''} class="input" />
-			</label>
-			<label class="block text-sm font-semibold">
-				Arrived
-				<input name="arrivedAt" type="date" value={initial?.arrivedAt ?? ''} class="input" />
-			</label>
-		</div>
+				<span
+					class="pointer-events-none absolute top-1/2 right-4 mt-0.5 -translate-y-1/2 text-xs font-bold text-muted-foreground"
+					>{currency}</span
+				>
+			</span>
+		</label>
 	</section>
 
 	<section class="space-y-4">
-		<h3 class="font-display text-2xl leading-none font-bold">Notes</h3>
+		<h3 class="font-display text-2xl leading-none font-bold">About</h3>
 		<label class="block text-sm font-semibold">
 			Synopsis
 			<textarea name="synopsis" rows="4" class="input">{initial?.synopsis ?? ''}</textarea>
 		</label>
-		<label class="block text-sm font-semibold">
-			Notes
-			<textarea name="notes" rows="3" class="input">{initial?.notes ?? ''}</textarea>
-		</label>
 	</section>
+
+	<!-- Not shown, but kept so editing a book never wipes them. -->
+	<input type="hidden" name="status" value={initial?.status ?? 'owned'} />
+	<input type="hidden" name="language" value={initial?.language ?? ''} />
+	<input type="hidden" name="currency" value={currency} />
+	<input type="hidden" name="labelPrice" value={price(initial?.labelPrice ?? null)} />
+	<input type="hidden" name="boughtAt" value={initial?.boughtAt ?? ''} />
+	<input type="hidden" name="arrivedAt" value={initial?.arrivedAt ?? ''} />
+	<input type="hidden" name="notes" value={initial?.notes ?? ''} />
 
 	{#if error}
 		<p class="text-sm text-destructive" role="alert">

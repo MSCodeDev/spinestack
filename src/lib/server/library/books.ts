@@ -240,7 +240,14 @@ export function getOptions(db: Db, libraryId: string): Options {
 			.all()
 			.map((r) => r.name);
 	};
+	const hasSubtitles = !!db
+		.select({ id: book.id })
+		.from(book)
+		.where(and(eq(book.libraryId, libraryId), sql`trim(coalesce(${book.subtitle}, '')) != ''`))
+		.limit(1)
+		.get();
 	return {
+		hasSubtitles,
 		authors: names(person),
 		publishers: names(publisher),
 		series: names(series),

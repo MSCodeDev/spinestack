@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { slide } from 'svelte/transition';
-	import BoughtRangeSlider from './BoughtRangeSlider.svelte';
+	import DateRangeSlider from './DateRangeSlider.svelte';
 	import ChipInput from './ChipInput.svelte';
 	import PriceRangeSlider from './PriceRangeSlider.svelte';
 	import type { LibraryQuery } from '#lib/library/query.js';
@@ -12,13 +12,13 @@
 		options: Options;
 		/** Lowest and highest paid price in the library, for the slider. */
 		priceBounds: { min: number; max: number } | null;
-		/** Earliest and latest bought date in the library, for the slider. */
-		boughtBounds: { min: string; max: string } | null;
+		/** Earliest and latest day a book was added, for the slider. */
+		dateBounds: { min: string; max: string } | null;
 		currency: string;
 		onchange: (patch: Partial<LibraryQuery>) => void;
 	};
 
-	let { open, query, options, priceBounds, boughtBounds, currency, onchange }: Props = $props();
+	let { open, query, options, priceBounds, dateBounds, currency, onchange }: Props = $props();
 
 	let series = $derived(query.series);
 	let publisher = $derived(query.publisher);
@@ -78,10 +78,10 @@
 				/>
 			</div>
 			<div class="sm:col-span-2">
-				<BoughtRangeSlider
-					bought={query.bought}
-					bounds={boughtBounds}
-					onchange={(bought) => onchange({ bought })}
+				<DateRangeSlider
+					date={query.date}
+					bounds={dateBounds}
+					onchange={(date) => onchange({ date })}
 				/>
 			</div>
 		</div>

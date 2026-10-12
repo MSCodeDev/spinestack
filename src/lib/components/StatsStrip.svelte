@@ -31,12 +31,10 @@
 	]);
 </script>
 
-<dl
-	class="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pt-1 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0"
->
+<dl class="grid grid-cols-3 gap-2 sm:gap-3">
 	{#each tiles as tile, i (tile.label)}
 		<div
-			class="relative min-w-36 shrink-0 snap-start overflow-hidden px-5 py-4 transition-shape hover:-translate-y-0.5 sm:min-w-0 {tile.tint}"
+			class="relative min-w-0 overflow-hidden px-3 py-3 transition-shape hover:-translate-y-0.5 sm:px-5 sm:py-4 {tile.tint}"
 		>
 			<BlobShape
 				seed={i * 13 + 5}
@@ -46,17 +44,21 @@
 				class="pointer-events-none absolute -right-3 -bottom-3 size-20 rotate-12 opacity-[0.13]"
 				aria-hidden="true"
 			/>
-			<dt class="relative text-xs font-bold tracking-wider text-foreground/60 uppercase">
+			<dt
+				class="relative truncate text-[0.65rem] font-bold tracking-wider text-foreground/60 uppercase sm:text-xs"
+			>
 				{tile.label}
 			</dt>
 			<dd
 				class="relative mt-1 truncate font-display leading-none font-bold {tile.value.length > 5
-					? 'text-4xl'
-					: 'text-5xl'}"
+					? 'text-3xl sm:text-4xl'
+					: 'text-4xl sm:text-5xl'}"
 			>
 				{tile.value}
 			</dd>
-			<p class="relative mt-1.5 truncate text-xs font-medium text-foreground/60">{tile.hint}</p>
+			<p class="relative mt-1.5 hidden truncate text-xs font-medium text-foreground/60 sm:block">
+				{tile.hint}
+			</p>
 		</div>
 	{/each}
 </dl>

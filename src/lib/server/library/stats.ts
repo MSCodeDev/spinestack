@@ -58,12 +58,11 @@ export function getStats(db: Db, libraryId: string, now = new Date()): Stats {
 				};
 
 	const dates = one<{ lo: string | null; hi: string | null }>(sql`
-		select min(substr(bought_at, 1, 10)) as lo, max(substr(bought_at, 1, 10)) as hi
-		from book
-		where library_id = ${libraryId}
-			and bought_at glob '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]*'
+		select min(strftime('%Y-%m-%d', created_at / 1000, 'unixepoch')) as lo,
+			max(strftime('%Y-%m-%d', created_at / 1000, 'unixepoch')) as hi
+		from book where library_id = ${libraryId}
 	`);
-	const boughtRange =
+	const dateRange =
 		dates.lo === null || dates.hi === null
 			? null
 			: { min: dates.lo, max: dates.hi === dates.lo ? nextDay(dates.hi) : dates.hi };
@@ -71,7 +70,7 @@ export function getStats(db: Db, libraryId: string, now = new Date()): Stats {
 	return {
 		...counts,
 		priceRange,
-		boughtRange,
+		dateRange,
 		spentThisMonth: spend(sql`and substr(bought_at, 1, 7) = ${month}`),
 		spentTotal: spend(sql``),
 		...readings,

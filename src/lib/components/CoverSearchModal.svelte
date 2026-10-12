@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import { deserialize } from '$app/forms';
+	import { refreshAll } from '$app/navigation';
 	import { Search } from '@lucide/svelte';
 	import Modal from './Modal.svelte';
 	import { actionHref } from '#lib/modal-url.js';
@@ -79,6 +80,8 @@
 				return;
 			}
 			toast('Cover updated');
+			// This post bypasses the form enhancer, so refresh the list's data (and its cover URLs) here.
+			await refreshAll();
 			await onpicked();
 		} finally {
 			picking = null;
@@ -116,7 +119,7 @@
 				<li>
 					<button
 						type="button"
-						class="group relative block aspect-[2/3] w-full overflow-hidden rounded-l-md rounded-r-lg bg-muted ring-1 ring-black/10 hover:ring-2 hover:ring-primary"
+						class="group relative block aspect-[2/3] w-full cursor-pointer overflow-hidden rounded-l-md rounded-r-lg bg-muted ring-1 ring-black/10 hover:ring-2 hover:ring-primary"
 						disabled={picking !== null}
 						aria-label="Use cover: {c.label}"
 						onclick={() => pick(c)}

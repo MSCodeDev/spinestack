@@ -45,10 +45,8 @@
 		author: 'Author',
 		series: 'Series',
 		added: 'Date added',
-		bought: 'Date bought',
-		arrived: 'Date arrived',
 		pages: 'Pages',
-		price: 'Price paid'
+		price: 'Price'
 	};
 	const groupLabels: Record<(typeof GROUPS)[number], string> = {
 		none: 'No grouping',
@@ -56,10 +54,8 @@
 		series: 'Group: Series',
 		publisher: 'Group: Publisher',
 		location: 'Group: Location',
-		status: 'Group: Status',
 		reading: 'Group: Reading status',
-		addedMonth: 'Group: Month added',
-		boughtYear: 'Group: Year bought'
+		addedMonth: 'Group: Month added'
 	};
 
 	const views = [

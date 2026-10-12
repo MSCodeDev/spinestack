@@ -5,15 +5,15 @@
 
 	type Props = {
 		/** Current filter text, e.g. "2024-01-01..2024-06-30". */
-		bought: string;
-		/** Earliest and latest bought date in the library (YYYY-MM-DD), or null when there are none. */
+		date: string;
+		/** Earliest and latest day a book was added (YYYY-MM-DD), or null for an empty library. */
 		bounds: { min: string; max: string } | null;
-		onchange: (bought: string) => void;
+		onchange: (date: string) => void;
 	};
 
-	let { bought, bounds, onchange }: Props = $props();
+	let { date, bounds, onchange }: Props = $props();
 
-	const parsed = $derived(parseDateRange(bought));
+	const parsed = $derived(parseDateRange(date));
 	const range = $derived(bounds ? { min: isoToDay(bounds.min), max: isoToDay(bounds.max) } : null);
 
 	const show = (day: number) =>
@@ -36,8 +36,8 @@
 	lo={parsed?.from ? isoToDay(parsed.from) : null}
 	hi={parsed?.to ? isoToDay(parsed.to) : null}
 	label="Date"
-	emptyText="Date: none yet"
+	emptyText="Date: no books yet"
 	format={show}
-	ariaLabel="Bought date range"
+	ariaLabel="Date added range"
 	oncommit={(lo, hi) => onchange(text(lo, hi))}
 />

@@ -37,7 +37,6 @@
 		},
 		{ id: 'publisher', label: 'Publisher', value: (b) => b.publisher ?? '' },
 		{ id: 'location', label: 'Location', value: (b) => b.location ?? '' },
-		{ id: 'status', label: 'Status', value: (b) => b.status },
 		{
 			id: 'pages',
 			label: 'Pages',
@@ -47,12 +46,11 @@
 		},
 		{
 			id: 'paid',
-			label: 'Paid',
+			label: 'Price',
 			sort: 'price',
 			align: 'right',
 			value: (b) => (b.paidPrice !== null && b.currency ? formatMoney(b.paidPrice, b.currency) : '')
 		},
-		{ id: 'bought', label: 'Bought', sort: 'bought', value: (b) => b.boughtAt ?? '' },
 		{
 			id: 'added',
 			label: 'Added',
@@ -62,7 +60,7 @@
 	];
 
 	const STORAGE_KEY = 'spinestack:columns';
-	const defaults = ['author', 'series', 'location', 'pages', 'paid', 'bought'];
+	const defaults = ['author', 'series', 'location', 'pages', 'paid', 'added'];
 
 	function stored(): string[] {
 		try {

@@ -28,7 +28,6 @@ type NewBook = {
 	location?: string;
 	pages?: string;
 	paid?: string;
-	wishlist?: boolean;
 };
 
 /** Open the Add book modal on its Manual tab. */
@@ -47,8 +46,7 @@ export async function addBook(page: Page, book: NewBook) {
 	if (book.publisher) await dialog.getByLabel('Publisher').fill(book.publisher);
 	if (book.location) await dialog.getByLabel('Location').fill(book.location);
 	if (book.pages) await dialog.getByLabel('Pages').fill(book.pages);
-	if (book.paid) await dialog.getByLabel('Paid price').fill(book.paid);
-	if (book.wishlist) await dialog.getByLabel('Status').selectOption('wishlist');
+	if (book.paid) await dialog.getByLabel('Price').fill(book.paid);
 	await dialog.getByRole('button', { name: 'Add book' }).click();
 	const view = page.getByRole('dialog', { name: book.title });
 	await expect(view).toBeVisible();

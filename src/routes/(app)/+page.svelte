@@ -35,6 +35,7 @@
 	const settingsTab = $derived(page.url.searchParams.get('settings'));
 
 	let options = $state<Options>({
+		hasSubtitles: false,
 		authors: [],
 		publishers: [],
 		series: [],
@@ -138,7 +139,7 @@
 		query={data.query}
 		{options}
 		priceBounds={data.stats.priceRange}
-		boughtBounds={data.stats.boughtRange}
+		dateBounds={data.stats.dateRange}
 		currency={data.prefs.currency}
 		onchange={update}
 	/>

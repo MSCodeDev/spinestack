@@ -1,24 +1,13 @@
 export const VIEWS = ['covers', 'table', 'stacked'] as const;
-export const SORTS = [
-	'title',
-	'author',
-	'series',
-	'added',
-	'bought',
-	'arrived',
-	'pages',
-	'price'
-] as const;
+export const SORTS = ['title', 'author', 'series', 'added', 'pages', 'price'] as const;
 export const GROUPS = [
 	'none',
 	'author',
 	'series',
 	'publisher',
 	'location',
-	'status',
 	'reading',
-	'addedMonth',
-	'boughtYear'
+	'addedMonth'
 ] as const;
 export const READING_STATES = ['unread', 'reading', 'read'] as const;
 
@@ -41,8 +30,8 @@ export type LibraryQuery = {
 	reading: ReadingState | null;
 	/** Paid price as typed: "12.50", "10-20", "10-" or "-20" (see ranges.ts). */
 	price: string;
-	/** Bought date as typed: "2024", "2024-03", or a range such as "2024-01..2024-06". */
-	bought: string;
+	/** Date added as typed: "2024", "2024-03", or a range such as "2024-01..2024-06". */
+	date: string;
 } & Record<ListFilter, string[]>;
 
 export const PAGE_SIZE = 60;
@@ -58,7 +47,7 @@ export const DEFAULT_QUERY: LibraryQuery = {
 	view: 'covers',
 	reading: null,
 	price: '',
-	bought: '',
+	date: '',
 	series: [],
 	publisher: [],
 	location: []
@@ -91,7 +80,7 @@ export function parseQuery(
 		view: oneOf(VIEWS, params.get('view')) ?? defaults.view,
 		reading: oneOf(READING_STATES, params.get('reading')),
 		price: params.get('price')?.trim() ?? '',
-		bought: params.get('bought')?.trim() ?? '',
+		date: params.get('date')?.trim() ?? '',
 		series: names(params.getAll('series')),
 		publisher: names(params.getAll('publisher')),
 		location: names(params.getAll('location'))
@@ -116,7 +105,7 @@ export function serializeQuery(
 	if (query.view !== defaults.view) set('view', query.view);
 	set('reading', query.reading);
 	set('price', query.price);
-	set('bought', query.bought);
+	set('date', query.date);
 	for (const key of LIST_FILTERS) for (const value of query[key]) params.append(key, value);
 	return params;
 }
@@ -129,14 +118,14 @@ export const LIST_PARAM_KEYS = [
 	'view',
 	'reading',
 	'price',
-	'bought',
+	'date',
 	...LIST_FILTERS
 ];
 
 /** Number of active filters (everything except search, sort, group and view). */
 export function activeFilterCount(query: LibraryQuery): number {
 	let n = LIST_FILTERS.reduce((sum, key) => sum + query[key].length, 0);
-	for (const key of ['reading', 'price', 'bought'] as const) {
+	for (const key of ['reading', 'price', 'date'] as const) {
 		if (query[key] !== DEFAULT_QUERY[key]) n++;
 	}
 	return n;

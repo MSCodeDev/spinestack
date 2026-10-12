@@ -48,7 +48,6 @@ export type BookListItem = {
 	pageCount: number | null;
 	currency: string | null;
 	paidPrice: number | null;
-	boughtAt: string | null;
 	createdAt: number;
 	coverVersion: number;
 	coverColor: string | null;
@@ -72,11 +71,13 @@ export type Stats = {
 	authors: number;
 	/** Lowest and highest paid price in major units, rounded outwards; null when no book has a price. */
 	priceRange: { min: number; max: number } | null;
-	/** Earliest and latest bought date (YYYY-MM-DD); null when no book has one. */
-	boughtRange: { min: string; max: string } | null;
+	/** Earliest and latest day a book was added (YYYY-MM-DD); null for an empty library. */
+	dateRange: { min: string; max: string } | null;
 };
 
 export type Options = {
+	/** Whether any book has a subtitle; when none do, the subtitle field is hidden. */
+	hasSubtitles: boolean;
 	authors: string[];
 	publishers: string[];
 	series: string[];
