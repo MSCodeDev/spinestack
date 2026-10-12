@@ -290,6 +290,14 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
+	/* Tailwind resets buttons to the default cursor; clickable things should look clickable. */
+	button:not(:disabled),
+	[role='button']:not([aria-disabled='true']),
+	[role='tab'],
+	[role='option'],
+	summary {
+		cursor: pointer;
+	}
 	body {
 		@apply bg-background font-sans text-foreground antialiased;
 		/* A faint dotted-paper texture. */
