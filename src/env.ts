@@ -8,5 +8,6 @@ export const variables = defineEnvVars({
 	BETTER_AUTH_SECRET: { schema: (input) => input ?? '' },
 	DATA_DIR: { schema: (input) => input || './data' },
 	DATABASE_URL: { schema: optional },
-	GOOGLE_BOOKS_API_KEY: { schema: optional }
+	GOOGLE_BOOKS_API_KEY: { schema: optional },
+	HARDCOVER_API_TOKEN: { schema: optional }
 });

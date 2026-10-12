@@ -1,11 +1,15 @@
 export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+/** Remote covers can be large PNGs; they are re-encoded to a small JPEG on save. */
+const MAX_DOWNLOAD_BYTES = 20 * 1024 * 1024;
 
 const ALLOWED_HOSTS = [
 	'covers.openlibrary.org',
 	'openlibrary.org',
 	'archive.org',
 	'books.google.com',
-	'googleusercontent.com'
+	'googleusercontent.com',
+	'mzstatic.com',
+	'hardcover.app'
 ];
 
 export class DownloadError extends Error {}
@@ -28,7 +32,7 @@ type Options = { fetchFn?: typeof fetch; maxBytes?: number; timeoutMs?: number }
 /** Download an image from an allowed host, following redirects only to allowed hosts. */
 export async function downloadImage(
 	value: string,
-	{ fetchFn = fetch, maxBytes = MAX_IMAGE_BYTES, timeoutMs = 10_000 }: Options = {}
+	{ fetchFn = fetch, maxBytes = MAX_DOWNLOAD_BYTES, timeoutMs = 10_000 }: Options = {}
 ): Promise<Buffer> {
 	let current = value;
 

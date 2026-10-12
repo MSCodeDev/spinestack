@@ -1,6 +1,7 @@
 import type { MetadataResult } from '../../types.js';
 import type { Http } from './http.js';
 import * as googleBooks from './googlebooks.js';
+import * as hardcover from './hardcover.js';
 import * as openLibrary from './openlibrary.js';
 
 export class ProviderError extends Error {}
@@ -8,7 +9,7 @@ export class ProviderError extends Error {}
 /** Either a title (with optional author) or free text. */
 export type SearchQuery = { title?: string; author?: string; q?: string };
 
-type Deps = { http: Http; googleBooksKey?: string };
+type Deps = { http: Http; googleBooksKey?: string; hardcoverToken?: string };
 
 const norm = (s: string | null | undefined) =>
 	(s ?? '')
@@ -70,7 +71,7 @@ export function mergeLists(lists: MetadataResult[][], limit = 20): MetadataResul
 		.slice(0, limit);
 }
 
-export function createMetadata({ http, googleBooksKey }: Deps) {
+export function createMetadata({ http, googleBooksKey, hardcoverToken }: Deps) {
 	/** Run each provider; fail only when every one of them failed. */
 	async function fanOut<T>(tasks: Promise<T>[]): Promise<T[]> {
 		const values: T[] = [];
@@ -84,14 +85,19 @@ export function createMetadata({ http, googleBooksKey }: Deps) {
 	return {
 		/** Look up one ISBN-13 across providers. Null when none know it. */
 		async lookupByIsbn(isbn: string): Promise<MetadataResult | null> {
-			const tasks = [openLibrary.lookupIsbn(http, isbn)];
+			// Earlier providers win when merging, so Hardcover's fresher covers come first.
+			const tasks: Promise<MetadataResult | null>[] = [];
+			if (hardcoverToken) tasks.push(hardcover.lookupIsbn(http, isbn, hardcoverToken));
+			tasks.push(openLibrary.lookupIsbn(http, isbn));
 			if (googleBooksKey) tasks.push(googleBooks.lookupIsbn(http, isbn, googleBooksKey));
 			const found = (await fanOut(tasks)).filter((r): r is MetadataResult => r !== null);
 			return found.reduce<MetadataResult | null>((acc, r) => (acc ? merge(acc, r) : r), null);
 		},
 
 		async search(query: SearchQuery): Promise<MetadataResult[]> {
-			const tasks = [openLibrary.search(http, query)];
+			const tasks: Promise<MetadataResult[]>[] = [];
+			if (hardcoverToken) tasks.push(hardcover.search(http, query, hardcoverToken));
+			tasks.push(openLibrary.search(http, query));
 			if (googleBooksKey) tasks.push(googleBooks.search(http, query, googleBooksKey));
 			return mergeLists(await fanOut(tasks));
 		}

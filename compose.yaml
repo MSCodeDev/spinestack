@@ -12,6 +12,7 @@ services:
       # Generate with: openssl rand -hex 32
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET}
       GOOGLE_BOOKS_API_KEY: ${GOOGLE_BOOKS_API_KEY:-}
+      HARDCOVER_API_TOKEN: ${HARDCOVER_API_TOKEN:-}
     volumes:
       - spinestack-data:/data
 

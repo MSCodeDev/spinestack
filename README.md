@@ -9,7 +9,7 @@ A self-hosted manager for your physical book collection, built with SvelteKit.
 - **Locations** (room, shelf…), tags, series, publishers and reading history.
 - **Multiple users**, each with their own library. The first account is the administrator.
 
-Book data comes from [Open Library](https://openlibrary.org) and, if you provide a key, Google Books.
+Book data comes from [Open Library](https://openlibrary.org) and, if you provide a key or token, Google Books and [Hardcover](https://hardcover.app). Cover search also checks Apple Books.
 
 ## Running with Docker
 
@@ -38,6 +38,7 @@ Camera scanning needs a secure context, so use HTTPS (or `localhost`) when scann
 | `DATA_DIR`                       | `./data`                  | Where the database and covers are stored (`/data` in Docker).                                                           |
 | `DATABASE_URL`                   | `$DATA_DIR/spinestack.db` | Path of the SQLite file.                                                                                                |
 | `GOOGLE_BOOKS_API_KEY`           |                           | Enables Google Books lookups. Google rejects keyless requests, so without a key only Open Library is used.              |
+| `HARDCOVER_API_TOKEN`            |                           | Enables Hardcover lookups and covers. Needs catalog read access; free tokens allow 60 requests a minute.                |
 | `PORT`, `HOST`                   | `3000`, `0.0.0.0`         | Where the server listens.                                                                                               |
 | `PROTOCOL_HEADER`, `HOST_HEADER` |                           | Behind a reverse proxy, set to `x-forwarded-proto` and `x-forwarded-host`. Takes the place of `ORIGIN` for form checks. |
 

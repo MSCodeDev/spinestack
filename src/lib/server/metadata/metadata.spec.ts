@@ -7,16 +7,39 @@ import type { MetadataResult } from '../../types.js';
 /** Fake HTTP: the first route whose key is contained in the URL answers; Error values reject. */
 const fakeHttp = (routes: Record<string, unknown>): Http & { urls: string[] } => {
 	const urls: string[] = [];
+	const answer = (url: string) => {
+		urls.push(url);
+		const key = Object.keys(routes).find((k) => url.includes(k));
+		const value = key === undefined ? new Error(`unrouted ${url}`) : routes[key];
+		if (value instanceof Error) throw value;
+		return value;
+	};
 	return {
 		urls,
 		async json(url) {
-			urls.push(url);
-			const key = Object.keys(routes).find((k) => url.includes(k));
-			const value = key === undefined ? new Error(`unrouted ${url}`) : routes[key];
-			if (value instanceof Error) throw value;
-			return value;
+			return answer(url);
+		},
+		async post(url) {
+			return answer(url);
 		}
 	};
+};
+
+/** Fake GraphQL: answers each POST from the next reply in the list. */
+const fakeGraphql = (replies: unknown[]) => {
+	const calls: { url: string; body: unknown; headers?: Record<string, string> }[] = [];
+	const http: Http = {
+		async json() {
+			throw new Error('unexpected GET');
+		},
+		async post(url, body, headers) {
+			calls.push({ url, body, headers });
+			const reply = replies[calls.length - 1];
+			if (reply instanceof Error) throw reply;
+			return reply;
+		}
+	};
+	return { http, calls };
 };
 
 const dataResponse = {
@@ -177,6 +200,124 @@ describe('google books', () => {
 	});
 });
 
+const hardcoverBook = {
+	id: 7,
+	title: 'Dune',
+	subtitle: null,
+	description: 'Spice.',
+	pages: 612,
+	release_year: 1965,
+	image: { url: 'https://assets.hardcover.app/books/7/cover.jpg' },
+	contributions: [
+		{ contribution: null, author: { name: 'Frank Herbert' } },
+		{ contribution: 'Illustrator', author: { name: 'Someone Else' } }
+	],
+	default_physical_edition: {
+		isbn_13: '9780441172719',
+		pages: 528,
+		image: null,
+		publisher: { name: 'Ace' },
+		language: { code2: 'en' }
+	}
+};
+
+describe('hardcover', () => {
+	it('searches by id then loads the books, in search order', async () => {
+		const { http, calls } = fakeGraphql([
+			{ data: { search: { ids: [9, 7] } } },
+			{
+				data: {
+					books: [
+						hardcoverBook,
+						{ ...hardcoverBook, id: 9, title: 'Dune Messiah', default_physical_edition: null }
+					]
+				}
+			}
+		]);
+		const results = await createMetadata({ http, hardcoverToken: 'abc' }).search({ q: 'dune' });
+
+		expect(results.map((r) => r.title)).toEqual(['Dune Messiah', 'Dune']);
+		expect(results[1]).toEqual({
+			source: 'hardcover',
+			title: 'Dune',
+			subtitle: null,
+			authors: ['Frank Herbert'],
+			publisher: 'Ace',
+			isbn: '9780441172719',
+			pageCount: 612,
+			synopsis: 'Spice.',
+			language: 'en',
+			coverUrl: 'https://assets.hardcover.app/books/7/cover.jpg',
+			year: 1965
+		});
+		expect(calls[0].url).toBe('https://api.hardcover.app/v1/graphql');
+		expect(calls[0].headers).toEqual({ authorization: 'Bearer abc' });
+		expect((calls[1].body as { variables: unknown }).variables).toEqual({ ids: [9, 7] });
+	});
+
+	it('looks up an ISBN, preferring the edition over the work', async () => {
+		const { http } = fakeGraphql([
+			{
+				data: {
+					editions: [
+						{
+							title: 'Dune',
+							pages: 400,
+							release_year: 2019,
+							isbn_13: '9780441172719',
+							image: { url: 'https://assets.hardcover.app/edition/1.jpg' },
+							publisher: { name: 'Gollancz' },
+							language: null,
+							book: hardcoverBook
+						}
+					]
+				}
+			}
+		]);
+		const result = await createMetadata({ http, hardcoverToken: 'Bearer abc' }).lookupByIsbn(
+			'9780441172719'
+		);
+		expect(result).toMatchObject({
+			source: 'hardcover',
+			publisher: 'Gollancz',
+			pageCount: 400,
+			year: 2019,
+			language: 'en',
+			coverUrl: 'https://assets.hardcover.app/edition/1.jpg'
+		});
+	});
+
+	it('does not double the Bearer prefix and is skipped without a token', async () => {
+		const withPrefix = fakeGraphql([{ data: { search: { ids: [] } } }]);
+		await createMetadata({
+			http: { ...withPrefix.http, json: async () => ({ docs: [] }) },
+			hardcoverToken: 'bearer abc'
+		}).search({ q: 'dune' });
+		expect(withPrefix.calls[0].headers).toEqual({ authorization: 'bearer abc' });
+
+		const http = fakeHttp({ 'search.json': searchResponse });
+		await createMetadata({ http }).search({ q: 'dune' });
+		expect(http.urls.some((u) => u.includes('hardcover'))).toBe(false);
+	});
+
+	it('reports GraphQL errors but lets other providers answer', async () => {
+		const { http: gql } = fakeGraphql([{ errors: [{ message: 'insufficient_scope' }] }]);
+		const http: Http = { json: async () => searchResponse, post: gql.post };
+		const results = await createMetadata({ http, hardcoverToken: 'abc' }).search({ q: 'dune' });
+		expect(results[0].source).toBe('openlibrary');
+	});
+
+	it('wins over Open Library for the cover when merging', async () => {
+		const { http: gql } = fakeGraphql([
+			{ data: { search: { ids: [7] } } },
+			{ data: { books: [hardcoverBook] } }
+		]);
+		const http: Http = { json: async () => searchResponse, post: gql.post };
+		const [dune] = await createMetadata({ http, hardcoverToken: 'abc' }).search({ q: 'dune' });
+		expect(dune.coverUrl).toBe('https://assets.hardcover.app/books/7/cover.jpg');
+	});
+});
+
 describe('mergeLists', () => {
 	const r = (over: Partial<MetadataResult>): MetadataResult => ({
 		source: 'openlibrary',
@@ -229,5 +370,26 @@ describe('createHttp', () => {
 		expect(await http.json('https://x.org/a')).toEqual({ ok: 1 });
 		expect(calls).toBe(1);
 		await expect(http.json('https://x.org/bad')).rejects.toThrow(/500/);
+	});
+
+	it('posts JSON with headers and caches by body', async () => {
+		const seen: RequestInit[] = [];
+		const fetchFn = (async (_url: string, init: RequestInit) => {
+			seen.push(init);
+			return Response.json({ n: seen.length });
+		}) as unknown as typeof fetch;
+		const http = createHttp({ fetchFn });
+
+		expect(await http.post('https://x.org/g', { q: 1 }, { authorization: 'Bearer t' })).toEqual({
+			n: 1
+		});
+		expect(await http.post('https://x.org/g', { q: 1 })).toEqual({ n: 1 });
+		expect(await http.post('https://x.org/g', { q: 2 })).toEqual({ n: 2 });
+		expect(seen[0].method).toBe('POST');
+		expect(seen[0].body).toBe('{"q":1}');
+		expect(seen[0].headers).toMatchObject({
+			authorization: 'Bearer t',
+			'content-type': 'application/json'
+		});
 	});
 });

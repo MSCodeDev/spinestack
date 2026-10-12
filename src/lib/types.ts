@@ -87,7 +87,7 @@ export type Options = {
 
 /** A book found by an external provider, before it is added to the library. */
 export type MetadataResult = {
-	source: 'openlibrary' | 'googlebooks';
+	source: 'openlibrary' | 'googlebooks' | 'hardcover';
 	title: string;
 	subtitle: string | null;
 	authors: string[];
@@ -104,4 +104,8 @@ export type MetadataResult = {
 export type LookupResult = MetadataResult & { existingId: string | null };
 
 /** An image a cover can be chosen from. */
-export type CoverCandidate = { url: string; label: string; source: MetadataResult['source'] };
+export type CoverCandidate = {
+	url: string;
+	label: string;
+	source: MetadataResult['source'] | 'apple';
+};

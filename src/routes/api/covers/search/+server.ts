@@ -1,8 +1,10 @@
 import { error, json } from '@sveltejs/kit';
+import { isbnCovers, searchCovers } from '#lib/server/covers/apple.js';
 import { toIsbn13 } from '#lib/isbn.js';
 import { requireLibrary } from '#lib/server/guard.js';
+import { HttpError } from '#lib/server/metadata/http.js';
 import { ProviderError } from '#lib/server/metadata/index.js';
-import { metadata } from '#lib/server/metadata/index.server.js';
+import { http, metadata } from '#lib/server/metadata/index.server.js';
 import type { CoverCandidate } from '#lib/types.js';
 import type { RequestHandler } from './$types';
 
@@ -13,43 +15,62 @@ export const GET: RequestHandler = async ({ locals, url }) => {
 	const isbn = toIsbn13(url.searchParams.get('isbn') ?? '');
 	if (q.length < 2 && !isbn) error(400, 'Enter a title to search for');
 
-	const candidates: CoverCandidate[] = [];
-	const seen = new Set<string>();
-	const add = (candidate: CoverCandidate) => {
-		if (!seen.has(candidate.url)) {
-			seen.add(candidate.url);
-			candidates.push(candidate);
-		}
-	};
-
-	// The exact edition's cover first; it may not exist, which the picker tolerates.
+	// Listed in this order; each source may fail without losing the others.
+	const sources: Promise<CoverCandidate[]>[] = [];
+	if (isbn) sources.push(isbnCovers(http, isbn));
+	if (q.length >= 2) {
+		sources.push(
+			metadata.search({ q }).then((results) =>
+				results.flatMap((r) =>
+					r.coverUrl
+						? [
+								{
+									url: r.coverUrl,
+									label: [r.title, r.authors[0]].filter(Boolean).join(' – '),
+									source: r.source
+								}
+							]
+						: []
+				)
+			)
+		);
+		sources.push(searchCovers(http, q));
+	}
+	// The exact edition's cover; it may not exist, which the picker tolerates.
 	if (isbn) {
-		add({
-			url: `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`,
-			label: `ISBN ${isbn}`,
-			source: 'openlibrary'
-		});
+		sources.push(
+			Promise.resolve([
+				{
+					url: `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`,
+					label: `ISBN ${isbn}`,
+					source: 'openlibrary' as const
+				}
+			])
+		);
 	}
 
-	if (q.length >= 2) {
-		try {
-			for (const r of await metadata.search({ q })) {
-				if (r.coverUrl) {
-					add({
-						url: r.coverUrl,
-						label: [r.title, r.authors[0]].filter(Boolean).join(' – '),
-						source: r.source
-					});
-				}
-			}
-		} catch (e) {
-			if (!(e instanceof ProviderError) || !candidates.length) {
-				error(
-					e instanceof ProviderError ? 502 : 500,
-					e instanceof Error ? e.message : 'Search failed'
-				);
+	const candidates: CoverCandidate[] = [];
+	const seen = new Set<string>();
+	const failures: unknown[] = [];
+	for (const result of await Promise.allSettled(sources)) {
+		if (result.status === 'rejected') {
+			failures.push(result.reason);
+			continue;
+		}
+		for (const candidate of result.value) {
+			if (!seen.has(candidate.url)) {
+				seen.add(candidate.url);
+				candidates.push(candidate);
 			}
 		}
+	}
+
+	if (!candidates.length && failures.length) {
+		const e = failures[0];
+		error(
+			e instanceof ProviderError || e instanceof HttpError ? 502 : 500,
+			e instanceof Error ? e.message : 'Search failed'
+		);
 	}
 
 	return json({ candidates });
