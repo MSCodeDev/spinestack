@@ -14,10 +14,15 @@
 <div class="min-h-dvh">
 	<header class="relative z-20">
 		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-			<a href={resolve('/(app)')} aria-label="SpineStack home"><Wordmark /></a>
-			<div class="flex items-center gap-2 sm:gap-3">
-				<Button href={modalHref({ add: '' })} size="lg" class="shadow-sm">
-					<Plus /> Add book
+			<a href={resolve('/(app)')} aria-label="SpineStack home" class="min-w-0"><Wordmark /></a>
+			<div class="flex shrink-0 items-center gap-2 sm:gap-3">
+				<Button
+					href={modalHref({ add: '' })}
+					size="lg"
+					aria-label="Add book"
+					class="shadow-sm max-sm:w-10 max-sm:px-0"
+				>
+					<Plus /> <span class="max-sm:hidden">Add book</span>
 				</Button>
 				<a
 					href={modalHref({ settings: 'preferences' })}

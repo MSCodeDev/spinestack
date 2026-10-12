@@ -66,7 +66,7 @@
 </script>
 
 <div class="flex flex-wrap items-center gap-3">
-	<label class="relative min-w-60 flex-1">
+	<label class="relative min-w-[min(15rem,100%)] flex-1">
 		<span class="sr-only">Search books</span>
 		<Search size={18} class="absolute top-1/2 left-4 -translate-y-1/2 text-muted-foreground" />
 		<input

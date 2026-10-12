@@ -290,6 +290,10 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
+	/* Never scroll sideways, whatever the text size or screen width. */
+	html {
+		overflow-x: clip;
+	}
 	/* Tailwind resets buttons to the default cursor; clickable things should look clickable. */
 	button:not(:disabled),
 	[role='button']:not([aria-disabled='true']),
