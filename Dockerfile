@@ -3,7 +3,9 @@
 FROM node:24-bookworm-slim AS build
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
-RUN npm ci
+# No toolchain in this image: better-sqlite3 and sharp ship prebuilt binaries, so skip install
+# scripts (otherwise npm tries to compile better-sqlite3 with node-gyp).
+RUN npm ci --ignore-scripts
 COPY . .
 # Baked into the client bundle (Vite exposes VITE_ vars) and shown in Settings.
 ARG APP_VERSION=dev
@@ -17,9 +19,8 @@ ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     PORT=3000
 
-# Native modules (better-sqlite3, sharp) are installed here so they match this image.
 COPY package.json package-lock.json .npmrc ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm ci --omit=dev --ignore-scripts && npm cache clean --force
 
 COPY --from=build /app/build ./build
 COPY drizzle ./drizzle
