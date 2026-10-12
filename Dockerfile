@@ -5,6 +5,9 @@ WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
 RUN npm ci
 COPY . .
+# Baked into the client bundle (Vite exposes VITE_ vars) and shown in Settings.
+ARG APP_VERSION=dev
+ENV VITE_APP_VERSION=$APP_VERSION
 RUN npm run build
 
 FROM node:24-bookworm-slim AS runtime

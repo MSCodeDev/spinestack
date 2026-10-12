@@ -45,4 +45,8 @@
 	{:else}
 		<AccountTab name={user.name} email={user.email} avatarSeed={prefs.avatarSeed || user.id} />
 	{/if}
+
+	<p class="mt-6 text-right text-xs text-muted-foreground">
+		v{import.meta.env.VITE_APP_VERSION || 'dev'}
+	</p>
 </Modal>
