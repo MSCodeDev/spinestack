@@ -15,7 +15,8 @@
 		</script>
 		%sveltekit.head%
 	</head>
-	<body data-sveltekit-preload-data="hover">
+	<!-- Modals open through links; keep the scroll position and focus instead of resetting them. -->
+	<body data-sveltekit-preload-data="hover" data-sveltekit-reset="false">
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
 </html>

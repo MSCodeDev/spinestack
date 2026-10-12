@@ -10,11 +10,16 @@ export const GET: RequestHandler = ({ locals, url }) => {
 	const { libraryId, userId } = requireLibrary(locals);
 	const prefs = getPreferences(db, userId);
 	const offset = Math.max(0, Number(url.searchParams.get('offset')) || 0);
+	// A larger limit lets the page refresh every batch it has already loaded in one go.
+	const limit = Math.min(
+		Math.max(1, Number(url.searchParams.get('limit')) || prefs.pageSize),
+		1000
+	);
 	const query = parseQuery(url.searchParams, { view: prefs.defaultView });
 	return json(
 		queryBooks(db, libraryId, query, {
 			offset,
-			limit: query.group === 'none' ? prefs.pageSize : null
+			limit: query.group === 'none' ? limit : null
 		})
 	);
 };
