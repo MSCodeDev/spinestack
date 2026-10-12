@@ -109,3 +109,20 @@ export type CoverCandidate = {
 	label: string;
 	source: MetadataResult['source'] | 'apple';
 };
+
+/** Progress of the "refresh book details" job, as reported by the server. */
+export type RematchProgress = {
+	state: 'idle' | 'running' | 'done' | 'cancelled' | 'failed';
+	total: number;
+	done: number;
+	/** What is being worked on right now. */
+	current: string | null;
+	matched: number;
+	updated: number;
+	covers: number;
+	failed: number;
+	/** Books no provider could be matched to with confidence (capped). */
+	unmatched: { id: string; title: string }[];
+	unmatchedCount: number;
+	error: string | null;
+};

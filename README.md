@@ -27,6 +27,8 @@ Open the app at your `ORIGIN` (default `http://localhost:3000`) and create the a
 
 Everything lives in the `/data` volume: the SQLite database (`spinestack.db`) and cover images (`covers/`). Back that directory up.
 
+Administrators can also export and restore the database from **Settings → Data**. A backup is a single file with every library, user and account; cover images are not part of it, so back up `covers/` separately if you want those too.
+
 Camera scanning needs a secure context, so use HTTPS (or `localhost`) when scanning from a phone.
 
 ## Configuration
