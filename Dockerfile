@@ -10,7 +10,8 @@ COPY . .
 # Baked into the client bundle (Vite exposes VITE_ vars) and shown in Settings.
 ARG APP_VERSION=dev
 ENV VITE_APP_VERSION=$APP_VERSION
-RUN npm run build
+# The build analyses routes and auth refuses to load without a secret; this one is not kept.
+RUN BETTER_AUTH_SECRET=build-only npm run build
 
 FROM node:24-bookworm-slim AS runtime
 WORKDIR /app
